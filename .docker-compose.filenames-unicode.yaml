@@ -1,0 +1,17 @@
+version: '3.2'
+
+services:
+  jobs:
+    build:
+      context: ckan
+      args:
+        CKAN_BRANCH: filenames-unicode
+        CKAN_REPO: frafra/ckan
+        SCHEMA_XML: schema-2.9-fix-unicode-filenames.xml
+  ckan:
+    build:
+      context: ckan
+      args:
+        CKAN_BRANCH: filenames-unicode
+        CKAN_REPO: frafra/ckan
+        SCHEMA_XML: schema-2.9-fix-unicode-filenames.xml

@@ -1,0 +1,29 @@
+version: '3.2'
+
+services:
+  jobs:
+    build:
+      context: ckan
+      args:
+        POST_INSTALL: |
+          install_standard_ckan_extension_github ckan/ckanext-spatial ckanext-spatial &&\
+          install_standard_ckan_extension_github ckan/ckanext-harvest ckanext-harvest &&\
+          install_standard_ckan_extension_github GSA/ckanext-geodatagov ckanext-geodatagov &&\
+          install_standard_ckan_extension_github GSA/ckanext-datagovtheme ckanext-datagovtheme
+        POST_DOCKER_BUILD: |
+          mkdir -p /var/tmp/ckan/dynamic_menu
+    environment:
+    - CKAN_CONFIG_TEMPLATE_PREFIX=datagov-theme-
+  ckan:
+    build:
+      context: ckan
+      args:
+        POST_INSTALL: |
+          install_standard_ckan_extension_github ckan/ckanext-spatial ckanext-spatial &&\
+          install_standard_ckan_extension_github ckan/ckanext-harvest ckanext-harvest &&\
+          install_standard_ckan_extension_github GSA/ckanext-geodatagov ckanext-geodatagov &&\
+          install_standard_ckan_extension_github GSA/ckanext-datagovtheme ckanext-datagovtheme
+        POST_DOCKER_BUILD: |
+          mkdir -p /var/tmp/ckan/dynamic_menu
+    environment:
+    - CKAN_CONFIG_TEMPLATE_PREFIX=datagov-theme-

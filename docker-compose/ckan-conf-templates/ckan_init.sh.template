@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+echo Waiting for ckan infrastructure...
+
+while sleep 2; do
+    pg_isready -h db &&\
+    pg_isready -h datastore-db &&\
+    wget -qO - {{SOLR_URL}}/schema/version &&\
+    redis-cli -h redis ping &&\
+    exit 0
+    echo .
+done
+
+exit 1

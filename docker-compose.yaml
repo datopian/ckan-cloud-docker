@@ -1,0 +1,138 @@
+version: '3.2'
+
+services:
+
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+    - "6379:6379"
+    networks:
+    - ckan-multi
+
+  nginx:
+    image: ckan-multi-nginx
+    build:
+      context: nginx
+    restart: always
+    ports:
+    - "8080:8080"
+    networks:
+    - ckan-multi
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8088:8080
+    networks:
+    - ckan-multi
+
+  db:
+    image: ckan-multi-db
+    build:
+      context: db
+    restart: always
+    ports:
+    - "5432:5432"
+    environment:
+    - POSTGRES_PASSWORD=123456
+    volumes:
+    - db:/var/lib/postgresql/data
+    networks:
+    - ckan-multi
+
+  jobs-db:
+    image: postgres
+    restart: always
+    ports:
+    - "5433:5432"
+    environment:
+    - POSTGRES_PASSWORD=123456
+    volumes:
+    - jobs-db:/var/lib/postgresql/data
+    networks:
+    - ckan-multi
+
+  jobs:
+    image: ckan-multi-ckan
+    build:
+      context: ckan
+      args:
+        CKAN_BRANCH: ${CKAN_BRANCH:-ckan-2.8.1}
+        CKAN_REPO: ${CKAN_REPO:-ckan/ckan}
+    command: [/ckan-entrypoint.sh, ckan-paster, --plugin=ckan, jobs, -c, /etc/ckan/production.ini, worker]
+    restart: always
+    volumes:
+    - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets.sh
+    - ./docker-compose/ckan-conf-templates:/etc/ckan-conf/templates
+    - ckan-data:/var/lib/ckan
+    environment:
+    - CKAN_STORAGE_PATH=/var/lib/ckan/data
+    - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets.sh
+    - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
+    networks:
+    - ckan-multi
+
+  datastore-db:
+    image: ckan-multi-db
+    build:
+      context: db
+    restart: always
+    ports:
+    - "5434:5432"
+    environment:
+    - POSTGRES_PASSWORD=123456
+    - DATASTORE_RO_PASSWORD=123456
+    - DATASTORE_RO_USER=readonly
+    - DATASTORE_PUBLIC_RO_PASSWORD=123456
+    volumes:
+    - datastore-db:/var/lib/postgresql/data
+    networks:
+    - ckan-multi
+
+  solr:
+    image: ckan-multi-solr
+    build:
+      context: solr
+      args:
+        SCHEMA_XML: ${SCHEMA_XML:-schema.xml}
+    restart: always
+    ports:
+    - "8983:8983"
+    volumes:
+    - solr:/opt/solr/server/solr/ckan/data
+    networks:
+    - ckan-multi
+
+  ckan:
+    image: ckan-multi-ckan
+    build:
+      context: ckan
+      args:
+        CKAN_BRANCH: ${CKAN_BRANCH:-ckan-2.8.1}
+        CKAN_REPO: ${CKAN_REPO:-ckan/ckan}
+    restart: always
+    volumes:
+    - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets.sh
+    - ./docker-compose/ckan-conf-templates:/etc/ckan-conf/templates
+    - ckan-data:/var/lib/ckan
+    environment:
+    - CKAN_STORAGE_PATH=/var/lib/ckan/data
+    - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets.sh
+    - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
+    - GUNICORN_WORKERS=2
+    ports:
+    - "5000:5000"
+    networks:
+    - ckan-multi
+
+volumes:
+  ckan-data:
+  db:
+  jobs-db:
+  datastore-db:
+  solr:
+
+networks:
+  ckan-multi:

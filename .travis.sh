@@ -21,7 +21,7 @@ elif [ "${1}" == "deploy" ]; then
     if [ "${TRAVIS_TAG}" != "" ]; then
         if ! [ -z "${SLACK_TAG_NOTIFICATION_CHANNEL}" ] && ! [ -z "${SLACK_TAG_NOTIFICATION_WEBHOOK_URL}" ]; then
             ! curl -X POST \
-                   --data-urlencode "payload={\"channel\": \"#${SLACK_TAG_NOTIFICATION_CHANNEL}\", \"username\": \"ckan-cloud-docker\", \"text\": \"Released ckan-cloud-docker ${TAG}\n$(curl -s https://api.github.com/repos/ViderumGlobal/ckan-cloud-docker/releases/latest | python -c "import sys,json;print(json.load(sys.stdin)['html_url'])")\", \"icon_emoji\": \":female-technologist:\"}" \
+                   --data-urlencode "payload={\"channel\": \"#${SLACK_TAG_NOTIFICATION_CHANNEL}\", \"username\": \"CKAN Cloud\", \"text\": \"Released ckan-cloud-docker ${TAG}\nhttps://github.com/ViderumGlobal/ckan-cloud-docker/releases/tag/${TAG}\", \"icon_emoji\": \":female-technologist:\"}" \
                    ${SLACK_TAG_NOTIFICATION_WEBHOOK_URL} && exit 1
         fi
     fi

@@ -1,17 +1,14 @@
 version: '3.2'
 
 services:
-  jobs:
+  solr:
+    image: viderum/ckan-cloud-docker:solr-latest-filenames-unicode
     build:
-      context: ckan
       args:
-        CKAN_BRANCH: filenames-unicode
-        CKAN_REPO: frafra/ckan
         SCHEMA_XML: schema-2.9-fix-unicode-filenames.xml
   ckan:
+    image: viderum/ckan-cloud-docker:ckan-latest-filenames-unicode
     build:
-      context: ckan
       args:
         CKAN_BRANCH: filenames-unicode
         CKAN_REPO: frafra/ckan
-        SCHEMA_XML: schema-2.9-fix-unicode-filenames.xml

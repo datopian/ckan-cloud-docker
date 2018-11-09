@@ -11,7 +11,13 @@ elif [ "${1}" == "script" ]; then
     exit 0
 
 elif [ "${1}" == "deploy" ]; then
-    ! (tag_images "${TRAVIS_COMMIT}" && push_images "${TRAVIS_COMMIT}" && print_summary "${TRAVIS_COMMIT}") && exit 1
+    TAG="${TRAVIS_TAG:-TRAVIS_COMMIT}"
+    ! tag_images "${TAG}" && exit 1
+    if [ "${TRAVIS_BRANCH}" == "master" ]; then
+        ! push_latest_images && exit 1
+    fi
+    ! push_tag_images "${TAG}" && exit 1
+    print_summary "${TAG}"
     exit 0
 
 fi

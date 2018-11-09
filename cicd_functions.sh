@@ -90,23 +90,36 @@ tag_images() {
     return 0
 }
 
-push_images() {
+push_latest_images() {
+    echo -e "\n** Pushing latest images **\n"
+    ! exec_build_apps '
+        docker push "${DOCKER_IMAGE}:${APP}-latest"
+    ' && return 1
+    if [ "${BUILD_CKAN_OVERRIDES}" == "1" ]; then
+        ! exec_ckan_compose_overrides '
+            docker push "${DOCKER_IMAGE}:ckan-latest-${OVERRIDE_NAME}"
+        ' && return 1
+    fi
+    if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
+        ! docker push "${DOCKER_IMAGE}:solr-latest-filenames-unicode" && return 1
+    fi
+    return 0
+}
+
+push_tag_images() {
     [ -z "${1}" ] && return 1
     export TAG_SUFFIX="${1}"
-    echo -e "\n** Pushing images **\n"
+    echo -e "\n** Pushing tag images: ${TAG_SUFFIX} **\n"
     ! exec_build_apps '
-        docker push "${DOCKER_IMAGE}:${APP}-latest" &&\
         docker push "${DOCKER_IMAGE}:${APP}-${TAG_SUFFIX}"
     ' && return 1
     if [ "${BUILD_CKAN_OVERRIDES}" == "1" ]; then
         ! exec_ckan_compose_overrides '
-            docker push "${DOCKER_IMAGE}:ckan-latest-${OVERRIDE_NAME}" &&\
             docker push "${DOCKER_IMAGE}:ckan-${TAG_SUFFIX}-${OVERRIDE_NAME}"
         ' && return 1
     fi
     if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
-        ! ( docker push "${DOCKER_IMAGE}:solr-latest-filenames-unicode" &&\
-            docker push "${DOCKER_IMAGE}:solr-${TAG_SUFFIX}-filenames-unicode" ) && return 1
+        ! docker push "${DOCKER_IMAGE}:solr-${TAG_SUFFIX}-filenames-unicode" && return 1
     fi
     return 0
 }

@@ -19,5 +19,4 @@ deploy:
   provider: script
   script: bash .travis.sh deploy
   on:
-    branch: master
-    condition: $TRAVIS_TAG = "" && $TRAVIS_PULL_REQUEST = "false"
+    condition: $TRAVIS_PULL_REQUEST = "false"

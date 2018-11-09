@@ -10,6 +10,7 @@ Available components:
 * **nginx**: Reverse proxy for the CKAN app
 * **solr**: Solr search engine
 
+
 ## Install
 
 Install Docker for [Windows](https://store.docker.com/editions/community/docker-ce-desktop-windows),
@@ -17,18 +18,25 @@ Install Docker for [Windows](https://store.docker.com/editions/community/docker-
 
 [Install Docker Compose](https://docs.docker.com/compose/install/)
 
-## Running the docker-compose environment for local development / testing
 
-Clear any existing compose environment
+## Running the docker-compose environment
+
+(optional) Clear any existing compose environment to ensure a fresh start
 
 ```
 docker-compose down -v
 ```
 
-Build all images and start the Docker compose environment
+Pull the latest images
 
 ```
-docker-compose up -d --build
+docker-compose pull
+```
+
+Start the Docker compose environment
+
+```
+docker-compose up -d
 ```
 
 Add a hosts entry mapping domain `nginx` to `127.0.0.1`:
@@ -52,6 +60,30 @@ docker-compose exec ckan ckan-paster --plugin=ckan \
 
 Login to CKAN at http://nginx:8080 with username `admin` and password `12345678`
 
+
+## Making modifications to the docker images / configuration
+
+Edit any file in this repository
+
+(Optional) depending on the changes you made, you might need to destroy the current environment
+
+```
+docker-compose down -v
+```
+
+Build the docker images
+
+```
+docker-compose build | grep "Successfully tagged"
+```
+
+Start the environment
+
+```
+docker-compose up -d
+```
+
+
 ## Create a predefined docker-compose override configuration
 
 This allows to test different CKAN configurations and extension combinations
@@ -59,7 +91,8 @@ This allows to test different CKAN configurations and extension combinations
 Duplicate the CKAN default configuration:
 
 ```
-cp docker-compose/ckan-conf-templates/production.ini.template docker-compose/ckan-conf-templates/my-ckan-production.ini.template
+cp docker-compose/ckan-conf-templates/production.ini.template \
+   docker-compose/ckan-conf-templates/my-ckan-production.ini.template
 ```
 
 Edit the duplicated file and modify the settings, e.g. add the extensions to the `plugins` configuration and any additional required extension configurations.

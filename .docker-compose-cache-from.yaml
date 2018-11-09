@@ -1,0 +1,24 @@
+version: '3.2'
+
+services:
+  nginx:
+    build:
+      cache_from:
+      - viderum/ckan-cloud-docker:nginx-latest
+
+  db:
+    build:
+      cache_from:
+      - viderum/ckan-cloud-docker:db-latest
+
+  solr:
+    build:
+      cache_from:
+      - viderum/ckan-cloud-docker:solr-latest
+
+  ckan:
+    build:
+      cache_from:
+      - viderum/ckan-cloud-docker:ckan-latest
+      - viderum/ckan-cloud-docker:ckan-latest-datagov-theme
+      - viderum/ckan-cloud-docker:ckan-latest-filenames-unicode

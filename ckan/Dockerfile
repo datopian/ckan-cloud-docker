@@ -51,8 +51,8 @@ ARG CKAN_REPO
 
 RUN CKAN_BRANCH="${CKAN_BRANCH:-ckan-2.8.1}" && CKAN_REPO="${CKAN_REPO:-ckan/ckan}" &&\
     mkdir -p $CKAN_VENV/src &&\
-    wget -O $CKAN_VENV/src/${CKAN_BRANCH}.tar.gz https://github.com/${CKAN_REPO}/archive/${CKAN_BRANCH}.tar.gz &&\
-    cd $CKAN_VENV/src && tar -xzvf ${CKAN_BRANCH}.tar.gz && mv ckan-${CKAN_BRANCH} ckan &&\
+    wget --no-verbose -O $CKAN_VENV/src/${CKAN_BRANCH}.tar.gz https://github.com/${CKAN_REPO}/archive/${CKAN_BRANCH}.tar.gz &&\
+    cd $CKAN_VENV/src && tar -xzf ${CKAN_BRANCH}.tar.gz && mv ckan-${CKAN_BRANCH} ckan &&\
     rm $CKAN_VENV/src/${CKAN_BRANCH}.tar.gz
 
 RUN ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt

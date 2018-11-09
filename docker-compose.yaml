@@ -11,7 +11,7 @@ services:
     - ckan-multi
 
   nginx:
-    image: ckan-multi-nginx
+    image: viderum/ckan-cloud-docker:nginx-latest
     build:
       context: nginx
     restart: always
@@ -29,7 +29,7 @@ services:
     - ckan-multi
 
   db:
-    image: ckan-multi-db
+    image: viderum/ckan-cloud-docker:db-latest
     build:
       context: db
     restart: always
@@ -55,12 +55,7 @@ services:
     - ckan-multi
 
   jobs:
-    image: ckan-multi-ckan
-    build:
-      context: ckan
-      args:
-        CKAN_BRANCH: ${CKAN_BRANCH:-ckan-2.8.1}
-        CKAN_REPO: ${CKAN_REPO:-ckan/ckan}
+    image: viderum/ckan-cloud-docker:ckan-latest
     command: [/ckan-entrypoint.sh, ckan-paster, --plugin=ckan, jobs, -c, /etc/ckan/production.ini, worker]
     restart: always
     volumes:
@@ -75,9 +70,7 @@ services:
     - ckan-multi
 
   datastore-db:
-    image: ckan-multi-db
-    build:
-      context: db
+    image: viderum/ckan-cloud-docker:db-latest
     restart: always
     ports:
     - "5434:5432"
@@ -92,7 +85,7 @@ services:
     - ckan-multi
 
   solr:
-    image: ckan-multi-solr
+    image: viderum/ckan-cloud-docker:solr-latest
     build:
       context: solr
       args:
@@ -106,7 +99,7 @@ services:
     - ckan-multi
 
   ckan:
-    image: ckan-multi-ckan
+    image: viderum/ckan-cloud-docker:ckan-latest
     build:
       context: ckan
       args:

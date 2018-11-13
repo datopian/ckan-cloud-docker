@@ -2,9 +2,12 @@ install_standard_ckan_extension_github() {
     REPO_NAME="${1}"
     EGG="${2}"
     TEMPFILE=`mktemp`
-    if wget -O $TEMPFILE https://raw.githubusercontent.com/${REPO_NAME}/master/pip-requirements.txt
-    then ckan-pip install -r $TEMPFILE; fi &&\
-    ckan-pip install -e git+https://github.com/${REPO_NAME}.git#egg=${EGG}
+    for REQUIREMENTS_FILE_NAME in requirements pip-requirements
+    do
+      if wget -O $TEMPFILE https://raw.githubusercontent.com/${REPO_NAME}/master/$REQUIREMENTS_FILE_NAME.txt
+      then ckan-pip install -r $TEMPFILE && break; fi
+    done &&\
+    ckan-pip install -e git+https://github.com/${REPO_NAME}.git#egg=${EGG} && break
 }
 
 install_bundled_requirements() {

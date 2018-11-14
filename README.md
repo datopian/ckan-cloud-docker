@@ -10,6 +10,7 @@ Available components:
 * **nginx**: Reverse proxy for the CKAN app
 * **solr**: Solr search engine
 * **jenkins**: Automation service
+* **provisioning-api**: [ckan-cloud-provisioning-api](https://github.com/ViderumGlobal/ckan-cloud-provisioning-api)
 
 
 ## Install

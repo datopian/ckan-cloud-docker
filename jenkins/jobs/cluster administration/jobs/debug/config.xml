@@ -1,0 +1,88 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.29">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <com.gem.persistentparameter.PersistentStringParameterDefinition plugin="persistent-parameter@1.1">
+          <name>INSTANCE_ID</name>
+          <description></description>
+          <defaultValue></defaultValue>
+          <successfulOnly>false</successfulOnly>
+        </com.gem.persistentparameter.PersistentStringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>APPS</name>
+          <description></description>
+          <defaultValue>ckan db jobs datastore-db solr redis jobs-db</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.TextParameterDefinition>
+          <name>DEBUG_SCRIPT</name>
+          <description></description>
+          <defaultValue>$KUBECTL get pod ${POD_NAME} &amp;&amp;\
+$KUBECTL describe pod ${POD_NAME} &amp;&amp;\
+$KUBECTL logs --tail 15 ${LOG_ARGS} ${POD_NAME}</defaultValue>
+          <trim>false</trim>
+        </hudson.model.TextParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>KUBECTL</name>
+          <description></description>
+          <defaultValue>jenkins/scripts/kubectl.sh -n ${INSTANCE_ID}</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.TextParameterDefinition>
+          <name>GET_POD_NAME</name>
+          <description></description>
+          <defaultValue>POD_NAME=$($KUBECTL get pods -l &quot;app=${APP}&quot; -o &quot;jsonpath={.items[0].metadata.name}&quot;) &amp;&amp;\
+echo ${APP}: ${POD_NAME}</defaultValue>
+          <trim>false</trim>
+        </hudson.model.TextParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/usr/bin/env bash
+
+export QUIET=1
+
+cd /etc/ckan-cloud/ckan-cloud-docker
+ERRORS=&quot;&quot;
+for APP in $APPS; do
+  if eval &quot;${GET_POD_NAME}&quot;; then
+    if [ &quot;${APP}&quot; == &quot;jobs&quot; ]; then
+      LOG_ARGS=&quot;-c ckan-jobs&quot;
+    else
+      LOG_ARGS=&quot;&quot;
+    fi
+    ! eval &quot;${DEBUG_SCRIPT}&quot; &amp;&amp; echo ERROR! Debug script failed for app ${APP} &amp;&amp; ERRORS=&quot;${ERRORS}${APP}: Debug script failed\n&quot;
+  else
+    echo ERROR! Failed to get pod name for app ${APP} &amp;&amp; ERRORS=&quot;${ERRORS}${APP}: Failed to get pod name\n&quot;
+  fi
+done
+if [ -z &quot;${ERRORS}&quot; ]; then
+	echo Great Success!
+    exit 0
+else
+	echo &quot;${ERRORS}&quot;
+    exit 1
+fi
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

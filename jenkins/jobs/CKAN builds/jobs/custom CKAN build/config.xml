@@ -1,0 +1,96 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Build a custom CKAN </description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <net.uaznia.lukanus.hudson.plugins.gitparameter.GitParameterDefinition plugin="git-parameter@0.9.6">
+          <name>GIT_BRANCH_SPECIFIER</name>
+          <description></description>
+          <uuid>d0e36dbb-d5d2-4b16-905f-8ea0235c5784</uuid>
+          <type>PT_BRANCH_TAG</type>
+          <branch></branch>
+          <tagFilter>*</tagFilter>
+          <branchFilter>.*</branchFilter>
+          <sortMode>NONE</sortMode>
+          <defaultValue>origin/master</defaultValue>
+          <selectedValue>DEFAULT</selectedValue>
+          <quickFilterEnabled>false</quickFilterEnabled>
+          <listSize>5</listSize>
+        </net.uaznia.lukanus.hudson.plugins.gitparameter.GitParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_IMAGE</name>
+          <description></description>
+          <defaultValue>ckan-cloud-custom-ckan-${BUILD_NUMBER}</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CKAN_BRANCH</name>
+          <description></description>
+          <defaultValue>ckan-2.8.1</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CKAN_REPO</name>
+          <description></description>
+          <defaultValue>ckan/ckan</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <com.gem.persistentparameter.PersistentTextParameterDefinition plugin="persistent-parameter@1.1">
+          <name>POST_INSTALL</name>
+          <description></description>
+          <defaultValue></defaultValue>
+          <successfulOnly>false</successfulOnly>
+        </com.gem.persistentparameter.PersistentTextParameterDefinition>
+        <com.gem.persistentparameter.PersistentTextParameterDefinition plugin="persistent-parameter@1.1">
+          <name>POST_DOCKER_BUILD</name>
+          <description></description>
+          <defaultValue></defaultValue>
+          <successfulOnly>false</successfulOnly>
+        </com.gem.persistentparameter.PersistentTextParameterDefinition>
+        <com.gem.persistentparameter.PersistentChoiceParameterDefinition plugin="persistent-parameter@1.1">
+          <name>DOCKER_PUSH_IMAGE</name>
+          <description>Make sure to use each pushed image from a single Jenkins installation to prevent BUILD_NUMBER collisions.</description>
+          <choices>
+            <string></string>
+            <string>viderum/ckan-cloud-docker:ckan-custom-${BUILD_NUMBER}</string>
+            <string>orihoch/ckan-cloud-docker:ckan-custom-${BUILD_NUMBER}</string>
+          </choices>
+          <successfulOnly>false</successfulOnly>
+        </com.gem.persistentparameter.PersistentChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.9.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/ViderumGlobal/ckan-cloud-docker.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>${GIT_BRANCH_SPECIFIER}</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>cd /etc/ckan-cloud/ckan-cloud-docker &amp;&amp;\
+jenkins/scripts/build_ckan_custom.sh</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

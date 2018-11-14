@@ -1,32 +1,82 @@
-## cca-operator
+# cca-operator
 
-cca-operator runs as an initContainer on CKAN pods.
+## Running cca-operator
 
-To test the cca-operator locally you need to be connected to a Kubernetes cluster
-
-## Testing on Minikube
-
-Build the image using Minikube docker-env - so the image will be available inside the Minikube cluster:
+Build and run using docker-compose:
 
 ```
-eval $(minikube docker-env) &&\
-docker build -t uumpa/multi-ckan-cca-operator:latest cca-operator
+docker-compose build cca-operator && docker-compose run --rm cca-operator
 ```
 
-Create a namespace and RBAC roles:
+Cca-operator mounts /etc/ckan-cloud directory from the host into the container
+
+To use a different directory, create a .docker-compose.override.yaml file:
 
 ```
-export CKAN_NAMESPACE="test1"
+version: '3.2'
+services:
+  cca-operator:
+    volumes:
+    - /path/to/custom/etc-ckan-cloud:/etc/ckan-cloud
+```
 
-kubectl --context minikube create ns "${CKAN_NAMESPACE}" &&\
-kubectl --context minikube --namespace "${CKAN_NAMESPACE}" \
-    create serviceaccount "ckan-${CKAN_NAMESPACE}-operator" &&\
-kubectl --context minikube --namespace "${CKAN_NAMESPACE}" \
-    create role "ckan-${CKAN_NAMESPACE}-operator-role" --verb list,get,create \
-                                                       --resource secrets &&\
-kubectl --context minikube --namespace "${CKAN_NAMESPACE}" \
-    create rolebinding "ckan-${CKAN_NAMESPACE}-operator-rolebinding" --role "ckan-${CKAN_NAMESPACE}-operator-role" \
-                                                                     --serviceaccount "${CKAN_NAMESPACE}:ckan-${CKAN_NAMESPACE}-operator"
+## Cluster Management
+
+Follow the [ckan-cloud-helm developement quickstart](https://github.com/ViderumGlobal/ckan-cloud-helm/blob/master/QUICKSTART_DEVELOPMENT.md)
+to create the cluster but don't create the CKAN namespace and don't deploy a CKAN instance.
+
+Set the following in .docker-compose.override.yaml to mount your local kubeconfig into cca-operator
+
+```
+version: '3.2'
+services:
+  cca-operator:
+    volumes:
+    - /home/host-user-name/.kube:/root/.kube
+    - /home/host-user-name/.minikube:/home/host-user-name/.minikube
+    environment:
+    - KUBE_CONTEXT=minikube
+```
+
+Verify that minikube is accessible via cca-operator
+
+```
+docker-compose run --rm --entrypoint kubectl cca-operator get nodes
+```
+
+Create a values file for the new instance:
+
+```
+INSTANCE_ID=test2
+curl https://raw.githubusercontent.com/ViderumGlobal/ckan-cloud-helm/master/minikube-values.yaml \
+    | tee /etc/ckan-cloud/${INSTANCE_ID}_values.yaml
+```
+
+Create the instance:
+
+```
+docker-compose build cca-operator && docker-compose run --rm cca-operator ./create-instance.sh $INSTANCE_ID
+```
+
+See the log output for accessing the instance
+
+Get the list of available cca-operator cluster management commands:
+
+```
+docker-compose build cca-operator && docker-compose run --rm cca-operator
+```
+
+
+## CKAN Management
+
+This procedure allows to test the cca-operator ckan management tasks, such as managing CKAN secrets
+
+Follow the [ckan-cloud-helm developement quickstart](https://github.com/ViderumGlobal/ckan-cloud-helm/blob/master/QUICKSTART_DEVELOPMENT.md) to create the cluster and deploy a CKAN instance on it.
+
+Set the namespace of the deployed instance
+
+```
+export CKAN_NAMESPACE=test1
 ```
 
 Define a shortcut function for running cca-operator
@@ -34,80 +84,14 @@ Define a shortcut function for running cca-operator
 ```
 cca-operator() {
     kubectl --context minikube --namespace ${CKAN_NAMESPACE} run cca-operator \
-            --image=uumpa/multi-ckan-cca-operator:latest \
+            --image=viderum/ckan-cloud-docker:cca-operator-latest \
             --serviceaccount=ckan-${CKAN_NAMESPACE}-operator --attach --restart=Never --rm \
             "$@"
 }
 ```
 
-Create the ckan env vars secret:
+Run the cca-operator CKAN commands:
 
-```
-export ENV_VARS_SECRET_NAME="ckan-env-vars"
-
-cca-operator initialize-ckan-env-vars "${ENV_VARS_SECRET_NAME}"
-```
-
-Initialize the CKAN secrets.sh:
-
-```
-export CKAN_SECRETS_SECRET_NAME="ckan-secrets"
-
-cca-operator initialize-ckan-secrets "${ENV_VARS_SECRET_NAME}" "${CKAN_SECRETS_SECRET_NAME}"
-```
-
-Write the CKAN secrets to secrets.sh:
-
-```
-export SECRETS_SH_OUTPUT_FILE="/secrets.sh"
-
-cca-operator --command -- bash -c \
-    "./cca-operator.sh get-ckan-secrets ${CKAN_SECRETS_SECRET_NAME} ${SECRETS_SH_OUTPUT_FILE} && cat ${SECRETS_SH_OUTPUT_FILE}"
-```
-
-## cluster management
-
-cca-operator supports certain cluster management tasks such as creting a new CKAN instance
-
-Create instance (using interactive editor to set the values):
-
-```
-BASE_INSTANCE=demo4
-NEW_INSTANCE=demo5
-
-cp /etc/ckan-cloud/${BASE_INSTANCE}_values.yaml /etc/ckan-cloud/${NEW_INSTANCE}_values.yaml &&\
-mcedit /etc/ckan-cloud/${NEW_INSTANCE}_values.yaml &&\
-docker built -t cca-operator cca-operator &&\
-docker run -v /etc/ckan-cloud:/etc/ckan-cloud cca-operator ./create-instance.sh ${NEW_INSTANCE}
-```
-
-Delete instance:
-
-```
-DELETE_INSTANCE=demo4
-
-docker run -v /etc/ckan-cloud:/etc/ckan-cloud cca-operator ./delete-instance.sh ${DELETE_INSTANCE}
-```
-
-List instances:
-
-```
-docker run -v /etc/ckan-cloud:/etc/ckan-cloud cca-operator ./list-instances.sh
-```
-
-Update instance (using interactive editor):
-
-```
-UPDATE_INSTANCE=demo3
-
-mcedit /etc/ckan-cloud/${UPDATE_INSTANCE}_values.yaml &&\
-docker build -t cca-operator cca-operator &&\
-docker run -v /etc/ckan-cloud:/etc/ckan-cloud cca-operator ./update-instance.sh ${UPDATE_INSTANCE}
-```
-
-List available cca-operator cluster commands:
-
-```
-docker build -t cca-operator cca-operator &&\
-docker run -v /etc/ckan-cloud:/etc/ckan-cloud cca-operator --help
-```
+* Create the ckan env vars secret: `cca-operator initialize-ckan-env-vars ckan-env-vars`
+* Initialize the CKAN secrets.sh: `cca-operator initialize-ckan-secrets ckan-env-vars ckan-secrets`
+* Write the CKAN secrets to secrets.sh: `cca-operator --command -- bash -c "./cca-operator.sh get-ckan-secrets ckan-secrets secrets.sh && cat secrets.sh"

@@ -1,20 +1,28 @@
 #!/usr/bin/env bash
 
-INSTANCE_ID="${1}"
+[ "${1}" == "--help" ] && echo ./delete-instance.sh '<INSTANCE_ID>' && exit 0
 
-[ -z "${INSTANCE_ID}" ] && exit 1
+source functions.sh
+! cluster_management_init "${1}" && exit 1
 
-INSTANCE_NAMESPACE="${INSTANCE_ID}"
-export KUBECONFIG=/etc/ckan-cloud/.kube-config
+if kubectl get ns "${INSTANCE_NAMESPACE}"; then
+    echo Deleting instance namespace: ${INSTANCE_NAMESPACE}
 
-echo Deleting instance namespace: ${INSTANCE_NAMESPACE}
+    ! kubectl -n ${INSTANCE_NAMESPACE} delete deployment ckan jobs && echo WARNING: failed to delete ckan pods
+    ! kubectl delete ns "${INSTANCE_NAMESPACE}" && echo WARNING: failed to delete instance namespace
 
-kubectl -n ${INSTANCE_NAMESPACE} delete deployment ckan jobs &&\
-sleep 30 &&\
-kubectl delete ns "${INSTANCE_NAMESPACE}"
-[ "$?" != "0" ] && exit 1
+    echo WARNING! instance was not removed from the load balancer
 
-echo WARNING! instance was not removed from the load balancer
+    echo Instance namespace ${INSTANCE_NAMESPACE} deleted
+else
+    echo Instance namespace does not exist: ${INSTANCE_NAMESPACE}
+fi
 
-echo Instance namespace ${INSTANCE_NAMESPACE} deleted successfully
+if helm status $CKAN_HELM_RELEASE_NAME; then
+    ! helm delete --purge "${CKAN_HELM_RELEASE_NAME}" && exit 1
+else
+    echo Helm release does not exist: ${CKAN_HELM_RELEASE_NAME}
+fi
+
+echo Instance deleted successfully: ${INSTANCE_ID}
 exit 0

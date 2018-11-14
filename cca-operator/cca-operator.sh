@@ -74,9 +74,10 @@ elif [ "${1}" == "get-ckan-secrets" ]; then
 
 elif [ "${1}" == "" ] || [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
     echo Available commands:
+    echo
     for F in `ls *.sh`; do
         [ "${F}" != "functions.sh" ] && [ "${F}" != "cca-operator.sh" ] && [ "${F}" != "templater.sh" ] &&\
-        echo "./${F}"
+        ./${F} --help
     done
 
 else

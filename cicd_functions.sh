@@ -1,5 +1,5 @@
 DOCKER_IMAGE=viderum/ckan-cloud-docker
-BUILD_APPS="ckan cca-operator nginx db solr"
+BUILD_APPS="ckan cca-operator jenkins nginx db solr"
 BUILD_CKAN_OVERRIDES="1"
 BUILD_SOLR_OVERRIDES="1"
 
@@ -25,17 +25,9 @@ exec_ckan_compose_overrides() {
 
 pull_latest_images() {
     echo -e "\n** Pulling latest images **\n"
-    exec_build_apps '
-        if [ "${APP}" == "cca-operator" ]; then
-            docker pull "${APP_LATEST_IMAGE}"
-        else
-            docker-compose pull $APP
-        fi
-    '
+    exec_build_apps 'docker-compose pull $APP'
     if [ "${BUILD_CKAN_OVERRIDES}" == "1" ]; then
-        exec_ckan_compose_overrides '
-            docker pull "${DOCKER_IMAGE}:ckan-latest-${OVERRIDE_NAME}"
-        '
+        exec_ckan_compose_overrides 'docker pull "${DOCKER_IMAGE}:ckan-latest-${OVERRIDE_NAME}"'
     fi
     if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
         docker pull "${DOCKER_IMAGE}:solr-latest-filenames-unicode"
@@ -45,13 +37,7 @@ pull_latest_images() {
 
 build_latest_images() {
     echo -e "\n** Building latest images **\n"
-    ! exec_build_apps '
-        if [ "${APP}" == "cca-operator" ]; then
-            docker build --cache-from "${APP_LATEST_IMAGE}" -t "${APP_LATEST_IMAGE}" cca-operator
-        else
-            docker-compose -f docker-compose.yaml -f .docker-compose-cache-from.yaml build $APP
-        fi
-    ' && return 1
+    ! exec_build_apps 'docker-compose -f docker-compose.yaml -f .docker-compose-cache-from.yaml build $APP' && return 1
     if [ "${BUILD_CKAN_OVERRIDES}" == "1" ]; then
         ! exec_ckan_compose_overrides '
             docker-compose -f docker-compose.yaml -f .docker-compose-cache-from.yaml \

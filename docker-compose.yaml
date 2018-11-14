@@ -156,6 +156,37 @@ services:
     networks:
     - cloud-management
 
+  provisioning-api-db:
+    image: postgres
+    restart: always
+    ports:
+    - "5439:5432"
+    environment:
+    - POSTGRES_PASSWORD=123456
+    volumes:
+    - provisioning-api-db:/var/lib/postgresql/data
+    networks:
+    - cloud-management
+
+  provisioning-api:
+    depends_on:
+    - provisioning-api-db
+    - cca-operator
+    image: viderum/ckan-cloud-provisioning-api:latest
+    restart: always
+    environment:
+    - INSTANCE_MANAGER=root@cca-operator
+    - PRIVATE_SSH_KEY
+    - PRIVATE_KEY
+    - PUBLIC_KEY
+    - GITHUB_KEY
+    - GITHUB_SECRET
+    - DATABASE_URL=postgresql://postgres:123456@provisioning-api-db:5432/postgres
+    - EXTERNAL_ADDRESS=http://localhost:8092
+    ports:
+    - "8092:8000"
+    networks:
+    - cloud-management
 
 volumes:
   ckan-data:
@@ -163,6 +194,7 @@ volumes:
   jobs-db:
   datastore-db:
   solr:
+  provisioning-api-db:
 
 networks:
   ckan-multi:

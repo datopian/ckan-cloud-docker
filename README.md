@@ -164,3 +164,18 @@ docker-compose up -d jenkins
 ```
 
 Login at http://localhost:8089
+
+
+## Running the cloud provisioning API
+
+Start the cca-operator server (see [cca-operator README](cca-operator/README.md))
+
+Start the cloud provisioning API server with the required keys
+
+```
+export PRIVATE_SSH_KEY="$(cat docker-compose/cca-operator/id_rsa | while read i; do echo "${i}"; done)"
+export PRIVATE_KEY="$(cat docker-compose/provisioning-api/private.pem | while read i; do echo "${i}"; done)"
+export PUBLIC_KEY="$(cat docker-compose/provisioning-api/public.pem | while read i; do echo "${i}"; done)"
+
+docker-compose up -d --build provisioning-api
+```

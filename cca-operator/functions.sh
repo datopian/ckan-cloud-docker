@@ -101,3 +101,41 @@ cluster_register_sub_domain() {
         return 1
     fi
 }
+
+kubectl_init() {
+    if ! [ -z "${KUBE_CONTEXT}" ]; then
+        ! kubectl config use-context "${KUBE_CONTEXT}" > /dev/stderr && echo failed to switch context > /dev/stderr && return 1
+    fi
+    return 0
+}
+
+cluster_management_init() {
+    ! kubectl_init > /dev/stderr && return 1
+    export INSTANCE_ID="${1}"
+    [ -z "${INSTANCE_ID}" ] && echo missing INSTANCE_ID > /dev/stderr && return 1
+    export INSTANCE_NAMESPACE="${INSTANCE_ID}"
+    export CKAN_VALUES_FILE=/etc/ckan-cloud/${INSTANCE_ID}_values.yaml
+    export CKAN_HELM_RELEASE_NAME="ckan-cloud-${INSTANCE_NAMESPACE}"
+    return 0
+}
+
+instance_connection_info() {
+    INSTANCE_ID="${1}"
+    INSTANCE_NAMESPACE="${2}"
+    INSTANCE_DOMAIN="${3}"
+    CKAN_ADMIN_PASSWORD="${4}"
+    if [ -z "${INSTANCE_DOMAIN}" ]; then
+        echo Start port forwarding to access the instance:
+        echo kubectl -n ${INSTANCE_NAMESPACE} port-forward deployment/nginx 8080
+        echo Add a hosts entry: "'127.0.0.1 nginx'"
+        echo Access the instance at http://nginx:8080
+    else
+        echo CKAN Instance ${INSTANCE_ID} is available at https://${INSTANCE_DOMAIN}
+    fi
+    echo CKAN admin password: ${CKAN_ADMIN_PASSWORD}
+}
+
+instance_domain() {
+    CKAN_VALUES_FILE="${1}"
+    python3 -c 'import yaml; print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("domain", ""))'
+}

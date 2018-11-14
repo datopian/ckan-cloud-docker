@@ -140,14 +140,22 @@ services:
     - ./jenkins/scripts/docker_compose_cca_operator.sh:/etc/ckan-cloud/cca_operator.sh
     ports:
     - "8089:8080"
+    networks:
+    - cloud-management
 
   cca-operator:
     image: viderum/ckan-cloud-docker:cca-operator-latest
     build:
       context: cca-operator
-    restart: "no"
+    command: ./server.sh
+    restart: always
     volumes:
     - /etc/ckan-cloud:/etc/ckan-cloud
+    ports:
+    - "8022:22"
+    networks:
+    - cloud-management
+
 
 volumes:
   ckan-data:
@@ -158,3 +166,4 @@ volumes:
 
 networks:
   ckan-multi:
+  cloud-management:

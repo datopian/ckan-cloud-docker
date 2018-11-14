@@ -95,3 +95,24 @@ Run the cca-operator CKAN commands:
 * Create the ckan env vars secret: `cca-operator initialize-ckan-env-vars ckan-env-vars`
 * Initialize the CKAN secrets.sh: `cca-operator initialize-ckan-secrets ckan-env-vars ckan-secrets`
 * Write the CKAN secrets to secrets.sh: `cca-operator --command -- bash -c "./cca-operator.sh get-ckan-secrets ckan-secrets secrets.sh && cat secrets.sh"
+
+
+## cca-operator server
+
+Add the ssh key to the server
+
+```
+cat docker-compose/cca-operator/id_rsa.pub | docker-compose run --rm cca-operator ./add-server-authorized-key.sh
+```
+
+Start the server
+
+```
+docker-compose up -d --build cca-operator
+```
+
+Run cca-operator commands via ssh
+
+```
+ssh -o IdentitiesOnly=yes -i docker-compose/cca-operator/id_rsa -p 8022 root@localhost ./cca-operator.sh ./list-instances.sh
+```

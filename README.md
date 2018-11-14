@@ -9,6 +9,7 @@ Available components:
 * **db**: PostgreSQL database and management scripts
 * **nginx**: Reverse proxy for the CKAN app
 * **solr**: Solr search engine
+* **jenkins**: Automation service
 
 
 ## Install
@@ -19,7 +20,7 @@ Install Docker for [Windows](https://store.docker.com/editions/community/docker-
 [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 
-## Running the docker-compose environment
+## Running a CKAN instance using the docker-compose environment
 
 (optional) Clear any existing compose environment to ensure a fresh start
 
@@ -36,7 +37,7 @@ docker-compose pull
 Start the Docker compose environment
 
 ```
-docker-compose up -d
+docker-compose up -d ckan
 ```
 
 Add a hosts entry mapping domain `nginx` to `127.0.0.1`:
@@ -80,7 +81,7 @@ docker-compose build | grep "Successfully tagged"
 Start the environment
 
 ```
-docker-compose up -d
+docker-compose up -d ckan
 ```
 
 
@@ -140,7 +141,7 @@ services:
 Start the docker-compose environment with the modified config:
 
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose.my-ckan.yaml up -d --build
+docker-compose -f docker-compose.yaml -f .docker-compose.my-ckan.yaml up -d --build ckan
 ```
 
 You can persist the modified configurations in Git for reference and documentation.
@@ -148,5 +149,18 @@ You can persist the modified configurations in Git for reference and documentati
 For example, to start the datagov-theme configuration:
 
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose.datagov-theme.yaml up -d --build
+docker-compose -f docker-compose.yaml -f .docker-compose.datagov-theme.yaml up -d --build ckan
 ```
+
+## Running cca-operator
+
+see [cca-operator README](cca-operator/README.md)
+
+
+## Run the Jenkins server
+
+```
+docker-compose up -d jenkins
+```
+
+Login at http://localhost:8089

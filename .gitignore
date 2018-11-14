@@ -104,3 +104,4 @@ venv.bak/
 .mypy_cache/
 
 .idea
+docker-compose.override.yaml

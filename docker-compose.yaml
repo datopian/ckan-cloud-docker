@@ -99,6 +99,14 @@ services:
     - ckan-multi
 
   ckan:
+    depends_on:
+    - redis
+    - nginx
+    - db
+    - jobs-db
+    - jobs
+    - datastore-db
+    - solr
     image: viderum/ckan-cloud-docker:ckan-latest
     build:
       context: ckan
@@ -119,6 +127,27 @@ services:
     - "5000:5000"
     networks:
     - ckan-multi
+
+  jenkins:
+    image: viderum/ckan-cloud-docker:jenkins-latest
+    build:
+      context: jenkins
+    restart: always
+    volumes:
+    - ./jenkins/jobs:/var/jenkins_home/jobs
+    - .:/etc/ckan-cloud/ckan-cloud-docker
+    - /var/run/docker.sock:/var/run/docker.sock
+    - ./jenkins/scripts/docker_compose_cca_operator.sh:/etc/ckan-cloud/cca_operator.sh
+    ports:
+    - "8089:8080"
+
+  cca-operator:
+    image: viderum/ckan-cloud-docker:cca-operator-latest
+    build:
+      context: cca-operator
+    restart: "no"
+    volumes:
+    - /etc/ckan-cloud:/etc/ckan-cloud
 
 volumes:
   ckan-data:

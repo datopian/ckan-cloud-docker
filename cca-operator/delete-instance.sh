@@ -5,11 +5,11 @@
 source functions.sh
 ! cluster_management_init "${1}" && exit 1
 
-if kubectl get ns "${INSTANCE_NAMESPACE}"; then
+if kubectl $KUBECTL_GLOBAL_ARGS get ns "${INSTANCE_NAMESPACE}"; then
     echo Deleting instance namespace: ${INSTANCE_NAMESPACE}
 
-    ! kubectl -n ${INSTANCE_NAMESPACE} delete deployment ckan jobs && echo WARNING: failed to delete ckan pods
-    ! kubectl delete ns "${INSTANCE_NAMESPACE}" && echo WARNING: failed to delete instance namespace
+    ! kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} delete deployment ckan jobs && echo WARNING: failed to delete ckan pods
+    ! kubectl $KUBECTL_GLOBAL_ARGS delete ns "${INSTANCE_NAMESPACE}" && echo WARNING: failed to delete instance namespace
 
     echo WARNING! instance was not removed from the load balancer
 

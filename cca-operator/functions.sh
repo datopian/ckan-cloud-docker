@@ -2,7 +2,7 @@ CF_ZONE_UPDATE_DATA_TEMPLATE='{"type":"CNAME","name":"{{CF_SUBDOMAIN}}","content
 CF_RECORD_NAME_SUFFIX=".ckan.io"
 
 get_secrets_json() {
-    kubectl get secret $1 -o json
+    kubectl $KUBECTL_GLOBAL_ARGS get secret $1 -o json
 }
 
 get_secret_from_json() {
@@ -104,7 +104,7 @@ cluster_register_sub_domain() {
 
 kubectl_init() {
     if ! [ -z "${KUBE_CONTEXT}" ]; then
-        ! kubectl config use-context "${KUBE_CONTEXT}" > /dev/stderr && echo failed to switch context > /dev/stderr && return 1
+        ! kubectl $KUBECTL_GLOBAL_ARGS config use-context "${KUBE_CONTEXT}" > /dev/stderr && echo failed to switch context > /dev/stderr && return 1
     fi
     return 0
 }
@@ -126,7 +126,7 @@ instance_connection_info() {
     CKAN_ADMIN_PASSWORD="${4}"
     if [ -z "${INSTANCE_DOMAIN}" ]; then
         echo Start port forwarding to access the instance:
-        echo kubectl -n ${INSTANCE_NAMESPACE} port-forward deployment/nginx 8080
+        echo kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} port-forward deployment/nginx 8080
         echo Add a hosts entry: "'127.0.0.1 nginx'"
         echo Access the instance at http://nginx:8080
     else

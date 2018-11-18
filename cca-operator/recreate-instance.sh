@@ -10,7 +10,7 @@ INSTANCE_ID="${1}"
 INSTANCE_NAMESPACE="${INSTANCE_ID}"
 
 ./delete-instance.sh "${INSTANCE_ID}" &&\
-while kubectl get ns "${INSTANCE_NAMESPACE}"; do
+while kubectl $KUBECTL_GLOBAL_ARGS get ns "${INSTANCE_NAMESPACE}"; do
     echo .
     sleep 2
 done &&\

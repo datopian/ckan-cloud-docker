@@ -34,7 +34,7 @@ import yaml;
 print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("ckanHelmChartVersion", ""))
 '`
 
-LOAD_BALANCER_HOSTNAME=$(kubectl -n default get service traefik -o yaml \
+LOAD_BALANCER_HOSTNAME=$(kubectl $KUBECTL_GLOBAL_ARGS -n default get service traefik -o yaml \
     | python3 -c 'import sys, yaml; print(yaml.load(sys.stdin)["status"]["loadBalancer"]["ingress"][0]["hostname"])' 2>/dev/null)
 
 if [ "${REGISTER_SUBDOMAIN}" != "" ]; then
@@ -97,7 +97,7 @@ if ! [ -z "${INSTANCE_DOMAIN}" ]; then
 
         mv $TRAEFIK_VALUES_MODIFIED_FILE $TRAEFIK_VALUES_FILE
 
-        echo Deploying to kube context `kubectl config current-context`, load balancer hostname: ${LOAD_BALANCER_HOSTNAME}
+        echo Deploying to kube context `kubectl $KUBECTL_GLOBAL_ARGS config current-context`, load balancer hostname: ${LOAD_BALANCER_HOSTNAME}
 
         helm upgrade "${TRAEFIK_HELM_RELEASE_NAME}" "${TRAEFIK_HELM_CHART_PATH}" \
             --namespace "${TRAEFIK_NAMESPACE}" -if "${TRAEFIK_VALUES_FILE}" --dry-run --debug > /dev/stderr &&\
@@ -107,7 +107,7 @@ if ! [ -z "${INSTANCE_DOMAIN}" ]; then
     fi
 fi
 
-if kubectl get ns "${INSTANCE_NAMESPACE}"; then
+if kubectl $KUBECTL_GLOBAL_ARGS get ns "${INSTANCE_NAMESPACE}"; then
     IS_NEW_NAMESPACE=0
     echo Namespace exists: ${INSTANCE_NAMESPACE}
     echo skipping RBAC creation
@@ -115,14 +115,14 @@ else
     IS_NEW_NAMESPACE=1
     echo Creating namespace: ${INSTANCE_NAMESPACE}
 
-    kubectl create ns "${INSTANCE_NAMESPACE}" &&\
-    kubectl --namespace "${INSTANCE_NAMESPACE}" \
+    kubectl $KUBECTL_GLOBAL_ARGS create ns "${INSTANCE_NAMESPACE}" &&\
+    kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" \
         create serviceaccount "ckan-${INSTANCE_NAMESPACE}-operator" &&\
-    kubectl --namespace "${INSTANCE_NAMESPACE}" \
+    kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" \
         create role "ckan-${INSTANCE_NAMESPACE}-operator-role" \
                     --verb list,get,create \
                     --resource secrets,pods,pods/exec,pods/portforward &&\
-    kubectl --namespace "${INSTANCE_NAMESPACE}" \
+    kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" \
         create rolebinding "ckan-${INSTANCE_NAMESPACE}-operator-rolebinding" \
                            --role "ckan-${INSTANCE_NAMESPACE}-operator-role" \
                            --serviceaccount "${INSTANCE_NAMESPACE}:ckan-${INSTANCE_NAMESPACE}-operator"
@@ -153,7 +153,7 @@ helm_upgrade() {
 wait_for_pods() {
     DELAY_SECONDS=10
     TOTAL_SECONDS=0
-    while ! kubectl --namespace "${INSTANCE_NAMESPACE}" get pods -o yaml | python3 -c '
+    while ! kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" get pods -o yaml | python3 -c '
 import yaml, sys;
 for pod in yaml.load(sys.stdin)["items"]:
     if pod["status"]["phase"] != "Running":
@@ -164,17 +164,17 @@ for pod in yaml.load(sys.stdin)["items"]:
         exit(1)
 exit(0)
     '; do
-        kubectl --namespace "${INSTANCE_NAMESPACE}" get pods
+        kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" get pods
         sleep $DELAY_SECONDS
         TOTAL_SECONDS=$(expr $TOTAL_SECONDS + $DELAY_SECONDS)
         echo "...${TOTAL_SECONDS}s"
         # if [ "$(expr $TOTAL_SECONDS > 180)" == "1" ]; then
         #     echo "Waiting too long, deleting and redeploying ckan and jobs deployments"
-        #     kubectl delete deployment ckan jobs
+        #     kubectl $KUBECTL_GLOBAL_ARGS delete deployment ckan jobs
         #     ! helm_upgrade && return 1
         # fi
     done &&\
-    kubectl --namespace "${INSTANCE_NAMESPACE}" get pods
+    kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" get pods
 }
 
 if [ "${IS_NEW_NAMESPACE}" == "1" ]; then
@@ -189,23 +189,23 @@ sleep 1 &&\
 wait_for_pods
 [ "$?" != "0" ] && exit 1
 
-CKAN_POD_NAME=$(kubectl -n ${INSTANCE_NAMESPACE} get pods -l "app=ckan" -o 'jsonpath={.items[0].metadata.name}')
+CKAN_POD_NAME=$(kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} get pods -l "app=ckan" -o 'jsonpath={.items[0].metadata.name}')
 echo CKAN_POD_NAME = "${CKAN_POD_NAME}" > /dev/stderr
 
-if kubectl -n ${INSTANCE_NAMESPACE} exec -it ${CKAN_POD_NAME} -- bash -c \
+if kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} exec -it ${CKAN_POD_NAME} -- bash -c \
     "ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini list" \
         | grep "name=admin"
 then
     CKAN_ADMIN_PASSWORD=$( \
-        get_secret_from_json "$(kubectl -n "${INSTANCE_NAMESPACE}" get secret ckan-admin-password -o json)" \
+        get_secret_from_json "$(kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" get secret ckan-admin-password -o json)" \
         "CKAN_ADMIN_PASSWORD" \
     )
     echo admin user already exists
 else
     CKAN_ADMIN_PASSWORD=$(python3 -c "import binascii,os;print(binascii.hexlify(os.urandom(12)).decode())")
-    ! kubectl -n "${INSTANCE_NAMESPACE}" create secret generic ckan-admin-password "--from-literal=CKAN_ADMIN_PASSWORD=${CKAN_ADMIN_PASSWORD}" && exit 1
+    ! kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" create secret generic ckan-admin-password "--from-literal=CKAN_ADMIN_PASSWORD=${CKAN_ADMIN_PASSWORD}" && exit 1
     echo y \
-        | kubectl -n ${INSTANCE_NAMESPACE} exec -it ${CKAN_POD_NAME} -- bash -c \
+        | kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} exec -it ${CKAN_POD_NAME} -- bash -c \
             "ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add admin password=${CKAN_ADMIN_PASSWORD} email=admin@${INSTANCE_ID}" \
                 > /dev/stderr
     [ "$?" != "0" ] && exit 1
@@ -214,9 +214,9 @@ fi
 if ! [ -z "${INSTANCE_DOMAIN}" ]; then
     echo Running sanity tests for CKAN instance ${INSTSANCE_ID} on domain ${INSTANCE_DOMAIN}
     if [ "$(curl https://${INSTANCE_DOMAIN}/api/3)" != '{"version": 3}' ]; then
-        kubectl -n default patch deployment traefik \
+        kubectl $KUBECTL_GLOBAL_ARGS -n default patch deployment traefik \
             -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}" &&\
-        kubectl -n default rollout status deployment traefik &&\
+        kubectl $KUBECTL_GLOBAL_ARGS -n default rollout status deployment traefik &&\
         sleep 10 &&\
         [ "$(curl https://${INSTANCE_DOMAIN}/api/3)" != '{"version": 3}' ]
         [ "$?" != "0" ] && exit 1

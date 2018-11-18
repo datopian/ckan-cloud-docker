@@ -10,7 +10,7 @@ INSTANCE_ID="${1}"
 INSTANCE_NAMESPACE="${INSTANCE_ID}"
 CKAN_HELM_RELEASE_NAME="ckan-cloud-${INSTANCE_NAMESPACE}"
 
-kubectl get ns "${INSTANCE_NAMESPACE}" && echo namespace ${INSTANCE_NAMESPACE} already exists && exit 1
+kubectl $KUBECTL_GLOBAL_ARGS get ns "${INSTANCE_NAMESPACE}" && echo namespace ${INSTANCE_NAMESPACE} already exists && exit 1
 helm status $CKAN_HELM_RELEASE_NAME && echo Helm release ${CKAN_HELM_RELEASE_NAME} already exists && exit 1
 
 exec ./update-instance.sh "$@"

@@ -9,7 +9,8 @@ if ! [ -e /etc/ckan-cloud/cca-operator/sshd_authorized_keys ]; then
 fi
 
 mkdir -p /root/.ssh &&\
-ln -s /etc/ckan-cloud/cca-operator/sshd_authorized_keys /root/.ssh/authorized_keys &&\
+cp /etc/ckan-cloud/cca-operator/sshd_authorized_keys /root/.ssh/authorized_keys &&\
+chmod 600 /root/.ssh/authorized_keys &&\
 echo '#!/usr/bin/env bash
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 cd /cca-operator

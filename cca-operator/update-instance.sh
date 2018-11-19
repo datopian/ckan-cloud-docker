@@ -14,6 +14,11 @@ import yaml;
 print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("domain", ""))
 ' 2>/dev/null`
 
+CKAN_ADMIN_EMAIL=`python3 -c '
+import yaml;
+print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("ckanAdminEmail", "admin@${INSTANCE_ID}"))
+'`
+
 WITH_SANS_SSL=`python3 -c '
 import yaml;
 print("1" if yaml.load(open("'${CKAN_VALUES_FILE}'")).get("withSansSSL", False) else "0")
@@ -145,7 +150,7 @@ else
     ! kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" create secret generic ckan-admin-password "--from-literal=CKAN_ADMIN_PASSWORD=${CKAN_ADMIN_PASSWORD}" && exit 1
     echo y \
         | kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} exec -it ${CKAN_POD_NAME} -- bash -c \
-            "ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add admin password=${CKAN_ADMIN_PASSWORD} email=admin@${INSTANCE_ID}" \
+            "ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add admin password=${CKAN_ADMIN_PASSWORD} email=${CKAN_ADMIN_EMAIL}" \
                 > /dev/stderr
     [ "$?" != "0" ] && exit 1
 fi

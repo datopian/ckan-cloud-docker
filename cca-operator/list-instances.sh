@@ -5,7 +5,7 @@
 source functions.sh
 ! kubectl_init && exit 1
 
-kubectl get pods -l app=ckan --all-namespaces -o yaml \
+kubectl $KUBECTL_GLOBAL_ARGS get pods -l app=ckan --all-namespaces -o yaml \
     | python3 -c '
 
 import yaml, sys, glob

@@ -5,9 +5,9 @@ source functions.sh
 if [ "${1}" == "initialize-ckan-env-vars" ]; then
     ENV_VARS_SECRET="${2}"
     [ -z "${ENV_VARS_SECRET}" ] && echo usage: cca-operator initialize-ckan-env-vars '<ENV_VARS_SECRET_NAME>' && exit 1
-    if ! kubectl get secret $ENV_VARS_SECRET; then
+    if ! kubectl $KUBECTL_GLOBAL_ARGS get secret $ENV_VARS_SECRET; then
         echo "Creating ckan env vars secret ${ENV_VARS_SECRET}"
-        ! kubectl create secret generic $ENV_VARS_SECRET \
+        ! kubectl $KUBECTL_GLOBAL_ARGS create secret generic $ENV_VARS_SECRET \
                   --from-literal=CKAN_APP_INSTANCE_UUID=`python -c "import uuid;print(uuid.uuid1())"` \
                   --from-literal=CKAN_BEAKER_SESSION_SECRET=`python -c "import binascii,os;print(binascii.hexlify(os.urandom(25)))"` \
                   --from-literal=POSTGRES_PASSWORD=`python -c "import binascii,os;print(binascii.hexlify(os.urandom(12)))"` \
@@ -28,7 +28,7 @@ elif [ "${1}" == "initialize-ckan-secrets" ]; then
     ( [ -z "${ENV_VARS_SECRET}" ] || [ -z "${CKAN_SECRETS_SECRET}" ] ) \
         && echo usage: cca-operator initialize-ckan-secrets '<ENV_VARS_SECRET_NAME>' '<CKAN_SECRETS_SECRET_NAME>' \
         && exit 1
-    if ! kubectl get secret "${CKAN_SECRETS_SECRET}"; then
+    if ! kubectl $KUBECTL_GLOBAL_ARGS get secret "${CKAN_SECRETS_SECRET}"; then
         echo Creating ckan secrets secret $CKAN_SECRETES_SECRET from env vars secret $ENV_VARS_SECRET
         ! export_ckan_env_vars $ENV_VARS_SECRET && exit 1
         TEMPFILE=`mktemp`
@@ -45,7 +45,7 @@ elif [ "${1}" == "initialize-ckan-secrets" ]; then
         export SMTP_USER=
         export SMTP_PASSWORD=
         export SMTP_MAIL_FROM=" > $TEMPFILE
-        kubectl create secret generic "${CKAN_SECRETS_SECRET}" --from-file=secrets.sh=$TEMPFILE
+        kubectl $KUBECTL_GLOBAL_ARGS create secret generic "${CKAN_SECRETS_SECRET}" --from-file=secrets.sh=$TEMPFILE
         CKAN_SECRET_RES="$?"
         rm $TEMPFILE
         [ "$CKAN_SECRET_RES" != "0" ] && echo failed to create ckan secrets secret && exit 1

@@ -6,7 +6,7 @@ source functions.sh
 ! cluster_management_init "${1}" && exit 1
 
 CKAN_ADMIN_PASSWORD=$( \
-    get_secret_from_json "$(kubectl -n "${INSTANCE_NAMESPACE}" get secret ckan-admin-password -o json)" \
+    get_secret_from_json "$(kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" get secret ckan-admin-password -o json)" \
     "CKAN_ADMIN_PASSWORD" \
 )
 

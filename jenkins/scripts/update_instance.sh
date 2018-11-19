@@ -14,5 +14,5 @@ values = yaml.load(open("'${VALUES_TEMPFILE}'"))
 values.update(**yaml.load(sys.stdin))
 print(yaml.dump(values, default_flow_style=False, allow_unicode=True))
 ' > $TEMPFILE &&\
-cat $TEMPFILE | tee /dev/stdout | /etc/ckan-cloud/cca_operator.sh ./set-instance-values.sh ${INSTANCE_ID} &&\
+cat $TEMPFILE | tee /dev/stderr | /etc/ckan-cloud/cca_operator.sh ./set-instance-values.sh ${INSTANCE_ID} &&\
 /etc/ckan-cloud/cca_operator.sh ${UPDATE_INSTANCE_COMMAND:-./update-instance.sh} ${INSTANCE_ID}

@@ -12,27 +12,27 @@ echo Creating instance: ${INSTANCE_ID}
 INSTANCE_DOMAIN=`python3 -c '
 import yaml;
 print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("domain", ""))
-'`
+' 2>/dev/null`
 
 WITH_SANS_SSL=`python3 -c '
 import yaml;
 print("1" if yaml.load(open("'${CKAN_VALUES_FILE}'")).get("withSansSSL", False) else "0")
-'`
+' 2>/dev/null`
 
 REGISTER_SUBDOMAIN=`python3 -c '
 import yaml;
 print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("registerSubdomain", ""))
-'`
+' 2>/dev/null`
 
 CKAN_HELM_CHART_REPO=`python3 -c '
 import yaml;
 print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("ckanHelmChartRepo", "https://raw.githubusercontent.com/ViderumGlobal/ckan-cloud-helm/master/charts_repository"))
-'`
+' 2>/dev/null`
 
 CKAN_HELM_CHART_VERSION=`python3 -c '
 import yaml;
 print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("ckanHelmChartVersion", ""))
-'`
+' 2>/dev/null`
 
 LOAD_BALANCER_HOSTNAME=$(kubectl $KUBECTL_GLOBAL_ARGS -n default get service traefik -o yaml \
     | python3 -c 'import sys, yaml; print(yaml.load(sys.stdin)["status"]["loadBalancer"]["ingress"][0]["hostname"])' 2>/dev/null)
@@ -43,68 +43,7 @@ if [ "${REGISTER_SUBDOMAIN}" != "" ]; then
 fi
 
 if ! [ -z "${INSTANCE_DOMAIN}" ]; then
-    if grep 'rule = "Host:'${INSTANCE_DOMAIN}'"' /etc/ckan-cloud/traefik-values.yaml; then
-        echo Skipping load balancer deployment
-        echo instance domain already exists in load balancer values: ${INSTANCE_DOMAIN}
-    else
-        echo Configuring load balancer for domain "${INSTANCE_DOMAIN}"
-        cp -f "${TRAEFIK_VALUES_FILE}" /etc/ckan-cloud/backups/traefik-values.yaml.`date +%Y-%m-%d_%H-%M` &&\
-        cp -f "${TRAEFIK_VALUES_FILE}" /etc/ckan-cloud/backups/traefik-values.yaml.last
-        [ "$?" != "0" ] && exit 1
-
-        TRAEFIK_VALUES_MODIFIED_FILE=/etc/ckan-cloud/traefik-values.yaml
-
-        if [ "${WITH_SANS_SSL}" == "1" ]; then
-            echo Configuring SSL
-            TEMPFILE=`mktemp`
-            python3 -c '
-        import yaml, json;
-        traefik_values = yaml.load(open("'${TRAEFIK_VALUES_MODIFIED_FILE}'"));
-        def acme_domains():
-            for line in traefik_values["acmeDomains"].splitlines():
-                if line.startswith("  sans = ["):
-                    line = "  sans = " + json.dumps(json.loads(line.strip().split(" = ")[1]) + ["'${INSTANCE_DOMAIN}'"])
-                yield line
-        print(yaml.dump(dict(traefik_values, acmeDomains="\n".join(acme_domains())),
-                        default_flow_style=False));
-        ' > $TEMPFILE
-            [ "$?" != "0" ] && exit 1
-            TRAEFIK_VALUES_MODIFIED_FILE=$TEMPFILE
-        fi
-
-        TEMPFILE=`mktemp`
-        python3 -c '
-        import yaml;
-        traefik_values = yaml.load(open("'${TRAEFIK_VALUES_MODIFIED_FILE}'"));
-        traefik_values["backends"] += " \n\
-        [backends.'${INSTANCE_ID}'] \n\
-          [backends.'${INSTANCE_ID}'.servers.server1] \n\
-            url = \"http://nginx.'${INSTANCE_NAMESPACE}'\" \n\
-        ";
-        traefik_values["frontends"] += " \n\
-        [frontends.'${INSTANCE_ID}'] \n\
-          backend=\"'${INSTANCE_ID}'\" \n\
-          passHostHeader = true \n\
-          [frontends.'${INSTANCE_ID}'.headers] \n\
-            SSLRedirect = true \n\
-          [frontends.'${INSTANCE_ID}'.routes.route1] \n\
-            rule = \"Host:'${INSTANCE_DOMAIN}'\" \n\
-        ";
-        print(yaml.dump(traefik_values, default_flow_style=False));
-        ' > $TEMPFILE
-        [ "$?" != "0" ] && exit 1
-        TRAEFIK_VALUES_MODIFIED_FILE=$TEMPFILE
-
-        mv $TRAEFIK_VALUES_MODIFIED_FILE $TRAEFIK_VALUES_FILE
-
-        echo Deploying to kube context `kubectl $KUBECTL_GLOBAL_ARGS config current-context`, load balancer hostname: ${LOAD_BALANCER_HOSTNAME}
-
-        helm upgrade "${TRAEFIK_HELM_RELEASE_NAME}" "${TRAEFIK_HELM_CHART_PATH}" \
-            --namespace "${TRAEFIK_NAMESPACE}" -if "${TRAEFIK_VALUES_FILE}" --dry-run --debug > /dev/stderr &&\
-        helm upgrade "${TRAEFIK_HELM_RELEASE_NAME}" "${TRAEFIK_HELM_CHART_PATH}" \
-            --namespace "${TRAEFIK_NAMESPACE}" -if "${TRAEFIK_VALUES_FILE}"
-        [ "$?" != "0" ] && exit 1
-    fi
+    ! add_domain_to_traefik "${INSTANCE_DOMAIN}" "${WITH_SANS_SSL}" "${INSTANCE_ID}" && exit 1
 fi
 
 if kubectl $KUBECTL_GLOBAL_ARGS get ns "${INSTANCE_NAMESPACE}"; then

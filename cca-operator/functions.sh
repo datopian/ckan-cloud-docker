@@ -139,3 +139,38 @@ instance_domain() {
     CKAN_VALUES_FILE="${1}"
     python3 -c 'import yaml; print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("domain", ""))'
 }
+
+add_domain_to_traefik() {
+    export DOMAIN="${1}"
+    export WITH_SANS_SSL="${2}"
+    export INSTANCE_ID="${3}"
+    ( [ -z "${DOMAIN}" ] || [ -z "${INSTANCE_ID}" ] ) && echo missing required args && return 1
+    ! python3 -c 'import toml' && python3 -m pip install toml
+    export TEMPFILE=`mktemp` &&\
+    kubectl $KUBECTL_GLOBAL_ARGS -n default get configmap etc-traefik -o yaml \
+        | python3 -c '
+import sys, yaml, toml, os
+conf = toml.loads(yaml.load(sys.stdin)["data"]["traefik.toml"])
+domain = os.environ["DOMAIN"]
+with_sans_ssl = os.environ["WITH_SANS_SSL"]
+instance_id = os.environ["INSTANCE_ID"]
+if instance_id in conf["backends"] or instance_id in conf["frontends"]:
+  print(f"Warning! Instance ID {instance_id} already configured in traefik backends or frontends", file=sys.stderr)
+  exit(0)
+conf["frontends"][instance_id] = {"backend": instance_id, "headers": {"SSLRedirect": True}, "passHostHeader": True,
+                                  "routes": {"route1": {"rule": f"Host:{domain}"}}}
+conf["backends"][instance_id] = {"servers": {"server1": {"url": f"http://nginx.{instance_id}:8080"}}}
+if with_sans_ssl == "1":
+    main_domain = conf["acme"]["domains"][0]["main"]
+    assert domain.endswith(f".{main_domain}"), f"Invalid domain {domain} - must be subdomain of the main domain {main_domain}"
+    conf["acme"]["domains"][0]["sans"].append(domain)
+print(toml.dumps(conf))
+exit(0)' > $TEMPFILE &&\
+    kubectl $KUBECTL_GLOBAL_ARGS delete configmap etc-traefik &&\
+    kubectl $KUBECTL_GLOBAL_ARGS create configmap etc-traefik --from-file=traefik.toml=$TEMPFILE &&\
+    rm $TEMPFILE &&\
+    kubectl $KUBECTL_GLOBAL_ARGS patch deployment traefik -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}" &&\
+    kubectl $KUBECTL_GLOBAL_ARGS rollout status deployment traefik
+    [ "$?" != "0" ] && echo Failed to add domain to traefik && return 1
+    return 0
+}

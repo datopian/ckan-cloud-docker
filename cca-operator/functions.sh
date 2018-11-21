@@ -144,26 +144,38 @@ add_domain_to_traefik() {
     export DOMAIN="${1}"
     export WITH_SANS_SSL="${2}"
     export INSTANCE_ID="${3}"
+    export SERVICE_NAME="${4:-nginx}"
+    export SERVICE_PORT="${5:-8080}"
+    export SERVICE_NAMESPACE="${6:-${INSTANCE_ID}}"
     ( [ -z "${DOMAIN}" ] || [ -z "${INSTANCE_ID}" ] ) && echo missing required args && return 1
     ! python3 -c 'import toml' && python3 -m pip install toml
+    mkdir -p "/etc/ckan-cloud/backups/etc-traefik"
+    BACKUP_FILE="/etc/ckan-cloud/backups/etc-traefik/`date +%Y%m%d%H%M%s`.yaml"
+    kubectl $KUBECTL_GLOBAL_ARGS -n default get configmap etc-traefik -o yaml > $BACKUP_FILE &&\
     export TEMPFILE=`mktemp` &&\
-    kubectl $KUBECTL_GLOBAL_ARGS -n default get configmap etc-traefik -o yaml \
-        | python3 -c '
+    cat $BACKUP_FILE | python3 -c '
 import sys, yaml, toml, os
 conf = toml.loads(yaml.load(sys.stdin)["data"]["traefik.toml"])
 domain = os.environ["DOMAIN"]
 with_sans_ssl = os.environ["WITH_SANS_SSL"]
 instance_id = os.environ["INSTANCE_ID"]
-if instance_id in conf["backends"] or instance_id in conf["frontends"]:
-  print(f"Warning! Instance ID {instance_id} already configured in traefik backends or frontends", file=sys.stderr)
-  exit(0)
+service_name = os.environ["SERVICE_NAME"]
+service_port = os.environ["SERVICE_PORT"]
+service_namespace = os.environ["SERVICE_NAMESPACE"]
+for frontend_id, frontend in conf["frontends"].items():
+    if frontend_id != instance_id:
+        for route in frontend.get("routes", {}).values():
+            if route.get("rule", "") == f"Host:{domain}":
+                print(f"frontend rule already exists for domain {domain} under instance_id {frontend_id}", file=sys.stderr)
+                exit(1)
 conf["frontends"][instance_id] = {"backend": instance_id, "headers": {"SSLRedirect": True}, "passHostHeader": True,
                                   "routes": {"route1": {"rule": f"Host:{domain}"}}}
-conf["backends"][instance_id] = {"servers": {"server1": {"url": f"http://nginx.{instance_id}:8080"}}}
+conf["backends"][instance_id] = {"servers": {"server1": {"url": f"http://{service_name}.{service_namespace}:{service_port}"}}}
 if with_sans_ssl == "1":
     main_domain = conf["acme"]["domains"][0]["main"]
     assert domain.endswith(f".{main_domain}"), f"Invalid domain {domain} - must be subdomain of the main domain {main_domain}"
-    conf["acme"]["domains"][0]["sans"].append(domain)
+    if domain not in conf["acme"]["domains"][0]["sans"]:
+      conf["acme"]["domains"][0]["sans"].append(domain)
 print(toml.dumps(conf))
 exit(0)' > $TEMPFILE &&\
     kubectl $KUBECTL_GLOBAL_ARGS delete configmap etc-traefik &&\

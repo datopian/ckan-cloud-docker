@@ -1,5 +1,7 @@
 # cca-operator
 
+cca-operator manages, provisions and configures Ckan Cloud components inside a [Ckan Cloud cluster](https://github.com/ViderumGlobal/ckan-cloud-cluster).
+
 ## Running cca-operator
 
 Build and run using docker-compose:

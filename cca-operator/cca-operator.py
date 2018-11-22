@@ -5,18 +5,16 @@ import os, sys, yaml, datetime
 CCA_OPERATOR_ROLE = os.environ['CCA_OPERATOR_ROLE']
 
 
+ADMIN_ROLES = ['', 'admin']
+CONTINUOUS_DEPLOYMENT_ROLES = ADMIN_ROLES + ['continuous-deployment']
+
+
 def print_stderr(*args):
     print(*args, file=sys.stderr)
 
 
-if sys.argv[1] == 'patch-deployment':
-    namespace = sys.argv[2]
-    deployment = sys.argv[3]
-    container = sys.argv[4]
-    values_file = sys.argv[5]
-    backup_dir = sys.argv[6]
-    image_attrib = sys.argv[7]
-    image = sys.argv[7]
+if sys.argv[1].startswith('patch-deployment ') and CCA_OPERATOR_ROLE in CONTINUOUS_DEPLOYMENT_ROLES:
+    _, namespace, deployment, container, values_file, backup_dir, image_attrib, image = sys.argv[1].split(' ')
     with open(values_file) as f:
         values = yaml.load(f)
     os.system(f'mkdir -p {backup_dir}')

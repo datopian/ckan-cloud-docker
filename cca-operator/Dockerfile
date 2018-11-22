@@ -16,6 +16,9 @@ RUN apk update && apk add openssh-server openssh-sftp-server &&\
     ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ""
 
 COPY *.sh /cca-operator/
+COPY *.py /cca-operator/
+
+RUN chmod +x /cca-operator/*.sh /cca-operator/*.py
 
 WORKDIR /cca-operator
 

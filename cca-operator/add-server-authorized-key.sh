@@ -10,7 +10,7 @@ mkdir -p /etc/ckan-cloud/cca-operator && chmod 700 /etc/ckan-cloud && chmod 700 
 if [ -z "${CCA_OPERATOR_ROLE}" ]; then
     cat
 else
-    echo 'command="export CCA_OPERATOR_ROLE='${CCA_OPERATOR_ROLE}'; ./cca-operator.py \"${SSH_ORIGINAL_COMMAND}\""' $(cat)
+    echo 'command="export CCA_OPERATOR_ROLE='${CCA_OPERATOR_ROLE}'; ./cca-operator.sh ./cca-operator.py \"${SSH_ORIGINAL_COMMAND}\""' $(cat)
 fi >> /etc/ckan-cloud/cca-operator/sshd_authorized_keys
 [ "$?" != "0" ] && exit 1
 

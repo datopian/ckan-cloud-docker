@@ -116,3 +116,21 @@ Run cca-operator commands via ssh
 ```
 ssh -o IdentitiesOnly=yes -i docker-compose/cca-operator/id_rsa -p 8022 root@localhost ./cca-operator.sh ./list-instances.sh
 ```
+
+## Creating a limited access user
+
+Generate an SSH key for the limited user
+
+```
+ssh-keygen -t rsa -b 4096 -C "continuous-deployment" -N "" -f continuous-deployment-id_rsa
+```
+
+Add the key to cca-operator server authorized keys
+
+```
+CCA_OPERATOR_ROLE=continuous-deployment
+
+cat continuous-deployment-id_rsa | docker-compose run --rm cca-operator ./add-server-authorized-key.sh "${CCA_OPERATOR_ROLE}"
+```
+
+The CCA_OPERATOR_ROLE environment variable is used in cca-operator code to limit access

@@ -17,6 +17,8 @@ export KUBECONFIG='${KUBECONFIG}'
 export CF_AUTH_EMAIL='${CF_AUTH_EMAIL}'
 export CF_AUTH_KEY='${CF_AUTH_KEY}'
 export CF_ZONE_NAME='${CF_ZONE_NAME}'
+export CF_ZONE_UPDATE_DATA_TEMPLATE='${CF_ZONE_UPDATE_DATA_TEMPLATE}'
+export CF_RECORD_NAME_SUFFIX='${CF_RECORD_NAME_SUFFIX}'
 cd /cca-operator
 exec "$@"' > /root/cca-operator.sh && chmod +x /root/cca-operator.sh
 

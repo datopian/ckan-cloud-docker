@@ -1,5 +1,3 @@
-CF_ZONE_UPDATE_DATA_TEMPLATE='{"type":"CNAME","name":"{{CF_SUBDOMAIN}}","content":"{{CF_HOSTNAME}}","ttl":120,"proxied":false}'
-CF_RECORD_NAME_SUFFIX=".ckan.io"
 
 get_secrets_json() {
     kubectl $KUBECTL_GLOBAL_ARGS get secret $1 -o json
@@ -40,6 +38,12 @@ cluster_register_sub_domain() {
     echo Setting CNAME from Cloudflare record ${CF_RECORD_NAME} to hostname ${CF_HOSTNAME}
     ( [ -z "${CF_AUTH_EMAIL}" ] || [ -z "${CF_AUTH_KEY}" ] || [ -z "${CF_ZONE_NAME}" ] ) \
         && echo missing CF_AUTH_EMAIL / CF_AUTH_KEY / CF_ZONE_NAME environment variables && return 1
+    # '{"type":"CNAME","name":"{{CF_SUBDOMAIN}}","content":"{{CF_HOSTNAME}}","ttl":120,"proxied":false}'
+    ( [ -z "${CF_ZONE_UPDATE_DATA_TEMPLATE}" ] ) \
+        && echo missing CF_ZONE_UPDATE_DATA_TEMPLATE environment variable && return 1
+    # '.ckan.io'
+    ( [ -z "${CF_RECORD_NAME_SUFFIX}" ] ) \
+        && echo missing CF_RECORD_NAME_SUFFIX environment variable && return 1
     CF_ZONE_ID=`curl -X GET "https://api.cloudflare.com/client/v4/zones" \
                      -H "X-Auth-Email: ${CF_AUTH_EMAIL}" \
                      -H "X-Auth-Key: ${CF_AUTH_KEY}" \

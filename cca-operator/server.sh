@@ -13,12 +13,8 @@ cp /etc/ckan-cloud/cca-operator/sshd_authorized_keys /root/.ssh/authorized_keys 
 chmod 600 /root/.ssh/authorized_keys &&\
 echo '#!/usr/bin/env bash
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-export KUBECONFIG='${KUBECONFIG}'
-export CF_AUTH_EMAIL='${CF_AUTH_EMAIL}'
-export CF_AUTH_KEY='${CF_AUTH_KEY}'
-export CF_ZONE_NAME='${CF_ZONE_NAME}'
-export CF_ZONE_UPDATE_DATA_TEMPLATE='${CF_ZONE_UPDATE_DATA_TEMPLATE}'
-export CF_RECORD_NAME_SUFFIX='${CF_RECORD_NAME_SUFFIX}'
+export KUBECONFIG='"${KUBECONFIG}"'
+source /etc/ckan-cloud/.cca_operator-secrets.env
 cd /cca-operator
 exec "$@"' > /root/cca-operator.sh && chmod +x /root/cca-operator.sh
 

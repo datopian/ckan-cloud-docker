@@ -180,3 +180,20 @@ export PUBLIC_KEY="$(cat docker-compose/provisioning-api/public.pem | while read
 
 docker-compose up -d --build provisioning-api
 ```
+
+
+## Using a centralized DB
+
+Set the following env vars for cca-operator ckan init scripts:
+
+```
+CKAN_CLOUD_POSTGRES_HOST=
+CKAN_CLOUD_INSTANCE_ID=
+PGPASSWORD=
+```
+
+cca-operator's initialize-ckan-env-vars command will create the DB for the instance
+
+To test CKAN locally - create a modified ckan/ckan-secrets.sh file with the connection details to the specific instance's DB
+
+Override the relevant volume in docker-compose.override.yaml

@@ -7,7 +7,7 @@ cca-operator manages, provisions and configures Ckan Cloud components inside a [
 Build and run using docker-compose:
 
 ```
-docker-compose build cca-operator && docker-compose run --rm cca-operator
+docker-compose build cca-operator && docker-compose run --rm cca-operator --help
 ```
 
 Cca-operator mounts /etc/ckan-cloud directory from the host into the container

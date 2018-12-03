@@ -6,12 +6,33 @@ if [ "${1}" == "initialize-ckan-env-vars" ]; then
     ENV_VARS_SECRET="${2}"
     [ -z "${ENV_VARS_SECRET}" ] && echo usage: cca-operator initialize-ckan-env-vars '<ENV_VARS_SECRET_NAME>' && exit 1
     if ! kubectl $KUBECTL_GLOBAL_ARGS get secret $ENV_VARS_SECRET; then
+        POSTGRES_PASSWORD=`python -c "import binascii,os;print(binascii.hexlify(os.urandom(12)))"`
+        if [ -z "${CKAN_CLOUD_POSTGRES_HOST}" ] || [ -z "${CKAN_CLOUD_INSTANCE_ID}"; then
+            echo Using self-hosted DB
+            POSTGRES_USER=ckan
+            POSTGRES_HOST=db
+            POSTGRES_DB_NAME=ckan
+        else
+            echo Initializing centralized DB ${CKAN_CLOUD_POSTGRES_HOST} for CKAN instance ${CKAN_CLOUD_INSTANCE_ID}
+            psql -h "${CKAN_CLOUD_POSTGRES_HOST}" -U postgres -c "
+                CREATE ROLE \"${CKAN_CLOUD_INSTANCE_ID}\" WITH LOGIN PASSWORD '${POSTGRES_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
+            " &&\
+            psql -h "${CKAN_CLOUD_POSTGRES_HOST}" -U postgres -c "
+                CREATE DATABASE \"${CKAN_CLOUD_INSTANCE_ID}\";
+            "
+            [ "$?" != "0" ] && exit 1
+            POSTGRES_USER="${CKAN_CLOUD_INSTANCE_ID}"
+            POSTGRES_HOST="${CKAN_CLOUD_POSTGRES_HOST}"
+            POSTGRES_DB_NAME="${CKAN_CLOUD_INSTANCE_ID}"
+        fi
         echo "Creating ckan env vars secret ${ENV_VARS_SECRET}"
         ! kubectl $KUBECTL_GLOBAL_ARGS create secret generic $ENV_VARS_SECRET \
                   --from-literal=CKAN_APP_INSTANCE_UUID=`python -c "import uuid;print(uuid.uuid1())"` \
                   --from-literal=CKAN_BEAKER_SESSION_SECRET=`python -c "import binascii,os;print(binascii.hexlify(os.urandom(25)))"` \
-                  --from-literal=POSTGRES_PASSWORD=`python -c "import binascii,os;print(binascii.hexlify(os.urandom(12)))"` \
-                  --from-literal=POSTGRES_USER=ckan \
+                  --from-literal=POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+                  --from-literal=POSTGRES_USER=${POSTGRES_USER} \
+                  --from-literal=POSTGRES_HOST=${POSTGRES_HOST} \
+                  --from-literal=POSTGRES_DB_NAME=${POSTGRES_DB_NAME} \
                   --from-literal=DATASTORE_POSTGRES_PASSWORD=`python -c "import binascii,os;print(binascii.hexlify(os.urandom(12)))"` \
                   --from-literal=DATASTORE_POSTGRES_USER=postgres \
                   --from-literal=DATASTORE_RO_USER=readonly \
@@ -34,7 +55,7 @@ elif [ "${1}" == "initialize-ckan-secrets" ]; then
         TEMPFILE=`mktemp`
         echo "export BEAKER_SESSION_SECRET=${CKAN_BEAKER_SESSION_SECRET}
         export APP_INSTANCE_UUID=${CKAN_APP_INSTANCE_UUID}
-        export SQLALCHEMY_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/ckan
+        export SQLALCHEMY_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}/${POSTGRES_DB_NAME:-ckan}
         export CKAN_DATASTORE_WRITE_URL=postgresql://${DATASTORE_POSTGRES_USER}:${DATASTORE_POSTGRES_PASSWORD}@datastore-db/datastore
         export CKAN_DATASTORE_READ_URL=postgresql://${DATASTORE_RO_USER}:${DATASTORE_RO_PASSWORD}@datastore-db/datastore
         export SOLR_URL=http://solr:8983/solr/ckan

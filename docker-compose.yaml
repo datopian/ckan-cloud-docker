@@ -11,6 +11,8 @@ services:
     - ckan-multi
 
   nginx:
+    depends_on:
+    - ckan
     image: viderum/ckan-cloud-docker:nginx-latest
     build:
       context: nginx
@@ -55,6 +57,9 @@ services:
     - ckan-multi
 
   jobs:
+    depends_on:
+    - ckan
+    - nginx
     image: viderum/ckan-cloud-docker:ckan-latest
     command: [/ckan-entrypoint.sh, ckan-paster, --plugin=ckan, jobs, -c, /etc/ckan/production.ini, worker]
     restart: always
@@ -94,17 +99,15 @@ services:
     ports:
     - "8983:8983"
     volumes:
-    - solr:/opt/solr/server/solr/ckan/data
+    - solr:/opt/solr/server
     networks:
     - ckan-multi
 
   ckan:
     depends_on:
     - redis
-    - nginx
     - db
     - jobs-db
-    - jobs
     - datastore-db
     - solr
     image: viderum/ckan-cloud-docker:ckan-latest
@@ -155,6 +158,7 @@ services:
     - "8022:22"
     networks:
     - cloud-management
+    - ckan-multi
 
   provisioning-api-db:
     image: postgres

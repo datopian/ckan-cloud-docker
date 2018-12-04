@@ -7,23 +7,20 @@ if [ "${1}" == "initialize-ckan-env-vars" ]; then
     [ -z "${ENV_VARS_SECRET}" ] && echo usage: cca-operator initialize-ckan-env-vars '<ENV_VARS_SECRET_NAME>' && exit 1
     if ! kubectl $KUBECTL_GLOBAL_ARGS get secret $ENV_VARS_SECRET; then
         POSTGRES_PASSWORD=`python -c "import binascii,os;print(binascii.hexlify(os.urandom(12)))"`
-        if [ -z "${CKAN_CLOUD_POSTGRES_HOST}" ] || [ -z "${CKAN_CLOUD_INSTANCE_ID}"; then
+        if [ -z "${CKAN_CLOUD_POSTGRES_HOST}" ]; then
             echo Using self-hosted DB
             POSTGRES_USER=ckan
+            POSTGRES_DB_NAME="${POSTGRES_USER}"
             POSTGRES_HOST=db
-            POSTGRES_DB_NAME=ckan
         else
-            echo Initializing centralized DB ${CKAN_CLOUD_POSTGRES_HOST} for CKAN instance ${CKAN_CLOUD_INSTANCE_ID}
-            psql -h "${CKAN_CLOUD_POSTGRES_HOST}" -U postgres -c "
-                CREATE ROLE \"${CKAN_CLOUD_INSTANCE_ID}\" WITH LOGIN PASSWORD '${POSTGRES_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
-            " &&\
-            psql -h "${CKAN_CLOUD_POSTGRES_HOST}" -U postgres -c "
-                CREATE DATABASE \"${CKAN_CLOUD_INSTANCE_ID}\";
-            "
-            [ "$?" != "0" ] && exit 1
-            POSTGRES_USER="${CKAN_CLOUD_INSTANCE_ID}"
-            POSTGRES_HOST="${CKAN_CLOUD_POSTGRES_HOST}"
-            POSTGRES_DB_NAME="${CKAN_CLOUD_INSTANCE_ID}"
+            echo Using centralized DB
+            if [ -z "${CKAN_CLOUD_INSTANCE_ID}" ]; then
+                POSTGRES_USER="ckan-`python -c "import binascii,os;print(binascii.hexlify(os.urandom(8)))"`"
+            else
+                POSTGRES_USER="${CKAN_CLOUD_INSTANCE_ID}"
+            fi
+            ! create_db "${CKAN_CLOUD_POSTGRES_HOST}" "${CKAN_CLOUD_POSTGRES_USER:-postgres}" "${POSTGRES_USER}" "${POSTGRES_PASSWORD}" \
+                && exit 1
         fi
         echo "Creating ckan env vars secret ${ENV_VARS_SECRET}"
         ! kubectl $KUBECTL_GLOBAL_ARGS create secret generic $ENV_VARS_SECRET \

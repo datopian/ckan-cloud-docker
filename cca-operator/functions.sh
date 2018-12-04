@@ -190,3 +190,70 @@ exit(0)' > $TEMPFILE &&\
     [ "$?" != "0" ] && echo Failed to add domain to traefik && return 1
     return 0
 }
+
+generate_password() {
+    python -c "import binascii,os;print(binascii.hexlify(os.urandom(${1:-12})))"
+}
+
+create_db() {
+    POSTGRES_HOST="${1}"
+    POSTGRES_USER="${2}"
+    CREATE_POSTGRES_USER="${3}"
+    CREATE_POSTGRES_PASSWORD="${4}"
+    ( [ -z "${POSTGRES_HOST}" ] || [ -z "${POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_PASSWORD}" ] ) && exit 1
+    echo Initializing ${CREATE_POSTGRES_USER} on ${POSTGRES_HOST}
+    RES=$(psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+        CREATE ROLE \"${CREATE_POSTGRES_USER}\" WITH LOGIN PASSWORD '${CREATE_POSTGRES_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
+    " 2>/dev/stdout &&\
+    psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+        CREATE DATABASE \"${CREATE_POSTGRES_USER}\";
+    ")
+    [ "$?" != "0" ] && ! echo "${RES}" | grep "already exists" && echo failed to initialize db && return 1
+    echo DB initialized successfully
+    return 0
+}
+
+create_datastore_db() {
+    POSTGRES_HOST="${1}"
+    POSTGRES_USER="${2}"
+    SITE_USER="${3}"
+    DS_RW_USER="${4}"
+    DS_RW_PASSWORD="${5}"
+    DS_RO_USER="${6}"
+    DS_RO_PASSWORD="${7}"
+    ! create_db "${POSTGRES_HOST}" "${POSTGRES_USER}" "${DS_RW_USER}" "${DS_RW_PASSWORD}" && return 1
+    ( [ -z "${SITE_USER}" ] || [ -z "${DS_RO_USER}" ] || [ -z "${DS_RO_PASSWORD}" ] ) && return 1
+    echo Initializing datastore DB ${DS_RW_USER} on ${POSTGRES_HOST}
+    export SITE_USER
+    export DS_RW_USER
+    export DS_RO_USER
+    RES=$(
+        psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+            CREATE ROLE \"${DS_RO_USER}\" WITH LOGIN PASSWORD '${DS_RO_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
+        " 2>/dev/stdout &&\
+        psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
+            REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+            REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+            GRANT CREATE ON SCHEMA public TO \"${SITE_USER}\";
+            GRANT USAGE ON SCHEMA public TO \"${SITE_USER}\";
+            GRANT CREATE ON SCHEMA public TO \"${DS_RW_USER}\";
+            GRANT USAGE ON SCHEMA public TO \"${DS_RW_USER}\";
+            ALTER DATABASE \"${SITE_USER}\" OWNER TO ${POSTGRES_USER};
+            ALTER DATABASE \"${DS_RW_USER}\" OWNER TO ${POSTGRES_USER};
+            REVOKE CONNECT ON DATABASE \"${SITE_USER}\" FROM \"${DS_RO_USER}\";
+            GRANT CONNECT ON DATABASE \"${DS_RW_USER}\" TO \"${DS_RO_USER}\";
+            GRANT USAGE ON SCHEMA public TO \"${DS_RO_USER}\";
+            ALTER DATABASE \"${SITE_USER}\" OWNER TO \"${SITE_USER}\";
+            ALTER DATABASE \"${DS_RW_USER}\" OWNER TO \"${DS_RW_USER}\";
+            SET ROLE \"${DS_RW_USER}\";
+            GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"${DS_RO_USER}\";
+            ALTER DEFAULT PRIVILEGES FOR USER \"${DS_RW_USER}\" IN SCHEMA public GRANT SELECT ON TABLES TO \"${DS_RO_USER}\";
+            RESET ROLE;
+        " &&\
+        bash ./templater.sh ./datastore-permissions.sql.template \
+            | psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}"
+    )
+    [ "$?" != "0" ] && ! echo "${RES}" | grep "already exists" && echo failed to initialize datastore db && return 1
+    echo Datastore DB initialized successfully
+    return 0
+}

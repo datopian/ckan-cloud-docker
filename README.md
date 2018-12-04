@@ -38,7 +38,7 @@ docker-compose pull
 Start the Docker compose environment
 
 ```
-docker-compose up -d ckan
+docker-compose up -d nginx
 ```
 
 Add a hosts entry mapping domain `nginx` to `127.0.0.1`:
@@ -62,6 +62,12 @@ docker-compose exec ckan ckan-paster --plugin=ckan \
 
 Login to CKAN at http://nginx:8080 with username `admin` and password `12345678`
 
+To start the jobs server for uploading to the datastore DB:
+
+```
+docker-compose up -d jobs
+```
+
 
 ## Making modifications to the docker images / configuration
 
@@ -82,7 +88,7 @@ docker-compose build | grep "Successfully tagged"
 Start the environment
 
 ```
-docker-compose up -d ckan
+docker-compose up -d nginx
 ```
 
 
@@ -142,7 +148,7 @@ services:
 Start the docker-compose environment with the modified config:
 
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose.my-ckan.yaml up -d --build ckan
+docker-compose -f docker-compose.yaml -f .docker-compose.my-ckan.yaml up -d --build nginx
 ```
 
 You can persist the modified configurations in Git for reference and documentation.
@@ -150,7 +156,7 @@ You can persist the modified configurations in Git for reference and documentati
 For example, to start the datagov-theme configuration:
 
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose.datagov-theme.yaml up -d --build ckan
+docker-compose -f docker-compose.yaml -f .docker-compose.datagov-theme.yaml up -d --build nginx
 ```
 
 ## Running cca-operator
@@ -181,19 +187,50 @@ export PUBLIC_KEY="$(cat docker-compose/provisioning-api/public.pem | while read
 docker-compose up -d --build provisioning-api
 ```
 
+## Testing the centralized DB
 
-## Using a centralized DB
-
-Set the following env vars for cca-operator ckan init scripts:
+Create a bash alias to run docker-compose with the centralized configuration
 
 ```
-CKAN_CLOUD_POSTGRES_HOST=
-CKAN_CLOUD_INSTANCE_ID=
-PGPASSWORD=
+alias docker-compose="`which docker-compose` -f docker-compose.yaml -f .docker-compose-centralized.yaml"
 ```
 
-cca-operator's initialize-ckan-env-vars command will create the DB for the instance
+Start a clean environment with only the db and solr cloud -
 
-To test CKAN locally - create a modified ckan/ckan-secrets.sh file with the connection details to the specific instance's DB
+```
+docker-compose down -v
+docker-compose up -d db solr
+```
 
-Override the relevant volume in docker-compose.override.yaml
+Set the instance id which is used for database names and the solr core name
+
+```
+INSTANCE_ID=test1
+```
+
+Create the dbs
+
+```
+docker-compose run --rm cca-operator -c "source functions.sh; PGPASSWORD=123456 create_db db postgres ${INSTANCE_ID} 654321" &&\
+docker-compose run --rm cca-operator -c "source functions.sh; PGPASSWORD=123456 create_datastore_db db postgres ${INSTANCE_ID} ${INSTANCE_ID}-datastore 654321 ${INSTANCE_ID}-datastore-readonly 654321"
+```
+
+Create the solrcloud collection
+
+```
+docker-compose exec solr bin/solr create_collection -c ${INSTANCE_ID} -d ckan_default -n ckan_default
+```
+
+Start ckan
+
+```
+docker-compose up -d --force-recreate jobs
+```
+
+by default it uses `test1` as the INSTANCE_ID, to modify, override the ckan secrets.sh
+
+You might need to reload the solr collection after recreate:
+
+```
+curl "http://localhost:8983/solr/admin/collections?action=RELOAD&name=${INSTANCE_ID}&wt=json"
+```

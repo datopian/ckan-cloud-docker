@@ -8,11 +8,7 @@ RUN while ! ( apk update && apk add --no-cache \
     chmod +x kubectl && mv ./kubectl /usr/local/bin/kubectl &&\
     python3 -m pip install pyyaml &&\
     curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh &&\
-    chmod 700 get_helm.sh && ./get_helm.sh --version v2.11.0 && helm version --client && rm ./get_helm.sh &&\
-    ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N "" &&\
-    ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -N "" &&\
-    ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N "" &&\
-    ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ""
+    chmod 700 get_helm.sh && ./get_helm.sh --version v2.11.0 && helm version --client && rm ./get_helm.sh
 
 COPY *.sh /cca-operator/
 COPY *.py /cca-operator/

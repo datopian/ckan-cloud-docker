@@ -92,11 +92,18 @@ cca-operator() {
 }
 ```
 
+Delete secrets to re-create
+
+```
+kubectl --context minikube -n $CKAN_NAMESPACE delete secret ckan-env-vars ckan-secrets
+```
+
 Run the cca-operator CKAN commands:
 
-* Create the ckan env vars secret: `cca-operator initialize-ckan-env-vars ckan-env-vars`
+* create the ckan env vars secret: `cca-operator initialize-ckan-env-vars ckan-env-vars`
+  * If you use the centralized infra, set the env vars: `--env CKAN_CLOUD_INSTANCE_ID=$CKAN_NAMESPACE --env CKAN_CLOUD_POSTGRES_HOST=db.ckan-cloud --env CKAN_CLOUD_POSTGRES_USER=postgres --env PGPASSWORD=123456 --env CKAN_CLOUD_SOLR_HOST=solr.ckan-cloud --env CKAN_CLOUD_SOLR_PORT=8983`
 * Initialize the CKAN secrets.sh: `cca-operator initialize-ckan-secrets ckan-env-vars ckan-secrets`
-* Write the CKAN secrets to secrets.sh: `cca-operator --command -- bash -c "./cca-operator.sh get-ckan-secrets ckan-secrets secrets.sh && cat secrets.sh"
+* Write the CKAN secrets to secrets.sh: `cca-operator --command -- bash -c "./cca-operator.sh get-ckan-secrets ckan-secrets secrets.sh && cat secrets.sh"`
 
 
 ## cca-operator server

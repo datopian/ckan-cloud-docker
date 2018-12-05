@@ -1,10 +1,21 @@
 
+SSH_KEYS_VERSION="1"
+
+if [ "$(cat /etc/ssh/cca-operator-keys-version)" != "${SSH_KEYS_VERSION}" ]; then
+    ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N "" &&\
+    ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -N "" &&\
+    ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N "" &&\
+    ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N "" &&\
+    echo "${SSH_KEYS_VERSION}" > /etc/ssh/cca-operator-keys-version
+    [ "$?" != "0" ] && echo failed to generate ssh keys && exit 1
+fi
+
 get_secrets_json() {
     kubectl $KUBECTL_GLOBAL_ARGS get secret $1 -o json
 }
 
 get_secret_from_json() {
-    VAL=`echo "${1}" | jq -r ".data.${2}"`
+    local VAL=`echo "${1}" | jq -r ".data.${2}"`
     if [ "${VAL}" != "" ] && [ "${VAL}" != "null" ]; then
         echo "${VAL}" | base64 -d
     fi
@@ -20,10 +31,13 @@ export_ckan_env_vars() {
     export CKAN_BEAKER_SESSION_SECRET=`get_secret_from_json "${SECRETS_JSON}" CKAN_BEAKER_SESSION_SECRET`
     export POSTGRES_PASSWORD=`get_secret_from_json "${SECRETS_JSON}" POSTGRES_PASSWORD`
     export POSTGRES_USER=`get_secret_from_json "${SECRETS_JSON}" POSTGRES_USER`
+    export POSTGRES_HOST=`get_secret_from_json "${SECRETS_JSON}" POSTGRES_HOST`
+    export POSTGRES_DB_NAME=`get_secret_from_json "${SECRETS_JSON}" POSTGRES_DB_NAME`
     export DATASTORE_POSTGRES_PASSWORD=`get_secret_from_json "${SECRETS_JSON}" DATASTORE_POSTGRES_PASSWORD`
     export DATASTORE_POSTGRES_USER=`get_secret_from_json "${SECRETS_JSON}" DATASTORE_POSTGRES_USER`
     export DATASTORE_RO_USER=`get_secret_from_json "${SECRETS_JSON}" DATASTORE_RO_USER`
     export DATASTORE_RO_PASSWORD=`get_secret_from_json "${SECRETS_JSON}" DATASTORE_RO_PASSWORD`
+    export SOLR_URL=`get_secret_from_json "${SECRETS_JSON}" SOLR_URL`
 
     ( [ -z "${CKAN_BEAKER_SESSION_SECRET}" ] || [ -z "${CKAN_APP_INSTANCE_UUID}" ] || [ -z "${POSTGRES_PASSWORD}" ] || \
       [ -z "${POSTGRES_USER}" ] ) && echo missing required ckan env vars && return 1
@@ -196,13 +210,13 @@ generate_password() {
 }
 
 create_db() {
-    POSTGRES_HOST="${1}"
-    POSTGRES_USER="${2}"
-    CREATE_POSTGRES_USER="${3}"
-    CREATE_POSTGRES_PASSWORD="${4}"
-    ( [ -z "${POSTGRES_HOST}" ] || [ -z "${POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_PASSWORD}" ] ) && exit 1
+    local POSTGRES_HOST="${1}"
+    local POSTGRES_USER="${2}"
+    local CREATE_POSTGRES_USER="${3}"
+    local CREATE_POSTGRES_PASSWORD="${4}"
+    ( [ -z "${POSTGRES_HOST}" ] || [ -z "${POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_PASSWORD}" ] ) && return 1
     echo Initializing ${CREATE_POSTGRES_USER} on ${POSTGRES_HOST}
-    RES=$(psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+    local RES=$(psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
         CREATE ROLE \"${CREATE_POSTGRES_USER}\" WITH LOGIN PASSWORD '${CREATE_POSTGRES_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
     " 2>/dev/stdout &&\
     psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
@@ -214,20 +228,20 @@ create_db() {
 }
 
 create_datastore_db() {
-    POSTGRES_HOST="${1}"
-    POSTGRES_USER="${2}"
-    SITE_USER="${3}"
-    DS_RW_USER="${4}"
-    DS_RW_PASSWORD="${5}"
-    DS_RO_USER="${6}"
-    DS_RO_PASSWORD="${7}"
+    local POSTGRES_HOST="${1}"
+    local POSTGRES_USER="${2}"
+    local SITE_USER="${3}"
+    local DS_RW_USER="${4}"
+    local DS_RW_PASSWORD="${5}"
+    local DS_RO_USER="${6}"
+    local DS_RO_PASSWORD="${7}"
     ! create_db "${POSTGRES_HOST}" "${POSTGRES_USER}" "${DS_RW_USER}" "${DS_RW_PASSWORD}" && return 1
     ( [ -z "${SITE_USER}" ] || [ -z "${DS_RO_USER}" ] || [ -z "${DS_RO_PASSWORD}" ] ) && return 1
     echo Initializing datastore DB ${DS_RW_USER} on ${POSTGRES_HOST}
     export SITE_USER
     export DS_RW_USER
     export DS_RO_USER
-    RES=$(
+    local RES=$(
         psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
             CREATE ROLE \"${DS_RO_USER}\" WITH LOGIN PASSWORD '${DS_RO_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
         " 2>/dev/stdout &&\

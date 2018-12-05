@@ -216,15 +216,13 @@ create_db() {
     local CREATE_POSTGRES_PASSWORD="${4}"
     ( [ -z "${POSTGRES_HOST}" ] || [ -z "${POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_PASSWORD}" ] ) && return 1
     echo Initializing ${CREATE_POSTGRES_USER} on ${POSTGRES_HOST}
-    local RES=$(psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
         CREATE ROLE \"${CREATE_POSTGRES_USER}\" WITH LOGIN PASSWORD '${CREATE_POSTGRES_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
-    " 2>/dev/stdout &&\
-    psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+    " &&\
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
         CREATE DATABASE \"${CREATE_POSTGRES_USER}\";
-    ")
-    [ "$?" != "0" ] && return 1
-    echo DB initialized successfully
-    return 0
+    " && echo DB initialized successfully && return 0
+    echo DB Initialization failed && return 1
 }
 
 create_datastore_db() {
@@ -241,33 +239,30 @@ create_datastore_db() {
     export SITE_USER
     export DS_RW_USER
     export DS_RO_USER
-    local RES=$(
-        psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
-            CREATE ROLE \"${DS_RO_USER}\" WITH LOGIN PASSWORD '${DS_RO_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
-        " 2>/dev/stdout &&\
-        psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
-            REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-            REVOKE USAGE ON SCHEMA public FROM PUBLIC;
-            GRANT CREATE ON SCHEMA public TO \"${SITE_USER}\";
-            GRANT USAGE ON SCHEMA public TO \"${SITE_USER}\";
-            GRANT CREATE ON SCHEMA public TO \"${DS_RW_USER}\";
-            GRANT USAGE ON SCHEMA public TO \"${DS_RW_USER}\";
-            ALTER DATABASE \"${SITE_USER}\" OWNER TO ${POSTGRES_USER};
-            ALTER DATABASE \"${DS_RW_USER}\" OWNER TO ${POSTGRES_USER};
-            REVOKE CONNECT ON DATABASE \"${SITE_USER}\" FROM \"${DS_RO_USER}\";
-            GRANT CONNECT ON DATABASE \"${DS_RW_USER}\" TO \"${DS_RO_USER}\";
-            GRANT USAGE ON SCHEMA public TO \"${DS_RO_USER}\";
-            ALTER DATABASE \"${SITE_USER}\" OWNER TO \"${SITE_USER}\";
-            ALTER DATABASE \"${DS_RW_USER}\" OWNER TO \"${DS_RW_USER}\";
-            SET ROLE \"${DS_RW_USER}\";
-            GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"${DS_RO_USER}\";
-            ALTER DEFAULT PRIVILEGES FOR USER \"${DS_RW_USER}\" IN SCHEMA public GRANT SELECT ON TABLES TO \"${DS_RO_USER}\";
-            RESET ROLE;
-        " &&\
-        bash ./templater.sh ./datastore-permissions.sql.template \
-            | psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}"
-    )
-    [ "$?" != "0" ] && return 1
-    echo Datastore DB initialized successfully
-    return 0
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+        CREATE ROLE \"${DS_RO_USER}\" WITH LOGIN PASSWORD '${DS_RO_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
+    " &&\
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
+        REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+        REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+        GRANT CREATE ON SCHEMA public TO \"${SITE_USER}\";
+        GRANT USAGE ON SCHEMA public TO \"${SITE_USER}\";
+        GRANT CREATE ON SCHEMA public TO \"${DS_RW_USER}\";
+        GRANT USAGE ON SCHEMA public TO \"${DS_RW_USER}\";
+        ALTER DATABASE \"${SITE_USER}\" OWNER TO ${POSTGRES_USER};
+        ALTER DATABASE \"${DS_RW_USER}\" OWNER TO ${POSTGRES_USER};
+        REVOKE CONNECT ON DATABASE \"${SITE_USER}\" FROM \"${DS_RO_USER}\";
+        GRANT CONNECT ON DATABASE \"${DS_RW_USER}\" TO \"${DS_RO_USER}\";
+        GRANT USAGE ON SCHEMA public TO \"${DS_RO_USER}\";
+        ALTER DATABASE \"${SITE_USER}\" OWNER TO \"${SITE_USER}\";
+        ALTER DATABASE \"${DS_RW_USER}\" OWNER TO \"${DS_RW_USER}\";
+        SET ROLE \"${DS_RW_USER}\";
+        GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"${DS_RO_USER}\";
+        ALTER DEFAULT PRIVILEGES FOR USER \"${DS_RW_USER}\" IN SCHEMA public GRANT SELECT ON TABLES TO \"${DS_RO_USER}\";
+        RESET ROLE;
+    " &&\
+    bash ./templater.sh ./datastore-permissions.sql.template \
+        | psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" &&\
+    echo Datastore DB initialized successfully && return 0
+    echo Datastore DB initialization failed && return 1
 }

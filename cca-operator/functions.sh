@@ -222,7 +222,7 @@ create_db() {
     psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
         CREATE DATABASE \"${CREATE_POSTGRES_USER}\";
     ")
-    [ "$?" != "0" ] && ! echo "${RES}" | grep "already exists" && echo failed to initialize db && return 1
+    [ "$?" != "0" ] && return 1
     echo DB initialized successfully
     return 0
 }
@@ -267,7 +267,7 @@ create_datastore_db() {
         bash ./templater.sh ./datastore-permissions.sql.template \
             | psql -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}"
     )
-    [ "$?" != "0" ] && ! echo "${RES}" | grep "already exists" && echo failed to initialize datastore db && return 1
+    [ "$?" != "0" ] && return 1
     echo Datastore DB initialized successfully
     return 0
 }

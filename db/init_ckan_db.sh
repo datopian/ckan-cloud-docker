@@ -8,7 +8,7 @@ if [ -z "${DATASTORE_RO_USER}" ]; then
     echo Initializing CKAN DB &&\
     echo Creating db &&\
     createdb ckan -E utf-8 &&\
-    echo Creating role &&\
+    echo Creating role "create role ckan with login password '${POSTGRES_PASSWORD}'" &&\
     psql -c "create role ckan with login password '${POSTGRES_PASSWORD}';" &&\
     echo Granting privileges &&\
     psql -c 'GRANT ALL PRIVILEGES ON DATABASE "ckan" to ckan;' &&\

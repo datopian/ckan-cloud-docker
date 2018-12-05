@@ -75,6 +75,9 @@ COPY templater.sh /templater.sh
 ARG POST_DOCKER_BUILD
 RUN . /post_install_functions.sh && eval "${POST_DOCKER_BUILD}"
 
+ARG CKAN_INIT
+RUN echo "${CKAN_INIT}" | sed s@CKAN_CONFIG@${CKAN_CONFIG}@g > ${CKAN_CONFIG}/ckan_extra_init.sh
+
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 
 EXPOSE 5000

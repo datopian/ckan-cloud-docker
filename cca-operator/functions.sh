@@ -256,13 +256,13 @@ create_datastore_db() {
         GRANT USAGE ON SCHEMA public TO \"${DS_RO_USER}\";
         ALTER DATABASE \"${SITE_USER}\" OWNER TO \"${SITE_USER}\";
         ALTER DATABASE \"${DS_RW_USER}\" OWNER TO \"${DS_RW_USER}\";
-        SET ROLE \"${DS_RW_USER}\";
+    " &&\
+    PGPASSWORD="${DS_RW_PASSWORD}" psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${DS_RW_USER}" -d "${DS_RW_USER}" -c "
         GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"${DS_RO_USER}\";
         ALTER DEFAULT PRIVILEGES FOR USER \"${DS_RW_USER}\" IN SCHEMA public GRANT SELECT ON TABLES TO \"${DS_RO_USER}\";
-        RESET ROLE;
     " &&\
-    bash ./templater.sh ./datastore-permissions.sql.template \
-        | psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" &&\
+    bash ./templater.sh ./datastore-permissions.sql.template | grep ' OWNER TO ' -v \
+        | PGPASSWORD="${DS_RW_PASSWORD}" psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${DS_RW_USER}" -d "${DS_RW_USER}" &&\
     echo Datastore DB initialized successfully && return 0
     echo Datastore DB initialization failed && return 1
 }

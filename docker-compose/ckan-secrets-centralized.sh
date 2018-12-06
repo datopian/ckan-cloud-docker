@@ -1,0 +1,12 @@
+export BEAKER_SESSION_SECRET=d81d3c0095114bde9ce04e66e32e2f5dd97ec81ce377636183
+export APP_INSTANCE_UUID=df93ee4a-da20-11e8-8c76-e4a4719186ba
+export SQLALCHEMY_URL=postgresql://${INSTANCE_ID}:654321@db/${INSTANCE_ID}
+export CKAN_DATASTORE_WRITE_URL=postgresql://${INSTANCE_ID}-datastore:654321@db/${INSTANCE_ID}-datastore
+export CKAN_DATASTORE_READ_URL=postgresql://${INSTANCE_ID}-datastore-readonly:654321@db/${INSTANCE_ID}-datastore
+export SOLR_URL=http://solr:8983/solr/${INSTANCE_ID}
+export CKAN_REDIS_URL=redis://redis:6379/1
+export SMTP_SERVER=
+export SMTP_STARTTLS=
+export SMTP_USER=
+export SMTP_PASSWORD=
+export SMTP_MAIL_FROM=

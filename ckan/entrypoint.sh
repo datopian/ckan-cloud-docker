@@ -6,7 +6,9 @@ cp -f $CKAN_K8S_TEMPLATES/${CKAN_WHO_TEMPLATE_PREFIX}who.ini $CKAN_CONFIG/who.in
 bash /templater.sh $CKAN_K8S_TEMPLATES/${CKAN_CONFIG_TEMPLATE_PREFIX}production.ini.template > $CKAN_CONFIG/production.ini &&\
 bash /templater.sh $CKAN_K8S_TEMPLATES/${CKAN_INIT_TEMPLATE_PREFIX}ckan_init.sh.template > $CKAN_CONFIG/ckan_init.sh &&\
 bash $CKAN_CONFIG/ckan_init.sh &&\
-ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini"
+echo running ckan-paster db init &&\
+ckan-paster --plugin=ckan db init --verbose -c "${CKAN_CONFIG}/production.ini" &&\
+echo db initialization complete
 INIT_RES=$?
 
 [ "${INIT_RES}" != "0" ] && echo ERROR: Initialization failed

@@ -15,9 +15,12 @@ elif [ "${1}" == "deploy" ]; then
     ! tag_images "${TAG}" && exit 1
     if [ "${TRAVIS_BRANCH}" == "master" ]; then
         ! push_latest_images && exit 1
+        PUSHED_LATEST=1
+    else
+        PUSHED_LATEST=0
     fi
     ! push_tag_images "${TAG}" && exit 1
-    print_summary "${TAG}"
+    print_summary "${TAG}" "${PUSHED_LATEST}"
     if [ "${TRAVIS_TAG}" != "" ]; then
         if ! [ -z "${SLACK_TAG_NOTIFICATION_CHANNEL}" ] && ! [ -z "${SLACK_TAG_NOTIFICATION_WEBHOOK_URL}" ]; then
             ! curl -X POST \

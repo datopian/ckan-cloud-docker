@@ -4,7 +4,7 @@ get_secrets_json() {
 }
 
 get_secret_from_json() {
-    VAL=`echo "${1}" | jq -r ".data.${2}"`
+    local VAL=`echo "${1}" | jq -r ".data.${2}"`
     if [ "${VAL}" != "" ] && [ "${VAL}" != "null" ]; then
         echo "${VAL}" | base64 -d
     fi
@@ -20,10 +20,13 @@ export_ckan_env_vars() {
     export CKAN_BEAKER_SESSION_SECRET=`get_secret_from_json "${SECRETS_JSON}" CKAN_BEAKER_SESSION_SECRET`
     export POSTGRES_PASSWORD=`get_secret_from_json "${SECRETS_JSON}" POSTGRES_PASSWORD`
     export POSTGRES_USER=`get_secret_from_json "${SECRETS_JSON}" POSTGRES_USER`
+    export POSTGRES_HOST=`get_secret_from_json "${SECRETS_JSON}" POSTGRES_HOST`
+    export POSTGRES_DB_NAME=`get_secret_from_json "${SECRETS_JSON}" POSTGRES_DB_NAME`
     export DATASTORE_POSTGRES_PASSWORD=`get_secret_from_json "${SECRETS_JSON}" DATASTORE_POSTGRES_PASSWORD`
     export DATASTORE_POSTGRES_USER=`get_secret_from_json "${SECRETS_JSON}" DATASTORE_POSTGRES_USER`
     export DATASTORE_RO_USER=`get_secret_from_json "${SECRETS_JSON}" DATASTORE_RO_USER`
     export DATASTORE_RO_PASSWORD=`get_secret_from_json "${SECRETS_JSON}" DATASTORE_RO_PASSWORD`
+    export SOLR_URL=`get_secret_from_json "${SECRETS_JSON}" SOLR_URL`
 
     ( [ -z "${CKAN_BEAKER_SESSION_SECRET}" ] || [ -z "${CKAN_APP_INSTANCE_UUID}" ] || [ -z "${POSTGRES_PASSWORD}" ] || \
       [ -z "${POSTGRES_USER}" ] ) && echo missing required ckan env vars && return 1
@@ -186,7 +189,69 @@ exit(0)' > $TEMPFILE &&\
     kubectl $KUBECTL_GLOBAL_ARGS create configmap etc-traefik --from-file=traefik.toml=$TEMPFILE &&\
     rm $TEMPFILE &&\
     kubectl $KUBECTL_GLOBAL_ARGS patch deployment traefik -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}" &&\
-    kubectl $KUBECTL_GLOBAL_ARGS rollout status deployment traefik
+    while ! kubectl $KUBECTL_GLOBAL_ARGS rollout status deployment traefik --watch=false; do echo . && sleep 5; done &&\
     [ "$?" != "0" ] && echo Failed to add domain to traefik && return 1
     return 0
+}
+
+generate_password() {
+    python -c "import binascii,os;print(binascii.hexlify(os.urandom(${1:-12})))"
+}
+
+create_db() {
+    local POSTGRES_HOST="${1}"
+    local POSTGRES_USER="${2}"
+    local CREATE_POSTGRES_USER="${3}"
+    local CREATE_POSTGRES_PASSWORD="${4}"
+    ( [ -z "${POSTGRES_HOST}" ] || [ -z "${POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_PASSWORD}" ] ) && return 1
+    echo Initializing ${CREATE_POSTGRES_USER} on ${POSTGRES_HOST}
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+        CREATE ROLE \"${CREATE_POSTGRES_USER}\" WITH LOGIN PASSWORD '${CREATE_POSTGRES_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
+    " &&\
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+        CREATE DATABASE \"${CREATE_POSTGRES_USER}\";
+    " && echo DB initialized successfully && return 0
+    echo DB Initialization failed && return 1
+}
+
+create_datastore_db() {
+    local POSTGRES_HOST="${1}"
+    local POSTGRES_USER="${2}"
+    local SITE_USER="${3}"
+    local DS_RW_USER="${4}"
+    local DS_RW_PASSWORD="${5}"
+    local DS_RO_USER="${6}"
+    local DS_RO_PASSWORD="${7}"
+    ! create_db "${POSTGRES_HOST}" "${POSTGRES_USER}" "${DS_RW_USER}" "${DS_RW_PASSWORD}" && return 1
+    ( [ -z "${SITE_USER}" ] || [ -z "${DS_RO_USER}" ] || [ -z "${DS_RO_PASSWORD}" ] ) && return 1
+    echo Initializing datastore DB ${DS_RW_USER} on ${POSTGRES_HOST}
+    export SITE_USER
+    export DS_RW_USER
+    export DS_RO_USER
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+        CREATE ROLE \"${DS_RO_USER}\" WITH LOGIN PASSWORD '${DS_RO_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
+    " &&\
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
+        REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+        REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+        GRANT CREATE ON SCHEMA public TO \"${SITE_USER}\";
+        GRANT USAGE ON SCHEMA public TO \"${SITE_USER}\";
+        GRANT CREATE ON SCHEMA public TO \"${DS_RW_USER}\";
+        GRANT USAGE ON SCHEMA public TO \"${DS_RW_USER}\";
+        ALTER DATABASE \"${SITE_USER}\" OWNER TO ${POSTGRES_USER};
+        ALTER DATABASE \"${DS_RW_USER}\" OWNER TO ${POSTGRES_USER};
+        REVOKE CONNECT ON DATABASE \"${SITE_USER}\" FROM \"${DS_RO_USER}\";
+        GRANT CONNECT ON DATABASE \"${DS_RW_USER}\" TO \"${DS_RO_USER}\";
+        GRANT USAGE ON SCHEMA public TO \"${DS_RO_USER}\";
+        ALTER DATABASE \"${SITE_USER}\" OWNER TO \"${SITE_USER}\";
+        ALTER DATABASE \"${DS_RW_USER}\" OWNER TO \"${DS_RW_USER}\";
+    " &&\
+    PGPASSWORD="${DS_RW_PASSWORD}" psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${DS_RW_USER}" -d "${DS_RW_USER}" -c "
+        GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"${DS_RO_USER}\";
+        ALTER DEFAULT PRIVILEGES FOR USER \"${DS_RW_USER}\" IN SCHEMA public GRANT SELECT ON TABLES TO \"${DS_RO_USER}\";
+    " &&\
+    bash ./templater.sh ./datastore-permissions.sql.template | grep ' OWNER TO ' -v \
+        | PGPASSWORD="${DS_RW_PASSWORD}" psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${DS_RW_USER}" -d "${DS_RW_USER}" &&\
+    echo Datastore DB initialized successfully && return 0
+    echo Datastore DB initialization failed && return 1
 }

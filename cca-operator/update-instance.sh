@@ -39,6 +39,11 @@ import yaml;
 print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("ckanHelmChartVersion", ""))
 ' 2>/dev/null`
 
+USE_CENTRALIZED_INFRA=`python3 -c '
+import yaml;
+print("1" if yaml.load(open("'${CKAN_VALUES_FILE}'")).get("useCentralizedInfra", False) else "0")
+' 2>/dev/null`
+
 LOAD_BALANCER_HOSTNAME=$(kubectl $KUBECTL_GLOBAL_ARGS -n default get service traefik -o yaml \
     | python3 -c 'import sys, yaml; print(yaml.load(sys.stdin)["status"]["loadBalancer"]["ingress"][0]["hostname"])' 2>/dev/null)
 
@@ -73,6 +78,31 @@ else
     [ "$?" != "0" ] && exit 1
 fi
 
+if [ "${USE_CENTRALIZED_INFRA}" == "1" ]; then
+    echo initializing centralized infrastructure
+    echo Verifying ckan-infra secret on namespace ${INSTANCE_NAMESPACE}
+    if ! kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" get secret ckan-infra; then
+        echo creating ckan-infra secret
+        kubectl $KUBECTL_GLOBAL_ARGS -n ckan-cloud get secret ckan-infra --export -o yaml \
+            | kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" create -f -
+        [ "$?" != "0" ] && exit 1
+    fi
+    ! SOLRCLOUD_POD_NAME=$(kubectl -n ckan-cloud get pods -l "app=solr" -o 'jsonpath={.items[0].metadata.name}') && exit 1
+    echo Verifying solrcloud collection ${INSTANCE_NAMESPACE} on solrcloud pod $SOLRCLOUD_POD_NAME in namespace ckan-cloud
+    SOLRCLOUD_COLLECTION_EXISTS=$(kubectl -n ckan-cloud exec $SOLRCLOUD_POD_NAME \
+                                    -- curl 'localhost:8983/solr/admin/collections?action=LIST&wt=json' \
+                                    | python3 -c 'import json,sys; print("1" if ("'${INSTANCE_NAMESPACE}'" \
+                                                                         in json.load(sys.stdin)["collections"]) \
+                                                                         else "0")')
+    if [ "${SOLRCLOUD_COLLECTION_EXISTS}" == "0" ]; then
+        echo creating solrcloud collection
+        kubectl -n ckan-cloud exec $SOLRCLOUD_POD_NAME -- \
+            sudo -u solr bin/solr create_collection -c ${INSTANCE_NAMESPACE} -d ckan_default -n ckan_default
+        [ "$?" != "0" ] && exit 1
+    fi
+    echo centralized infrastructure initialized successfully
+fi
+
 echo Deploying CKAN instance: ${INSTSANCE_ID}
 
 echo Initializing ckan-cloud Helm repo "${CKAN_HELM_CHART_REPO}"
@@ -95,7 +125,8 @@ helm_upgrade() {
 }
 
 wait_for_pods() {
-    DELAY_SECONDS=10
+    INITIAL_DELAY_SECONDS=2
+    DELAY_SECONDS=3
     TOTAL_SECONDS=0
     while ! kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" get pods -o yaml | python3 -c '
 import yaml, sys;
@@ -122,15 +153,11 @@ exit(0)
 }
 
 if [ "${IS_NEW_NAMESPACE}" == "1" ]; then
-    helm_upgrade --set replicas=1 --set nginxReplicas=1 &&\
-    sleep 2 &&\
-    wait_for_pods
+    helm_upgrade --set replicas=1 --set nginxReplicas=1 --set disableJobs=true --set noProbes=true && wait_for_pods
     [ "$?" != "0" ] && exit 1
 fi
 
-helm_upgrade &&\
-sleep 1 &&\
-wait_for_pods
+helm_upgrade && wait_for_pods
 [ "$?" != "0" ] && exit 1
 
 CKAN_POD_NAME=$(kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} get pods -l "app=ckan" -o 'jsonpath={.items[0].metadata.name}')

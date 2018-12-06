@@ -1,15 +1,4 @@
 
-SSH_KEYS_VERSION="1"
-
-if [ "$(cat /etc/ssh/cca-operator-keys-version)" != "${SSH_KEYS_VERSION}" ]; then
-    ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N "" &&\
-    ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -N "" &&\
-    ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N "" &&\
-    ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N "" &&\
-    echo "${SSH_KEYS_VERSION}" > /etc/ssh/cca-operator-keys-version
-    [ "$?" != "0" ] && echo failed to generate ssh keys && exit 1
-fi
-
 get_secrets_json() {
     kubectl $KUBECTL_GLOBAL_ARGS get secret $1 -o json
 }
@@ -200,7 +189,7 @@ exit(0)' > $TEMPFILE &&\
     kubectl $KUBECTL_GLOBAL_ARGS create configmap etc-traefik --from-file=traefik.toml=$TEMPFILE &&\
     rm $TEMPFILE &&\
     kubectl $KUBECTL_GLOBAL_ARGS patch deployment traefik -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}" &&\
-    kubectl $KUBECTL_GLOBAL_ARGS rollout status deployment traefik
+    while ! kubectl $KUBECTL_GLOBAL_ARGS rollout status deployment traefik --watch=false; do echo . && sleep 5; done &&\
     [ "$?" != "0" ] && echo Failed to add domain to traefik && return 1
     return 0
 }

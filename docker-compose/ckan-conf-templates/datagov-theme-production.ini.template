@@ -77,8 +77,36 @@ ckan.redis.url = {{CKAN_REDIS_URL}}
 
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore xloader geodatagov datagovtheme
+ckan.plugins = stats
+   text_view
+   image_view
+   recline_view
+   datastore
+   xloader
+   harvest
+   ckan_harvester
+   datajson_harvest
+   datajson
+   archiver
+   report
+   dcat
+   dcat_rdf_harvester
+   dcat_json_harvester
+   dcat_json_interface
+   structured_data
+   geodatagov
+   geodatagov_miscs
+   z3950_harvester
+   arcgis_harvester
+   geodatagov_geoportal_harvester
+   waf_harvester_collection
+   geodatagov_csw_harvester
+   geodatagov_doc_harvester
+   geodatagov_waf_harvester
+   spatial_metadata
+   spatial_query
 
+  
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
 ckan.views.default_views = image_view text_view recline_view
@@ -163,6 +191,12 @@ smtp.user = {{SMTP_USER}}
 smtp.password = {{SMTP_PASSWORD}}
 smtp.mail_from = {{SMTP_MAIL_FROM}}
 
+###
+
+## datajson settings
+ckanext.datajson.inventory_links_enabled = True
+ckanext.datajson.url_enabled = False
+
 
 ## Datagov settings
 ckanext.geodatagov.dynamic_menu.url_default = http://www.data.gov/app/plugins/datagov-custom/wp_download_links.php
@@ -170,6 +204,10 @@ ckanext.geodatagov.dynamic_menu.url =
 ckanext.geodatagov.bureau_csv.url_default = https://project-open-data.cio.gov/data/omb_bureau_codes.csv
 ckanext.geodatagov.bureau_csv.url = https://project-open-data.cio.gov/data/omb_bureau_codes.csv
 
+## Harvest settings
+ckan.harvest.mq.type = redis
+ckan.harvest.mq.hostname = redis
+ckan.harvest.mq.redis_db = 9
 
 ## Logging configuration
 [loggers]

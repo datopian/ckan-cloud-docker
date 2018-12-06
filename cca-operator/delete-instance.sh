@@ -14,7 +14,7 @@ if kubectl $KUBECTL_GLOBAL_ARGS get ns "${INSTANCE_NAMESPACE}"; then
     ! kubectl $KUBECTL_GLOBAL_ARGS delete ns "${INSTANCE_NAMESPACE}" --wait=false && echo WARNING: failed to delete instance namespace
     echo waiting 60 seconds to let namespace terminate
     echo waiting for all pods to be removed from namespace
-    while [ "$(kubectl get pods -n jenkins23 --no-headers | tee /dev/stderr | wc -l)" != "0" ]; do
+    while [ "$(kubectl get pods -n "${INSTANCE_NAMESPACE}" --no-headers | tee /dev/stderr | wc -l)" != "0" ]; do
         sleep 5
         echo .
     done

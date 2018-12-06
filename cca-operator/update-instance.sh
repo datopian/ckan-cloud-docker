@@ -163,22 +163,21 @@ helm_upgrade && wait_for_pods
 CKAN_POD_NAME=$(kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} get pods -l "app=ckan" -o 'jsonpath={.items[0].metadata.name}')
 echo CKAN_POD_NAME = "${CKAN_POD_NAME}" > /dev/stderr
 
-if kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} exec -it ${CKAN_POD_NAME} -- bash -c \
-    "ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini list" \
-        | grep "name=admin"
-then
+if kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" get secret ckan-admin-password; then
+    echo getting ckan admin password from existing secret
     CKAN_ADMIN_PASSWORD=$( \
         get_secret_from_json "$(kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" get secret ckan-admin-password -o json)" \
         "CKAN_ADMIN_PASSWORD" \
     )
-    echo admin user already exists
 else
+    echo creating ckan admin user
     CKAN_ADMIN_PASSWORD=$(python3 -c "import binascii,os;print(binascii.hexlify(os.urandom(12)).decode())")
-    ! kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" create secret generic ckan-admin-password "--from-literal=CKAN_ADMIN_PASSWORD=${CKAN_ADMIN_PASSWORD}" && exit 1
     echo y \
         | kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} exec -it ${CKAN_POD_NAME} -- bash -c \
             "ckan-paster --plugin=ckan sysadmin -c /etc/ckan/production.ini add admin password=${CKAN_ADMIN_PASSWORD} email=${CKAN_ADMIN_EMAIL}" \
-                > /dev/stderr
+                > /dev/stderr &&\
+    kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" \
+        create secret generic ckan-admin-password "--from-literal=CKAN_ADMIN_PASSWORD=${CKAN_ADMIN_PASSWORD}"
     [ "$?" != "0" ] && exit 1
 fi
 

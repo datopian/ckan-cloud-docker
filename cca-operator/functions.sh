@@ -212,7 +212,7 @@ create_db() {
         CREATE DATABASE \"${CREATE_POSTGRES_USER}\";
     " &&\
     echo initializing postgis extensions &&\
-    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${CREATE_POSTGRES_USER}" -c "
         CREATE EXTENSION IF NOT EXISTS postgis;
         CREATE EXTENSION IF NOT EXISTS postgis_topology;
         CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;

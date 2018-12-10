@@ -198,7 +198,7 @@ generate_password() {
     python -c "import binascii,os;print(binascii.hexlify(os.urandom(${1:-12})))"
 }
 
-create_db() {
+create_db_base() {
     local POSTGRES_HOST="${1}"
     local POSTGRES_USER="${2}"
     local CREATE_POSTGRES_USER="${3}"
@@ -211,6 +211,16 @@ create_db() {
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
         CREATE DATABASE \"${CREATE_POSTGRES_USER}\";
     " &&\
+    echo DB initialized successfully && return 0
+    echo DB Initialization failed && return 1
+}
+
+create_db() {
+    local POSTGRES_HOST="${1}"
+    local POSTGRES_USER="${2}"
+    local CREATE_POSTGRES_USER="${3}"
+    local CREATE_POSTGRES_PASSWORD="${4}"
+    ! create_db_base "${POSTGRES_HOST}" "${POSTGRES_USER}" "${CREATE_POSTGRES_USER}" "${CREATE_POSTGRES_PASSWORD}" && return 1
     echo initializing postgis extensions &&\
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${CREATE_POSTGRES_USER}" -c "
         CREATE EXTENSION IF NOT EXISTS postgis;
@@ -218,8 +228,8 @@ create_db() {
         CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
         CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
     " &&\
-    echo DB initialized successfully && return 0
-    echo DB Initialization failed && return 1
+    echo postgis extensions initialized successfully && return 0
+    echo postgis extensions failed && return 1
 }
 
 create_datastore_db() {
@@ -230,7 +240,7 @@ create_datastore_db() {
     local DS_RW_PASSWORD="${5}"
     local DS_RO_USER="${6}"
     local DS_RO_PASSWORD="${7}"
-    ! create_db "${POSTGRES_HOST}" "${POSTGRES_USER}" "${DS_RW_USER}" "${DS_RW_PASSWORD}" && return 1
+    ! create_db_base "${POSTGRES_HOST}" "${POSTGRES_USER}" "${DS_RW_USER}" "${DS_RW_PASSWORD}" && return 1
     ( [ -z "${SITE_USER}" ] || [ -z "${DS_RO_USER}" ] || [ -z "${DS_RO_PASSWORD}" ] ) && return 1
     echo Initializing datastore DB ${DS_RW_USER} on ${POSTGRES_HOST}
     export SITE_USER

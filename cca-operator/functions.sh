@@ -211,13 +211,6 @@ create_db_base() {
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
         CREATE DATABASE \"${CREATE_POSTGRES_USER}\";
     " &&\
-    echo initializing postgis extensions &&\
-    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${CREATE_POSTGRES_USER}" -c "
-        CREATE EXTENSION IF NOT EXISTS postgis;
-        CREATE EXTENSION IF NOT EXISTS postgis_topology;
-        CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
-        CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
-    " &&\
     echo DB initialized successfully && return 0
     echo DB Initialization failed && return 1
 }

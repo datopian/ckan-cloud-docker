@@ -124,40 +124,79 @@ helm_upgrade() {
         -if "${CKAN_VALUES_FILE}" $VERSIONARGS "$@"
 }
 
-wait_for_pods() {
-    INITIAL_DELAY_SECONDS=2
-    DELAY_SECONDS=3
-    TOTAL_SECONDS=0
-    while ! kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" get pods -o yaml | python3 -c '
-import yaml, sys;
-for pod in yaml.load(sys.stdin)["items"]:
-    if pod["status"]["phase"] != "Running":
-        print(pod["metadata"]["name"] + ": " + pod["status"]["phase"])
-        exit(1)
-    elif not pod["status"]["containerStatuses"][0]["ready"]:
-        print(pod["metadata"]["name"] + ": ckan container is not ready")
-        exit(1)
-exit(0)
-    '; do
-        kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" get pods
-        sleep $DELAY_SECONDS
-        TOTAL_SECONDS=$(expr $TOTAL_SECONDS + $DELAY_SECONDS)
-        echo "...${TOTAL_SECONDS}s"
-        # if [ "$(expr $TOTAL_SECONDS > 180)" == "1" ]; then
-        #     echo "Waiting too long, deleting and redeploying ckan and jobs deployments"
-        #     kubectl $KUBECTL_GLOBAL_ARGS delete deployment ckan jobs
-        #     ! helm_upgrade && return 1
-        # fi
-    done &&\
-    kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" get pods
+check_instance_status() {
+    local check_create_status="${1}"
+    ./instance-status.sh "${INSTANCE_ID}" | python3 -c '
+import yaml, json, sys
+
+check_create_status = ("'${check_create_status}'" == "1")
+status, metadata = list(yaml.load_all(sys.stdin))
+
+errors = []
+ckan_cloud_logs = []
+ckan_cloud_events = set()
+pod_names = []
+for app, app_status in status.items():
+    for kind, kind_items in app_status.items():
+        for item in kind_items:
+            for error in item.get("errors", []):
+                errors.append(dict(error, kind=kind, app=app, name=item.get("name")))
+            for logdata in item.get("ckan-cloud-logs", []):
+                ckan_cloud_logs.append(dict(logdata, kind=kind, app=app, name=item.get("name")))
+                if "event" in logdata:
+                    ckan_cloud_events.add(logdata["event"])
+            if kind == "pods":
+                pod_names.append(item["name"])
+
+if check_create_status:
+    expected_events = set(["ckan-env-vars-created", "ckan-secrets-created", "got-ckan-secrets", "ckan-db-initialized",
+                           "ckan-datastore-db-initialized", "ckan-entrypoint-initialized", "ckan-entrypoint-db-init-success",
+                           "ckan-entrypoint-extra-init-success"])
+else:
+    expected_events = set(["ckan-env-vars-exists", "ckan-secrets-exists", "got-ckan-secrets",
+                           "ckan-entrypoint-initialized", "ckan-entrypoint-db-init-success", "ckan-entrypoint-extra-init-success"])
+missing_events = expected_events.difference(ckan_cloud_events)
+
+print(yaml.dump(metadata, default_flow_style=False))
+print("## pod names")
+print(yaml.dump(pod_names, default_flow_style=False))
+print("## errors")
+print(yaml.dump(errors, default_flow_style=False))
+print("## ckan_cloud_logs")
+print(yaml.dump(ckan_cloud_logs, default_flow_style=False))
+print("## missing events")
+print(list(missing_events))
+
+exit(0 if len(errors) == 0 and len(missing_events) == 0 else 1)'
+}
+
+wait_for_instance_status() {
+    local delay_seconds=15
+    local timeout_seconds=600
+    local check_create_status="${1}"
+    if [ "${check_create_status}" == "1" ]; then
+        echo waiting for create instance status
+    else
+        echo waiting for existing instance status
+    fi
+    echo delay_seconds=$delay_seconds timeout_seconds=$timeout_seconds
+    SECONDS=0
+    while true; do
+        expr $SECONDS '>' $timeout_seconds >/dev/null && echo timed out && return 1
+        sleep $delay_seconds
+        check_instance_status "${check_create_status}" && return 0
+    done
+    echo unexpected failure && return 1
 }
 
 if [ "${IS_NEW_NAMESPACE}" == "1" ]; then
-    helm_upgrade --set replicas=1 --set nginxReplicas=1 --set disableJobs=true --set noProbes=true && wait_for_pods
+    helm_upgrade --set replicas=1 --set nginxReplicas=1 --set disableJobs=true --set noProbes=true &&\
+    wait_for_instance_status "1" &&\
+    ./instance-status.sh "${INSTANCE_ID}"
     [ "$?" != "0" ] && exit 1
 fi
 
-helm_upgrade && wait_for_pods
+helm_upgrade && wait_for_instance_status "0" && ./instance-status.sh "${INSTANCE_ID}"
 [ "$?" != "0" ] && exit 1
 
 CKAN_POD_NAME=$(kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} get pods -l "app=ckan" -o 'jsonpath={.items[0].metadata.name}')

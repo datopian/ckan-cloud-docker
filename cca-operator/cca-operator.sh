@@ -16,6 +16,7 @@ if [ "${1}" == "initialize-ckan-env-vars" ]; then
             POSTGRES_HOST=db
             DATASTORE_RO_USER=readonly
             DATASTORE_POSTGRES_USER=postgres
+            CENTRALIZED_DB=0
         else
             echo Using centralized DB
             if [ -z "${CKAN_CLOUD_INSTANCE_ID}" ]; then
@@ -34,10 +35,12 @@ if [ "${1}" == "initialize-ckan-env-vars" ]; then
                                   "${DATASTORE_POSTGRES_USER}" "${DATASTORE_POSTGRES_PASSWORD}" \
                                   "${DATASTORE_RO_USER}" "${DATASTORE_RO_PASSWORD}" \
                 && exit 1
+            CENTRALIZED_DB=1
         fi
         if [ -z "${CKAN_CLOUD_SOLR_HOST}" ]; then
             echo using self-hosted solr
             SOLR_URL="http://solr:8983/solr/ckan"
+            CENTRALIZED_SOLR=0
         else
             echo using centralized solr cloud
             if [ -z "${CKAN_CLOUD_INSTANCE_ID}" ]; then
@@ -47,6 +50,7 @@ if [ "${1}" == "initialize-ckan-env-vars" ]; then
                 SOLRCLOUD_COLLECTION="${CKAN_CLOUD_INSTANCE_ID}"
             fi
             SOLR_URL="http://${CKAN_CLOUD_SOLR_HOST}:${CKAN_CLOUD_SOLR_PORT:-8983}/solr/${SOLRCLOUD_COLLECTION}"
+            CENTRALIZED_SOLR=1
         fi
         echo "Creating ckan env vars secret ${ENV_VARS_SECRET}"
         ! kubectl $KUBECTL_GLOBAL_ARGS create secret generic $ENV_VARS_SECRET \
@@ -62,8 +66,11 @@ if [ "${1}" == "initialize-ckan-env-vars" ]; then
                   --from-literal=DATASTORE_RO_PASSWORD=${DATASTORE_RO_PASSWORD} \
                   --from-literal=SOLR_URL=${SOLR_URL} \
             && echo Failed to create ckan env vars secret && exit 1
+        ckan_cloud_log '{"event":"ckan-env-vars-created", "env-vars-secret-name": "${ENV_VARS_SECRET}",
+                         "centralized_db": "'${CENTRALIZED_DB}'", "centralized_solr": "'${CENTRALIZED_SOLR}'"}'
         echo Created ckan env vars secret && exit 0
     else
+        ckan_cloud_log '{"event":"ckan-env-vars-exists", "env-vars-secret-name": "'${ENV_VARS_SECRET}'"}'
         echo Ckan env vars secret already exists && exit 0
     fi
 
@@ -95,11 +102,13 @@ export SMTP_MAIL_FROM=" > $TEMPFILE
         CKAN_SECRET_RES="$?"
         rm $TEMPFILE
         [ "$CKAN_SECRET_RES" != "0" ] && echo failed to create ckan secrets secret && exit 1
+        ckan_cloud_log '{"event":"ckan-secrets-created", "secrets-secret-name": "'${CKAN_SECRETES_SECRET}'"}'
         echo Great Success
         echo Created new ckan secrets secret: $CKAN_SECRETS_SECRET
         echo Please update the relevant values.yaml file with the new secret name
         exit 0
     else
+        ckan_cloud_log '{"event":"ckan-secrets-exists", "secrets-secret-name": "'${CKAN_SECRETES_SECRET}'"}'
         echo Ckan secrets secret $CKAN_SECRETES_SECRET already exists
         exit 0
     fi
@@ -115,6 +124,7 @@ elif [ "${1}" == "get-ckan-secrets" ]; then
         && echo could not find ckan secrets $CKAN_SECRETS_SECRET && exit 1
     ! get_secret_from_json "${SECRETS_JSON}" '"secrets.sh"' > $OUTPUT_FILE \
         && echo failed to parse secrets && exit 1
+    ckan_cloud_log '{"event":"got-ckan-secrets", "secrets-secret-name": "'${CKAN_SECRETES_SECRET}'"}'
     echo Successfully copied secrets
     exit 0
 

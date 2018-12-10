@@ -126,6 +126,11 @@ cluster_management_init() {
     return 0
 }
 
+instance_kubectl() {
+    [ -z "${INSTANCE_NAMESPACE}" ] && echo missing INSTANCE_NAMESPACE > /dev/stderr && return 1
+    kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" "$@"
+}
+
 instance_connection_info() {
     INSTANCE_ID="${1}"
     INSTANCE_NAMESPACE="${2}"
@@ -228,6 +233,7 @@ create_db() {
         CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
         CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
     " &&\
+    ckan_cloud_log '{"event":"ckan-db-initialized"}' &&\
     echo postgis extensions initialized successfully && return 0
     echo postgis extensions failed && return 1
 }
@@ -270,6 +276,11 @@ create_datastore_db() {
     " &&\
     bash ./templater.sh ./datastore-permissions.sql.template | grep ' OWNER TO ' -v \
         | PGPASSWORD="${DS_RW_PASSWORD}" psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${DS_RW_USER}" -d "${DS_RW_USER}" &&\
+    ckan_cloud_log '{"event":"ckan-datastore-db-initialized"}' &&\
     echo Datastore DB initialized successfully && return 0
     echo Datastore DB initialization failed && return 1
+}
+
+ckan_cloud_log() {
+    echo "--START_CKAN_CLOUD_LOG--$(echo "${1}" | jq -Mc .)--END_CKAN_CLOUD_LOG--" > /dev/stderr
 }

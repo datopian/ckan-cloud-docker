@@ -8,6 +8,7 @@ if [ "${1}" == "install" ]; then
 
 elif [ "${1}" == "script" ]; then
     ! (build_latest_images) && exit 1
+    ! docker build -t viderum/ckan-theme-generator:latest ckan/themer && exit 1
     exit 0
 
 elif [ "${1}" == "deploy" ]; then
@@ -15,6 +16,7 @@ elif [ "${1}" == "deploy" ]; then
     ! tag_images "${TAG}" && exit 1
     if [ "${TRAVIS_BRANCH}" == "master" ]; then
         ! push_latest_images && exit 1
+        ! docker push viderum/ckan-theme-generator:latest && exit 1
         PUSHED_LATEST=1
     else
         PUSHED_LATEST=0

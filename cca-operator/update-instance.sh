@@ -47,11 +47,6 @@ print("1" if yaml.load(open("'${CKAN_VALUES_FILE}'")).get("useCentralizedInfra",
 LOAD_BALANCER_HOSTNAME=$(kubectl $KUBECTL_GLOBAL_ARGS -n default get service traefik -o yaml \
     | python3 -c 'import sys, yaml; print(yaml.load(sys.stdin)["status"]["loadBalancer"]["ingress"][0]["hostname"])' 2>/dev/null)
 
-CKAN_PRIMARY_COLOR=`python3 -c '
-import yaml;
-print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("ckanPrimaryColor", ""))
-'`
-
 if [ "${REGISTER_SUBDOMAIN}" != "" ]; then
     cluster_register_sub_domain "${REGISTER_SUBDOMAIN}" "${LOAD_BALANCER_HOSTNAME}"
     [ "$?" != "0" ] && exit 1
@@ -194,26 +189,10 @@ wait_for_instance_status() {
     echo unexpected failure && return 1
 }
 
-if ! [ -z "${CKAN_PRIMARY_COLOR}" ]; then
-    kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" run themer --image=viderum/ckan-theme-generator --restart='Never' -- "${CKAN_PRIMARY_COLOR}"
-    [ "$?" != "0" ] && exit 1
-    sleep 30
-fi
-
 if [ "${IS_NEW_NAMESPACE}" == "1" ]; then
     helm_upgrade --set replicas=1 --set nginxReplicas=1 --set disableJobs=true --set noProbes=true &&\
     wait_for_instance_status "1" &&\
     ./instance-status.sh "${INSTANCE_ID}"
-    [ "$?" != "0" ] && exit 1
-fi
-
-CKAN_POD_NAME=$(kubectl $KUBECTL_GLOBAL_ARGS -n ${INSTANCE_NAMESPACE} get pods -l "app=ckan" -o 'jsonpath={.items[0].metadata.name}')
-
-if ! [ -z "${CKAN_PRIMARY_COLOR}" ]; then
-    kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" logs -f themer | \
-        kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" exec -it ${CKAN_POD_NAME} -- bash -c \
-            "cat > /var/lib/ckan/main.css" > /dev/stderr &&\
-    kubectl $KUBECTL_GLOBAL_ARGS -n "${INSTANCE_NAMESPACE}" delete pods themer
     [ "$?" != "0" ] && exit 1
 fi
 

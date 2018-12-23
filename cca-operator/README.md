@@ -143,3 +143,15 @@ cat continuous-deployment-id_rsa | docker-compose run --rm cca-operator ./add-se
 ```
 
 The CCA_OPERATOR_ROLE environment variable is used in cca-operator code to limit access
+
+## Connecting to cca-operator shell for development
+
+Set the following in your docker-compose.override.yaml to mount the local cca-operator files into the container:
+
+```
+
+```
+
+```
+docker-compose build cca-operator && docker-compose run --rm cca-operator --
+```

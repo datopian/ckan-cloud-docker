@@ -272,12 +272,12 @@ create_datastore_db() {
         GRANT \"${DS_RW_USER}\" TO \"${POSTGRES_USER}\";
         ALTER DATABASE \"${DS_RW_USER}\" OWNER TO \"${DS_RW_USER}\";
     " &&\
-    PGPASSWORD="${DS_RW_PASSWORD}" psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${DS_RW_USER}" -d "${DS_RW_USER}" -c "
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
         GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"${DS_RO_USER}\";
         ALTER DEFAULT PRIVILEGES FOR USER \"${DS_RW_USER}\" IN SCHEMA public GRANT SELECT ON TABLES TO \"${DS_RO_USER}\";
     " &&\
     bash ./templater.sh ./datastore-permissions.sql.template | grep ' OWNER TO ' -v \
-        | PGPASSWORD="${DS_RW_PASSWORD}" psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${DS_RW_USER}" -d "${DS_RW_USER}" &&\
+        | psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" &&\
     ckan_cloud_log '{"event":"ckan-datastore-db-initialized"}' &&\
     echo Datastore DB initialized successfully && return 0
     echo Datastore DB initialization failed && return 1
@@ -287,29 +287,14 @@ ckan_cloud_log() {
     echo "--START_CKAN_CLOUD_LOG--$(echo "${1}" | jq -Mc .)--END_CKAN_CLOUD_LOG--" > /dev/stderr
 }
 
-dump_db_url() {
-    local DB_URL="${1}"
-    pg_dump -xO --inserts -d "${DB_URL}"
+get_ckan_values_boolean() {
+    python3 -c 'import yaml; print("1" if yaml.load(open("'${CKAN_VALUES_FILE}'")).get("'${1}'", False) else "0")' 2>/dev/null
 }
 
-import_db() {
-    local POSTGRES_HOST="${1}"
-    local POSTGRES_USER="${2}"
-    local CREATE_POSTGRES_USER="${3}"
-    local CREATE_POSTGRES_PASSWORD="${4}"
-    local CREATE_DB_FUNC="${5:-create_db}"
-    ! $CREATE_DB_FUNC "${POSTGRES_HOST}" "${POSTGRES_USER}" "${CREATE_POSTGRES_USER}" "${CREATE_POSTGRES_PASSWORD}" && return 1
-    echo importing DB, this may take a while...
-    set -o pipefail
-    cat | python3 -c '
-import sys
-for line in sys.stdin.readlines():
-    if line.startswith("COMMENT ON EXTENSION plpgsql"):
-        continue
-    print(line)' \
-    | PGPASSWORD=$CREATE_POSTGRES_PASSWORD psql -h $POSTGRES_HOST -U $CREATE_POSTGRES_USER -d $CREATE_POSTGRES_USER \
-        -v ON_ERROR_STOP=1 >/dev/null
-    [ "$?" != "0" ] && echo failed to copy DB && return 1
-    return 0
+get_ckan_values_string() {
+    python3 -c 'import yaml; print(yaml.load(open("'${CKAN_VALUES_FILE}'")).get("'${1}'", "'${2}'"))' 2>/dev/null
 }
 
+get_stdin_values_string() {
+    python3 -c 'import yaml, sys; print(yaml.load(sys.stdin).get("'${1}'", "'${2}'"))' 2>/dev/null
+}

@@ -10,6 +10,11 @@ RUN while ! ( apk update && apk add --no-cache \
     curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh &&\
     chmod 700 get_helm.sh && ./get_helm.sh --version v2.11.0 && helm version --client && rm ./get_helm.sh
 
+RUN cd / &&\
+    wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-228.0.0-linux-x86_64.tar.gz &&\
+    tar -xzvf google-cloud-sdk-228.0.0-linux-x86_64.tar.gz &&\
+    ./google-cloud-sdk/install.sh -q
+
 COPY *.sh /cca-operator/
 COPY *.py /cca-operator/
 COPY *.template /cca-operator/

@@ -1,0 +1,38 @@
+version: '3.2'
+
+services:
+
+  ckan:
+    image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme
+    build:
+      context: ckan
+      args:
+        POST_INSTALL: |
+          install_standard_ckan_extension_github keitaroinc/ckanext-s3filestore ckanext-s3filestore &&\
+          install_standard_ckan_extension_github okfn/ckanext-sentry ckanext-sentry &&\
+          install_standard_ckan_extension_github ViderumGlobal/ckanext-querytool ckanext-querytool &&\
+          install_standard_ckan_extension_github ckan/ckanext-geoview ckanext-geoview
+    environment:
+      - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-
+
+  jobs:
+    image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme
+    build:
+      context: ckan
+      args:
+        POST_INSTALL: |
+          install_standard_ckan_extension_github keitaroinc/ckanext-s3filestore ckanext-s3filestore &&\
+          install_standard_ckan_extension_github ViderumGlobal/ckanext-querytool ckanext-querytool &&\
+          install_standard_ckan_extension_github ckan/ckanext-geoview ckanext-geoview
+    environment:
+      - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-
+
+  db:
+    image: mdillon/postgis
+    build:
+      args:
+        DB_INIT: |
+          psql --dbname="ckan" -c "CREATE EXTENSION IF NOT EXISTS postgis;                  \
+                                   CREATE EXTENSION IF NOT EXISTS postgis_topology;         \
+                                   CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;            \
+                                   CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;"

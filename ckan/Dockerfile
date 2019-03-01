@@ -2,6 +2,8 @@
 
 FROM debian:jessie
 
+ARG EXTRA_PACKAGES
+
 # Install required system packages
 RUN apt-get -q -y update \
     && DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade \
@@ -22,27 +24,30 @@ RUN apt-get -q -y update \
         vim \
         wget \
         redis-tools \
+        ${EXTRA_PACKAGES} \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Define environment variables
 ENV CKAN_HOME /usr/lib/ckan
 ENV CKAN_VENV $CKAN_HOME/venv
 ENV CKAN_CONFIG /etc/ckan
 ENV CKAN_STORAGE_PATH=/var/lib/ckan
+ENV CKAN_LOGS_PATH=/var/log/ckan
 
 # Create ckan user
 RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
 
 # Setup virtual environment for CKAN
-RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH && \
+RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH $CKAN_LOGS_PATH && \
     virtualenv $CKAN_VENV && \
     ln -s $CKAN_VENV/bin/pip /usr/local/bin/ckan-pip &&\
     ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster
 
 # Setup CKAN
 RUN ckan-pip install -U pip &&\
-    chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH
+    chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH $CKAN_LOGS_PATH
 
 USER ckan
 
@@ -77,6 +82,18 @@ RUN . /post_install_functions.sh && eval "${POST_DOCKER_BUILD}"
 
 ARG CKAN_INIT
 RUN echo "${CKAN_INIT}" | sed s@CKAN_CONFIG@${CKAN_CONFIG}@g > ${CKAN_CONFIG}/ckan_extra_init.sh
+
+USER root
+
+# Extra files in the filesystem
+ARG EXTRA_FILESYSTEM
+COPY ${EXTRA_FILESYSTEM} /
+
+# Initialization that should be done as root
+ARG ROOT_INIT
+RUN eval "${ROOT_INIT}"
+
+USER ckan
 
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 

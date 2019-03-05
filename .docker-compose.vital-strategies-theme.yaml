@@ -2,8 +2,26 @@ version: '3.2'
 
 services:
 
+  proxy:
+    image: traefik:1.7.2-alpine
+    command: --api --docker # Enables the web UI and tells Traefik to listen to docker
+    ports:
+      - "80:80"     # The HTTP port
+      - "443:443"   # The HTTPS port
+      - "8081:8080" # The Web UI (enabled by --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+      - $PWD/../traefik/vital-strategies.json:/acme.json
+    labels:
+      - traefik.frontend.rule=Host:monitor.vital-strategies.l3.ckan.io
+      - traefik.port=8080 
+    networks:
+    - ckan-multi
+
   ckan:
     image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme
+    depends_on:
+      - proxy
     build:
       context: ckan
       args:
@@ -15,8 +33,17 @@ services:
     environment:
       - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-
 
+  nginx:
+    labels:
+      - traefik.backend=nginx
+      - traefik.frontend.rule=Host:nginx.vital-strategies.l3.ckan.io
+      - traefik.docker.network=ckan-multi
+      - traefik.port=80
+
   jobs:
     image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme
+    labels:
+      - traefik.enable=false
     build:
       context: ckan
       args:
@@ -29,6 +56,8 @@ services:
 
   db:
     image: mdillon/postgis
+    labels:
+      - traefik.enable=false
     build:
       args:
         DB_INIT: |

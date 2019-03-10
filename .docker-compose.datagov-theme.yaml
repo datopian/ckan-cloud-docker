@@ -19,7 +19,7 @@ services:
           install_standard_ckan_extension_github ckan/ckanext-dcat ckanext-dcat &&\
           install_standard_ckan_extension_github GSA/ckanext-datajson ckanext-datajson &&\
           install_standard_ckan_extension_github GSA/ckanext-geodatagov ckanext-geodatagov &&\
-          install_standard_ckan_extension_github ViderumGlobal/USMetadata ckanext-usmetadata
+          install_standard_ckan_extension_github ViderumGlobal/USMetadata ckanext-usmetadata 
         POST_DOCKER_BUILD: |
           mkdir -p /var/tmp/ckan/dynamic_menu &&\
           mkdir -p /var/log/ckan/std/

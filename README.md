@@ -11,6 +11,7 @@ Available components:
 * **solr**: Solr search engine
 * **jenkins**: Automation service
 * **provisioning-api**: [ckan-cloud-provisioning-api](https://github.com/ViderumGlobal/ckan-cloud-provisioning-api)
+* **traefik**: Reverse proxy, SSL handler and load balancer
 
 
 ## Install
@@ -156,8 +157,21 @@ You can persist the modified configurations in Git for reference and documentati
 For example, to start the datagov-theme configuration:
 
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose.datagov-theme.yaml up -d --build nginx
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml up -d --build nginx
 ```
+
+## External database server 
+
+To use another database server, you will need to provide a `SQLACHEMY_URL` value by hand, by adding it
+to `docker-compose/ckan-secrets.sh` first.
+
+After specifying the address of the new server, you need to start the CKAN instance, this time without adding a db layer. 
+For example, to start a custom configuration without starting up the database:
+
+```
+docker-compose -f docker-compose.yaml -f .docker-compose.custom-theme.yaml up -d --build nginx
+```
+
 
 ## Running cca-operator
 
@@ -192,7 +206,7 @@ docker-compose up -d --build provisioning-api
 Create a bash alias to run docker-compose with the centralized configuration
 
 ```
-alias docker-compose="`which docker-compose` -f docker-compose.yaml -f .docker-compose-centralized.yaml"
+alias docker-compose="`which docker-compose` -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose-centralized.yaml"
 ```
 
 Start a clean environment with only the db and solr cloud -

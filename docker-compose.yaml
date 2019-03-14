@@ -38,32 +38,6 @@ services:
     networks:
     - ckan-multi
 
-  db:
-    image: viderum/ckan-cloud-docker:db-latest
-    build:
-      context: db
-    restart: always
-    ports:
-    - "5432:5432"
-    environment:
-    - POSTGRES_PASSWORD=123456
-    volumes:
-    - db:/var/lib/postgresql/data
-    networks:
-    - ckan-multi
-
-  jobs-db:
-    image: postgres
-    restart: always
-    ports:
-    - "5433:5432"
-    environment:
-    - POSTGRES_PASSWORD=123456
-    volumes:
-    - jobs-db:/var/lib/postgresql/data
-    networks:
-    - ckan-multi
-
   jobs:
     depends_on:
     - ckan
@@ -79,21 +53,6 @@ services:
     - CKAN_STORAGE_PATH=/var/lib/ckan/data
     - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets.sh
     - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
-    networks:
-    - ckan-multi
-
-  datastore-db:
-    image: viderum/ckan-cloud-docker:db-latest
-    restart: always
-    ports:
-    - "5434:5432"
-    environment:
-    - POSTGRES_PASSWORD=123456
-    - DATASTORE_RO_PASSWORD=123456
-    - DATASTORE_RO_USER=readonly
-    - DATASTORE_PUBLIC_RO_PASSWORD=123456
-    volumes:
-    - datastore-db:/var/lib/postgresql/data
     networks:
     - ckan-multi
 
@@ -114,9 +73,6 @@ services:
   ckan:
     depends_on:
     - redis
-    - db
-    - jobs-db
-    - datastore-db
     - solr
     image: viderum/ckan-cloud-docker:ckan-latest
     build:
@@ -202,9 +158,6 @@ services:
 
 volumes:
   ckan-data:
-  db:
-  jobs-db:
-  datastore-db:
   solr:
   provisioning-api-db:
 

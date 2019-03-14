@@ -90,10 +90,11 @@ ckan.plugins = image_view
    datastore
    datapusher
    sentry
-   s3filestore
    resource_proxy
    geojson_view
    querytool
+   stats
+   cloudstorage
 
 
 # Define which views should be created by default
@@ -141,13 +142,16 @@ ckan.datapusher.url = https://datapusher-giga.l3.ckan.io/
 
 ## AWS S3 settings
 
-ckanext.s3filestore.host_name = https://minio.l3.ckan.io/
-ckanext.s3filestore.aws_storage_path = vital-strategies
-ckanext.s3filestore.aws_access_key_id = {{AWS_KEY_ID}}
-ckanext.s3filestore.aws_secret_access_key = {{AWS_SECRET_ACCESS_KEY}}
-ckanext.s3filestore.region_name = us-east-1
-ckanext.s3filestore.aws_bucket_name = ckan
-ckanext.s3filestore.signature_version = s3v4
+ckanext.cloudstorage.driver = S3_EU_CENTRAL
+ckanext.cloudstorage.container_name = ckan-vs-0x19
+ckanext.cloudstorage.driver_options = {"key": "{{AWS_ACCESS_KEY_ID}}", "secret": "{{AWS_SECRET_ACCESS_KEY}}"}
+# ckanext.s3filestore.host_name = https://minio.l3.ckan.io/
+# ckanext.s3filestore.aws_storage_path = vital-strategies
+# ckanext.s3filestore.aws_access_key_id = {{AWS_ACCESS_KEY_ID}}
+# ckanext.s3filestore.aws_secret_access_key = {{AWS_SECRET_ACCESS_KEY}}
+# ckanext.s3filestore.region_name = us-east-1
+# ckanext.s3filestore.aws_bucket_name = ckan
+# ckanext.s3filestore.signature_version = s3v4
 
 ## Query Tool Settings
 

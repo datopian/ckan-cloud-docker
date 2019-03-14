@@ -2,6 +2,14 @@ version: '3.2'
 
 services:
 
+  proxy:
+    image: traefik:1.7.2-alpine
+    restart: always
+    volumes:
+      - ./traefik/traefik.toml:/traefik.toml
+    networks:
+    - ckan-multi
+
   redis:
     image: redis:alpine
     restart: always

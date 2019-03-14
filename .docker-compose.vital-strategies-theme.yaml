@@ -2,6 +2,17 @@ version: '3.2'
 
 services:
 
+  proxy:
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./traefik/vital-strategies.json:/acme.json
+
+  nginx:
+    depends_on:
+      - proxy
+
   ckan:
     image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme
     build:

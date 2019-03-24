@@ -87,7 +87,7 @@ if [ "${USE_CENTRALIZED_INFRA}" == "1" ]; then
             | kubectl $KUBECTL_GLOBAL_ARGS --namespace "${INSTANCE_NAMESPACE}" create -f -
         [ "$?" != "0" ] && exit 1
     fi
-    ! SOLRCLOUD_POD_NAME=$(kubectl -n ckan-cloud get pods -l "app=solr" -o 'jsonpath={.items[0].metadata.name}') && exit 1
+    ! SOLRCLOUD_POD_NAME=$(kubectl -n ckan-cloud get pods -l "app=solr" --field-selector 'status.phase=Running' -o 'jsonpath={.items[0].metadata.name}') && exit 1
     echo Verifying solrcloud collection ${INSTANCE_NAMESPACE} on solrcloud pod $SOLRCLOUD_POD_NAME in namespace ckan-cloud
     SOLRCLOUD_COLLECTION_EXISTS=$(kubectl -n ckan-cloud exec $SOLRCLOUD_POD_NAME \
                                     -- curl 'localhost:8983/solr/admin/collections?action=LIST&wt=json' \

@@ -52,11 +52,6 @@ ckan.auth.user_delete_organizations = false
 ckan.auth.create_user_via_api = false
 ckan.auth.create_user_via_web = true
 ckan.auth.roles_that_cascade_to_sub_groups = admin
-
-## Sysadmin
-ckan.sysadmin_name = {{CKAN_SYSADMIN_NAME}}
-ckan.sysadmin_password = {{CKAN_SYSADMIN_PASSWORD}}
-ckan.sysadmin_email = info@viderum.com
 ckan.hide_activity_from_users = %(ckan.site_id)s
 
 
@@ -183,7 +178,7 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 
 #email_to = errors@example.com
 #error_email_from = ckan-errors@example.com
-smtp.server = smtp.mandrillapp.com:587
+smtp.server = {{SMTP_SERVER}}
 smtp.starttls = True
 smtp.user = {{SMTP_USER}}
 smtp.password = {{SMTP_PASSWORD}}

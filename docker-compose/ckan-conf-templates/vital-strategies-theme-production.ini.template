@@ -138,7 +138,7 @@ ckan.datapusher.url = https://datapusher-giga.l3.ckan.io/
 ## AWS S3 settings
 
 ckanext.cloudstorage.driver = S3_EU_CENTRAL
-ckanext.cloudstorage.container_name = ckan-vs-0x19
+ckanext.cloudstorage.container_name = vital-strategies-ckan
 ckanext.cloudstorage.driver_options = {"key": "{{AWS_ACCESS_KEY_ID}}", "secret": "{{AWS_SECRET_ACCESS_KEY}}"}
 # ckanext.s3filestore.host_name = https://minio.l3.ckan.io/
 # ckanext.s3filestore.aws_storage_path = vital-strategies

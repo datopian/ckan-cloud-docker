@@ -38,17 +38,21 @@ pull_latest_images() {
 
 build_latest_images() {
     echo -e "\n** Building latest images **\n"
-    ! exec_build_apps 'docker-compose -f docker-compose.yaml -f .docker-compose-cache-from.yaml build $APP' && return 1
+    ! exec_build_apps 'docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose-cache-from.yaml build $APP' && return 1
     if [ "${BUILD_CKAN_OVERRIDES}" == "1" ]; then
         ! exec_ckan_compose_overrides '
-            docker-compose -f docker-compose.yaml -f .docker-compose-cache-from.yaml \
+            docker-compose -f docker-compose.yaml \
+                           -f .docker-compose-db.yaml \
+                           -f .docker-compose-cache-from.yaml \
                            -f .docker-compose.${OVERRIDE_NAME}.yaml build ckan
         ' && return 1
     fi
     if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
-        ! docker-compose -f docker-compose.yaml -f .docker-compose-cache-from.yaml \
+        ! docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml \
+                         -f .docker-compose-cache-from.yaml \
                          -f .docker-compose-centralized.yaml build solr && return 1
-        ! docker-compose -f docker-compose.yaml -f .docker-compose-cache-from.yaml \
+        ! docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml \
+                         -f .docker-compose-cache-from.yaml \
                          -f .docker-compose.filenames-unicode.yaml build solr && return 1
     fi
     return 0

@@ -18,12 +18,14 @@ defaultEntryPoints = ["http", "https"]
       entryPoint = "http"
 
     [acme]
+      # TODO: replace email address
       email = "admin@example.com"
       storage = "/acme.json"
       entryPoint = "https"
       onHostRule = true
 
       [[acme.domains]]
+        # TODO: replace with domain
         main = "example.com"
 
       [acme.httpChallenge]
@@ -42,8 +44,9 @@ defaultEntryPoints = ["http", "https"]
     [frontends]
       [frontends.ckan]
         backend="ckan"
-        passHostHeader = false
+        passHostHeader = true
         [frontends.ckan.headers]
           SSLRedirect = true
         [frontends.ckan.routes.route1]
+          # TODO: replace with Host:domain
           rule = "Host:example.com"

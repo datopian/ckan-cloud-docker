@@ -6,8 +6,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ./traefik/vital-strategies.json:/acme.json
 
   nginx:
     depends_on:

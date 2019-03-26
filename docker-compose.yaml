@@ -7,6 +7,7 @@ services:
     restart: always
     volumes:
       - ./traefik/traefik.toml:/traefik.toml
+      - ./traefik/acme.json:/acme.json
     networks:
     - ckan-multi
 

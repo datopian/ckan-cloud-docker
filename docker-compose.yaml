@@ -11,6 +11,17 @@ services:
     networks:
     - ckan-multi
 
+  varnish:
+    image: million12/varnish
+    depends_on:
+      - ckan
+    volumes:
+      - ./varnish:/etc/varnish
+    ports:
+      - "8081:80"
+    networks:
+    - ckan-multi
+
   redis:
     image: redis:alpine
     restart: always

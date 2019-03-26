@@ -10,6 +10,7 @@ services:
   nginx:
     depends_on:
       - proxy
+      - varnish
 
   ckan:
     image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme

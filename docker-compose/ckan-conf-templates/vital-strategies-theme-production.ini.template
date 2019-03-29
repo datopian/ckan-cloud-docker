@@ -129,7 +129,7 @@ ckan.feeds.author_link =
 ## Storage Settings
 
 ckan.storage_path = /var/lib/ckan
-ckan.max_resource_size = 100
+ckan.max_resource_size = 1000
 ckan.max_image_size = 5
 
 ## Datapusher URL

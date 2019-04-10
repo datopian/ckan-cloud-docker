@@ -80,6 +80,9 @@ Edit any file in this repository
 docker-compose down -v
 ```
 
+(if you want to keep your volumes, for example if you populated the database with data you want 
+to keep, you need to drop the `-v` part from the command)
+
 Build the docker images
 
 ```

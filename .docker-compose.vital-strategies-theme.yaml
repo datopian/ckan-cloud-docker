@@ -17,8 +17,9 @@ services:
     build:
       context: ckan
       args:
+        CKAN_BRANCH: ckan-2.7.3
         POST_INSTALL: |
-          install_standard_ckan_extension_github TkTech/ckanext-cloudstorage ckanext-cloudstorage &&\
+          install_standard_ckan_extension_github keitaroinc/ckanext-s3filestore ckanext-s3filestore &&\
           install_standard_ckan_extension_github okfn/ckanext-sentry ckanext-sentry &&\
           install_standard_ckan_extension_github ViderumGlobal/ckanext-querytool ckanext-querytool &&\
           install_standard_ckan_extension_github ckan/ckanext-geoview ckanext-geoview
@@ -30,8 +31,9 @@ services:
     build:
       context: ckan
       args:
+        CKAN_BRANCH: ckan-2.7.3
         POST_INSTALL: |
-          install_standard_ckan_extension_github TkTech/ckanext-cloudstorage ckanext-cloudstorage &&\
+          install_standard_ckan_extension_github keitaroinc/ckanext-s3filestore ckanext-s3filestore &&\
           install_standard_ckan_extension_github ViderumGlobal/ckanext-querytool ckanext-querytool &&\
           install_standard_ckan_extension_github ckan/ckanext-geoview ckanext-geoview
     environment:

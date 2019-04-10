@@ -52,11 +52,6 @@ ckan.auth.user_delete_organizations = false
 ckan.auth.create_user_via_api = false
 ckan.auth.create_user_via_web = true
 ckan.auth.roles_that_cascade_to_sub_groups = admin
-
-## Sysadmin
-ckan.sysadmin_name = {{CKAN_SYSADMIN_NAME}}
-ckan.sysadmin_password = {{CKAN_SYSADMIN_PASSWORD}}
-ckan.sysadmin_email = info@viderum.com
 ckan.hide_activity_from_users = %(ckan.site_id)s
 
 
@@ -90,15 +85,15 @@ ckan.plugins = image_view
    datastore
    datapusher
    sentry
-   s3filestore
    resource_proxy
    geojson_view
    querytool
+   stats
 
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
-ckan.views.default_views = image_view text_view recline_view
+ckan.views.default_views = image_view recline_view geojson_view
 
 # Customize which text formats the text_view plugin will show
 #ckan.preview.json_formats = json
@@ -133,7 +128,7 @@ ckan.feeds.author_link =
 ## Storage Settings
 
 ckan.storage_path = /var/lib/ckan
-ckan.max_resource_size = 100
+ckan.max_resource_size = 1000
 ckan.max_image_size = 5
 
 ## Datapusher URL
@@ -141,20 +136,23 @@ ckan.datapusher.url = https://datapusher-giga.l3.ckan.io/
 
 ## AWS S3 settings
 
-ckanext.s3filestore.host_name = https://minio.l3.ckan.io/
-ckanext.s3filestore.aws_storage_path = vital-strategies
-ckanext.s3filestore.aws_access_key_id = {{AWS_KEY_ID}}
+# ckanext.cloudstorage.driver = S3_US_EAST2
+# ckanext.cloudstorage.container_name = vital-strategies
+# ckanext.cloudstorage.driver_options = {"key": "{{AWS_ACCESS_KEY_ID}}", "secret": "{{AWS_SECRET_ACCESS_KEY}}"}
+# ckanext.s3filestore.host_name = https://vital-strategies-ckan.s3.eu-east-1.amazonaws.com/
+ckanext.s3filestore.aws_storage_path = demo
+ckanext.s3filestore.aws_access_key_id = {{AWS_ACCESS_KEY_ID}}
 ckanext.s3filestore.aws_secret_access_key = {{AWS_SECRET_ACCESS_KEY}}
-ckanext.s3filestore.region_name = us-east-1
-ckanext.s3filestore.aws_bucket_name = ckan
+ckanext.s3filestore.region_name = us-east-2
+ckanext.s3filestore.aws_bucket_name = vital-strategies-ckan
 ckanext.s3filestore.signature_version = s3v4
 
 ## Query Tool Settings
 
-ckanext.querytool.groups = brazil:Brazil,china:营养,mexico:Mexico
-ckanext.querytool.map_osm_url = https://cartodb-basemaps-{s}.global.ssl.fastly.net/light.nolabels/{z}/{x}/{y}{r}.png
+ckanext.querytool.groups = mortality:Mortality,riskfactors:Risk Factors,testing:Vital Srategies
+ckanext.querytool.map_osm_url = https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png
 ckanext.querytool.map_osm_attribute = &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>
-ckanext.querytool.allow_nav_bar = False
+ckanext.querytool.allow_nav_bar = True
 
 ## xloader settings
 
@@ -179,7 +177,7 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 
 #email_to = errors@example.com
 #error_email_from = ckan-errors@example.com
-smtp.server = smtp.mandrillapp.com:587
+smtp.server = {{SMTP_SERVER}}
 smtp.starttls = True
 smtp.user = {{SMTP_USER}}
 smtp.password = {{SMTP_PASSWORD}}

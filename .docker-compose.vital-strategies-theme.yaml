@@ -2,11 +2,22 @@ version: '3.2'
 
 services:
 
+  proxy:
+    ports:
+      - "80:80"
+      - "443:443"
+
+  nginx:
+    depends_on:
+      - proxy
+      - varnish
+
   ckan:
     image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme
     build:
       context: ckan
       args:
+        CKAN_BRANCH: ckan-2.7.3
         POST_INSTALL: |
           install_standard_ckan_extension_github keitaroinc/ckanext-s3filestore ckanext-s3filestore &&\
           install_standard_ckan_extension_github okfn/ckanext-sentry ckanext-sentry &&\
@@ -20,6 +31,7 @@ services:
     build:
       context: ckan
       args:
+        CKAN_BRANCH: ckan-2.7.3
         POST_INSTALL: |
           install_standard_ckan_extension_github keitaroinc/ckanext-s3filestore ckanext-s3filestore &&\
           install_standard_ckan_extension_github ViderumGlobal/ckanext-querytool ckanext-querytool &&\

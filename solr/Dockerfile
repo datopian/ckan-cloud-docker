@@ -1,4 +1,4 @@
-FROM solr:6.6.2
+FROM solr:6.5
 
 # Enviroment
 ENV SOLR_CORE ckan

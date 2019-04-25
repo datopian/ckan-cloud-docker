@@ -77,7 +77,13 @@ ckan.redis.url = {{CKAN_REDIS_URL}}
 
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore xloader harvest ckan_harvester datajson_harvest datajson archiver report dcat dcat_rdf_harvester dcat_json_harvester dcat_json_interface structured_data geodatagov geodatagov_miscs z3950_harvester arcgis_harvester geodatagov_geoportal_harvester waf_harvester_collection geodatagov_csw_harvester geodatagov_doc_harvester geodatagov_waf_harvester spatial_metadata spatial_query usmetadata
+ckan.plugins = stats text_view image_view recline_view datastore xloader 
+    harvest ckan_harvester datajson_harvest datajson archiver report 
+    dcat dcat_rdf_harvester dcat_json_harvester dcat_json_interface 
+    structured_data geodatagov geodatagov_miscs 
+    z3950_harvester arcgis_harvester geodatagov_geoportal_harvester waf_harvester_collection geodatagov_csw_harvester geodatagov_doc_harvester geodatagov_waf_harvester 
+    spatial_query usmetadata
+# spatial_metadata
 
   
 # Define which views should be created by default
@@ -168,7 +174,7 @@ smtp.mail_from = {{SMTP_MAIL_FROM}}
 
 ## datajson settings
 ckanext.datajson.inventory_links_enabled = True
-ckanext.datajson.url_enabled = False
+ckanext.datajson.url_enabled = True
 
 
 ## Datagov settings

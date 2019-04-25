@@ -72,7 +72,7 @@ RUN ckan-pip install -r /tmp/requirements.txt &&\
 COPY post_install_functions.sh /post_install_functions.sh
 
 ARG POST_INSTALL
-RUN . /post_install_functions.sh && eval "${POST_INSTALL}"
+RUN . /post_install_functions.sh &&  eval "${POST_INSTALL}"
 
 COPY entrypoint.sh /ckan-entrypoint.sh
 COPY templater.sh /templater.sh

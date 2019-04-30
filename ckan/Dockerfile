@@ -25,6 +25,7 @@ RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://ar
         vim \
         wget \
         redis-tools \
+        gettext \
         ${EXTRA_PACKAGES} \
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*

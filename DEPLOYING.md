@@ -35,13 +35,6 @@ git clone https://github.com/ViderumGlobal/ckan-cloud-docker.git
 cd ckan-cloud-docker
 ```
 
-By default you will be usingi the `master` branch. Now it's a good time to switch the branch if needed:
-
-```
-git checkout vital-strategies
-git pull origin vital-strategies
-```
-
 Traefik needs strict permissions in order to run:
 
 ```

@@ -121,10 +121,10 @@ services:
       args:
         # install extensions / dependencies
         POST_INSTALL: |
-          install_standard_ckan_extension_github ckan/ckanext-spatial ckanext-spatial &&\
-          install_standard_ckan_extension_github ckan/ckanext-harvest ckanext-harvest &&\
-          install_standard_ckan_extension_github GSA/ckanext-geodatagov ckanext-geodatagov &&\
-          install_standard_ckan_extension_github GSA/ckanext-datagovtheme ckanext-datagovtheme
+          install_standard_ckan_extension_github -r ckan/ckanext-spatial &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-harvest &&\
+          install_standard_ckan_extension_github -r GSA/ckanext-geodatagov &&\
+          install_standard_ckan_extension_github -r GSA/ckanext-datagovtheme
         # other initialization
         POST_DOCKER_BUILD: |
           mkdir -p /var/tmp/ckan/dynamic_menu
@@ -137,10 +137,10 @@ services:
       args:
         # install extensions / dependencies
         POST_INSTALL: |
-          install_standard_ckan_extension_github ckan/ckanext-spatial ckanext-spatial &&\
-          install_standard_ckan_extension_github ckan/ckanext-harvest ckanext-harvest &&\
-          install_standard_ckan_extension_github GSA/ckanext-geodatagov ckanext-geodatagov &&\
-          install_standard_ckan_extension_github GSA/ckanext-datagovtheme ckanext-datagovtheme
+          install_standard_ckan_extension_github -r ckan/ckanext-spatial &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-harvest &&\
+          install_standard_ckan_extension_github -r GSA/ckanext-geodatagov &&\
+          install_standard_ckan_extension_github -r GSA/ckanext-datagovtheme
         # other initialization
         POST_DOCKER_BUILD: |
           mkdir -p /var/tmp/ckan/dynamic_menu

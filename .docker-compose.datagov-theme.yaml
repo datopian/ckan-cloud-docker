@@ -11,16 +11,16 @@ services:
           mkdir -p /var/log/supervisor
           chown ckan:ckan /var/log/supervisor
         POST_INSTALL: |
-          install_standard_ckan_extension_github ckan/ckanext-spatial ckanext-spatial &&\
-          install_standard_ckan_extension_github ckan/ckanext-xloader ckanext-xloader &&\
-          install_standard_ckan_extension_github datagovuk/ckanext-report ckanext-report &&\
-          install_standard_ckan_extension_github ckan/ckanext-archiver ckanext-archiver &&\
-          install_standard_ckan_extension_github ckan/ckanext-harvest ckanext-harvest &&\
-          install_standard_ckan_extension_github ckan/ckanext-dcat ckanext-dcat &&\
-          install_standard_ckan_extension_github GSA/ckanext-geodatagov ckanext-geodatagov &&\
-          install_standard_ckan_extension_github akariv/ckanext-datajson ckanext-datajson &&\
-          install_standard_ckan_extension_github akariv/USMetadata ckanext-usmetadata &&\
-          install_standard_ckan_extension_github GSA/ckanext-datagovtheme ckanext-datagovtheme
+          install_standard_ckan_extension_github -r ckan/ckanext-spatial &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-xloader &&\
+          install_standard_ckan_extension_github -r datagovuk/ckanext-report &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-archiver &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-harvest &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-dcat ckanext-dcat &&\
+          install_standard_ckan_extension_github -r GSA/ckanext-geodatagov &&\
+          install_standard_ckan_extension_github -r akariv/ckanext-datajson  &&\
+          install_standard_ckan_extension_github -r akariv/USMetadata -e ckanext-usmetadata &&\
+          install_standard_ckan_extension_github -r GSA/ckanext-datagovtheme
         POST_DOCKER_BUILD: |
           mkdir -p /var/tmp/ckan/dynamic_menu &&\
           mkdir -p /var/log/ckan/std/

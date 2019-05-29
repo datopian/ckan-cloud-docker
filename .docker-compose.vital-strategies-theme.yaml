@@ -19,10 +19,10 @@ services:
       args:
         CKAN_BRANCH: ckan-2.7.3
         POST_INSTALL: |
-          install_standard_ckan_extension_github keitaroinc/ckanext-s3filestore ckanext-s3filestore &&\
-          install_standard_ckan_extension_github okfn/ckanext-sentry ckanext-sentry &&\
-          install_standard_ckan_extension_github ViderumGlobal/ckanext-querytool ckanext-querytool &&\
-          install_standard_ckan_extension_github ckan/ckanext-geoview ckanext-geoview &&\
+          install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore &&\
+          install_standard_ckan_extension_github -r okfn/ckanext-sentry &&\
+          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b shanghai &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-geoview &&\
           msgfmt ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/zh_CN/LC_MESSAGES/ckanext-querytool.po -o ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/zh_CN/LC_MESSAGES/ckanext-querytool.mo && \
           msgfmt ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/es/LC_MESSAGES/ckanext-querytool.po -o ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/es/LC_MESSAGES/ckanext-querytool.mo && \
           msgfmt ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/fr/LC_MESSAGES/ckanext-querytool.po -o ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/fr/LC_MESSAGES/ckanext-querytool.mo && \
@@ -37,9 +37,9 @@ services:
       args:
         CKAN_BRANCH: ckan-2.7.3
         POST_INSTALL: |
-          install_standard_ckan_extension_github keitaroinc/ckanext-s3filestore ckanext-s3filestore &&\
-          install_standard_ckan_extension_github ViderumGlobal/ckanext-querytool ckanext-querytool &&\
-          install_standard_ckan_extension_github ckan/ckanext-geoview ckanext-geoview
+          install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore &&\
+          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-geoview
     environment:
       - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-
 

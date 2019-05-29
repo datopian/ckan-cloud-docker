@@ -39,15 +39,21 @@ git clone https://github.com/ViderumGlobal/ckan-cloud-docker.git
 cd ckan-cloud-docker
 ```
 
-Traefik needs strict permissions in order to run \(**[more info](https://www.digitalocean.com/community/tutorials/how-to-use-traefik-as-a-reverse-proxy-for-docker-containers-on-ubuntu-18-04)**\):
-```
-chmod 600 traefik/acme.json
-```
+#### Environment variables
 
-Next, adjust the secrets in `docker-compose/ckan-secrets.sh`:
+To change the default env vars used throughout the [CKAN configuration file](./docker-compose/ckan-conf-templates), adjust the secrets in `docker-compose/ckan-secrets.sh`:
 
 ```
 vim docker-compose/ckan-secrets.sh
+```
+
+#### Traefik proxy service
+
+Traefik is the entry point from the outside world. It binds to the default HTTP (80) and HTTPS (443) ports and handles requests by forwarding them to the appropriate services within the stack. In our case, it will point to Nginx serving the CKAN web app.
+
+Traefik needs strict permissions in order to run \(**[more info](https://www.digitalocean.com/community/tutorials/how-to-use-traefik-as-a-reverse-proxy-for-docker-containers-on-ubuntu-18-04)**\):
+```
+chmod 600 traefik/acme.json
 ```
 
 Finally, edit traefik/traefik.toml file
@@ -55,6 +61,21 @@ Finally, edit traefik/traefik.toml file
 ```
 vim traefik/traefik.toml
 ```
+
+Traefik will attempt to obtain a Let's Encrypt SSL certificate. In order for this to happen, the following configuration items need to be filled in:
+
+* `email = "admin@example.com"`
+  This is the [contact email](https://letsencrypt.org/docs/expiration-emails/) for Let's Encrypt
+* `main = "example.com"`
+  This is the domain for which Let's Encrypt will generate a certificate for
+
+In addition to Let's Encrypt specific configuration, there is one more line you need to adjust:
+
+* `rule = "Host:example.com"`
+  This is the domain name that Traefik should respond to. Requests to any other domain not configured as a `Host` rule will result in Traefik not being able to handle the request.
+
+
+> Note: All the necessary configuration items are marked with `TODO` flags in the `traefik.toml` configuration file.
 
 
 This should be enough for the basic installation. In case you need to tweak versions or other initialization parameters for CKAN, you need these two files:

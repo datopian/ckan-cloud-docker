@@ -29,7 +29,7 @@ sudo docker info
 
 #### Extra dependencies
 
-- You will also need SMTP server and it's credentials for CKAN to work properly. This will not obstacle deployment, CKAN will be up and running, but won't be able sending Emails (Eg on password reset).
+- You will also need a SMTP server and its credentials for CKAN to work properly. This will not obstacle deployment, CKAN will be up and running, but won't be able to send emails (e.g. on password reset).
 
 ### Source files and configuration
 

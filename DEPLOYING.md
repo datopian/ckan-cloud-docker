@@ -27,6 +27,10 @@ sudo systemctl enable docker
 sudo docker info
 ```
 
+#### Extra dependencies
+
+- You will also need SMTP server and it's credentials for CKAN to work properly. This will not obstacle deployment, CKAN will be up and running, but won't be able sending Emails (Eg on password reset).
+
 ### Source files and configuration
 
 Now we have the runtime, next we need to download the cluster configuration files and build the services.
@@ -63,25 +67,6 @@ Database URL - this URLs (URIs) will be used by CKAN to connect databases. Updat
 SQLALCHEMY_URL=postgresql://ckan:123456@db/ckan
 CKAN_DATASTORE_WRITE_URL=postgresql://postgres:123456@datastore-db/datastore
 CKAN_DATASTORE_READ_URL=postgresql://readonly:123456@datastore-db/datastore
-```
-
-You can increase number of [Gunicorn](https://gunicorn.org/) workers that runs CKAN
-```
-# in docker-compose.yaml
-GUNICORN_WORKERS=2
-```
-
-Modify storage path where CKAN resources will be store
-```
-# in docker-compose.yaml
-CKAN_STORAGE_PATH=/var/lib/ckan/data
-```
-
-Optional: You can also use S3 filestore instead for saving resorces. For that you will need to install and enable [S3Filestore extension](https://github.com/datopian/ckanext-s3filestore) plugin. You will need following env variables
-```
-# docker-compose/ckan-secrets.sh
-AWS_ACCESS_KEY_ID=YourSecretKey
-AWS_SECRET_ACCESS_KEY=YourSecretAccessKey
 ```
 
 SMTP service credentials - this credentials are used by CKAN to send email from Eg: password reset
@@ -179,18 +164,18 @@ To get inside a running container
 
 ```
 sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml exec {service-name} bash
-```  
+```
+
+Note: for some services (Eg: Nginx) you mite need to use `sh` instead of `bash`
 
 ## Creating the sysadmin user
 
 In order to create organizations and give other user proper permissions, you will need sysamin user(s) who has all the privileges. You can add as many sysadmin as you want. To create sysamin user:
 
 ```
-# ssh into ckan container
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml exec ckan bash
-
-# Creat sysadmin user using paster CLI tool
-/usr/local/bin/ckan-paster --plugin=ckan sysadmin add {username} --password={password} --email={email} - /etc/ckan/production.ini
+# Create sysadmin user using paster CLI tool
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml \
+ exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add {username} password={password} email={email} -c /etc/ckan/production.ini
 
 # Example
 /usr/local/bin/ckan-paster --plugin=ckan sysadmin add ckan_admin --password=iemae7Ai --email=info@datopian.com - /etc/ckan/production.ini
@@ -201,7 +186,7 @@ sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker
 Here you can edit portal related configuration, like website title, site logo or add custom styling. Login as sysadmin and navigate to `ckan-admin/config` page and make changes you need. Eg: https://demo.ckan.org/ckan-admin/config
 
 
-## Installing and enabling a new extensions
+## Installing and enabling a new extension
 
 CKAN allows installing various extensions (plugins) to the existing core setup. In order to enable/disable them you will have to install them and include into the ckan config file.
 
@@ -222,10 +207,12 @@ ckan.plugins = image_view
    s3filestore
 ```
 
-Note: depending on extension you might also need to update extensions related configurations in the same file. If needed this typo of information is ussually included in extension REAMDE.
+Note: depending on extension you might also need to update extensions related configurations in the same file. If needed this type of information is ussually included in extension REAMDE.
 
 ```
 # in docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini.template
+ckanext.s3filestore.aws_access_key_id = Your-Access-Key-ID
+ckanext.s3filestore.aws_secret_access_key = Your-Secret-Access-Key
 ckanext.s3filestore.aws_bucket_name = a-bucket-to-store-your-stuff
 ckanext.s3filestore.host_name = host-to-S3-cloud storage
 ckanext.s3filestore.region_name= region-name

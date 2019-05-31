@@ -5,6 +5,7 @@ export CKAN_DATASTORE_WRITE_URL=postgresql://postgres:123456@datastore-db/datast
 export CKAN_DATASTORE_READ_URL=postgresql://readonly:123456@datastore-db/datastore
 export SOLR_URL=http://solr:8983/solr/ckan
 export CKAN_REDIS_URL=redis://redis:6379/1
+export CKAN_DATAPUSHER_URL=http://datapusher:8800/
 export AWS_ACCESS_KEY_ID=
 export AWS_SECRET_ACCESS_KEY=
 export SMTP_SERVER=

@@ -13,6 +13,10 @@ services:
       - varnish
 
   ckan:
+    depends_on:
+      - datapusher
+    links:
+      - datapusher
     image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme
     build:
       context: ckan
@@ -52,3 +56,7 @@ services:
                                    CREATE EXTENSION IF NOT EXISTS postgis_topology;         \
                                    CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;            \
                                    CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;"
+  datapusher:
+    container_name: datapusher
+    build:
+      context: datapusher/

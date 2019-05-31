@@ -82,6 +82,14 @@ services:
     networks:
     - ckan-multi
 
+  datapusher:
+    build:
+      context: datapusher/
+    ports:
+      - "8800:8800"
+    networks:
+    - ckan-multi
+
   ckan:
     depends_on:
     - redis

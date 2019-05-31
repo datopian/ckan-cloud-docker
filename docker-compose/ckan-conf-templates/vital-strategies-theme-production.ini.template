@@ -132,7 +132,7 @@ ckan.max_resource_size = 1000
 ckan.max_image_size = 5
 
 ## Datapusher URL
-ckan.datapusher.url = https://datapusher-giga.l3.ckan.io/
+ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
 
 ## AWS S3 settings
 

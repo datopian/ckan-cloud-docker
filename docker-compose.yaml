@@ -26,7 +26,7 @@ services:
     image: redis:alpine
     restart: always
     ports:
-    - "6379:6379"
+    - "127.0.0.1:6379:6379"
     networks:
     - ckan-multi
 
@@ -38,7 +38,7 @@ services:
       context: nginx
     restart: always
     ports:
-    - "8080:8080"
+    - "127.0.0.1:8080:8080"
     networks:
     - ckan-multi
 
@@ -46,7 +46,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8088:8080
+      - "127.0.0.1:8088:8080"
     networks:
     - ckan-multi
 
@@ -76,7 +76,7 @@ services:
         SCHEMA_XML: ${SCHEMA_XML:-schema.xml}
     restart: always
     ports:
-    - "8983:8983"
+    - "127.0.0.1:8983:8983"
     volumes:
     - solr:/opt/solr/server
     networks:
@@ -86,7 +86,7 @@ services:
     build:
       context: datapusher/
     ports:
-      - "8800:8800"
+      - "127.0.0.1:8800:8800"
     networks:
     - ckan-multi
 
@@ -111,7 +111,7 @@ services:
     - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
     - GUNICORN_WORKERS=2
     ports:
-    - "5000:5000"
+    - "127.0.0.1:5000:5000"
     networks:
     - ckan-multi
 
@@ -126,7 +126,7 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock
     - ./jenkins/scripts/docker_compose_cca_operator.sh:/etc/ckan-cloud/cca_operator.sh
     ports:
-    - "8089:8080"
+    - "127.0.0.1:8089:8080"
     networks:
     - cloud-management
 
@@ -139,7 +139,7 @@ services:
     volumes:
     - /etc/ckan-cloud:/etc/ckan-cloud
     ports:
-    - "8022:22"
+    - "127.0.0.1:8022:22"
     networks:
     - cloud-management
     - ckan-multi
@@ -148,7 +148,7 @@ services:
     image: postgres
     restart: always
     ports:
-    - "5439:5432"
+    - "127.0.0.1:5439:5432"
     environment:
     - POSTGRES_PASSWORD=123456
     volumes:
@@ -172,7 +172,7 @@ services:
     - DATABASE_URL=postgresql://postgres:123456@provisioning-api-db:5432/postgres
     - EXTERNAL_ADDRESS=http://localhost:8092
     ports:
-    - "8092:8000"
+    - "127.0.0.1:8092:8000"
     networks:
     - cloud-management
 

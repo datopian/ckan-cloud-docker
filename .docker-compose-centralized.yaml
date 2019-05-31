@@ -24,4 +24,4 @@ services:
         SCHEMA_XML: ${SCHEMA_XML:-schema.xml}
     entrypoint: [docker-entrypoint.sh, solr, start, -c, -f]
     ports:
-     - "8983:8983"
+     - "127.0.0.1:8983:8983"

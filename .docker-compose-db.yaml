@@ -8,7 +8,7 @@ services:
       context: db
     restart: always
     ports:
-    - "5432:5432"
+    - "127.0.0.1:5432:5432"
     environment:
     - POSTGRES_PASSWORD=123456
     volumes:
@@ -20,7 +20,7 @@ services:
     image: postgres
     restart: always
     ports:
-    - "5433:5432"
+    - "127.0.0.1:5433:5432"
     environment:
     - POSTGRES_PASSWORD=123456
     volumes:
@@ -32,7 +32,7 @@ services:
     image: viderum/ckan-cloud-docker:db-latest
     restart: always
     ports:
-    - "5434:5432"
+    - "127.0.0.1:5434:5432"
     environment:
     - POSTGRES_PASSWORD=123456
     - DATASTORE_RO_PASSWORD=123456

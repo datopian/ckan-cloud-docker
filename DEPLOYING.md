@@ -47,6 +47,56 @@ To change the default env vars used throughout the [CKAN configuration file](./d
 vim docker-compose/ckan-secrets.sh
 ```
 
+Also, set or adjust deployment related environment variables in the [docker-compose.yaml](./docker-compose.yaml) and [.docker-compose.vital-strategies-theme.yaml](./.docker-compose.vital-strategies-theme.yaml) Few of them worth to talk about:
+
+Database passwords - This password will be set to the databases so make sure to update and choose them carefully
+```
+# in docker-compose.yaml and docker-compose-db.yaml
+POSTGRES_PASSWORD=123456
+DATASTORE_RO_PASSWORD=123456
+DATASTORE_PUBLIC_RO_PASSWORD=123456
+```
+
+Database URL - this URLs (URIs) will be used by CKAN to connect databases. Update them according to passwords set above
+```
+# in docker-compose/ckan-secrets.sh
+SQLALCHEMY_URL=postgresql://ckan:123456@db/ckan
+CKAN_DATASTORE_WRITE_URL=postgresql://postgres:123456@datastore-db/datastore
+CKAN_DATASTORE_READ_URL=postgresql://readonly:123456@datastore-db/datastore
+```
+
+You can increase number of [Gunicorn](https://gunicorn.org/) workers that runs CKAN
+```
+# in docker-compose.yaml
+GUNICORN_WORKERS=2
+```
+
+Modify storage path where CKAN resources will be store
+```
+# in docker-compose.yaml
+CKAN_STORAGE_PATH=/var/lib/ckan/data
+```
+
+Optional: You can also use S3 filestore instead for saving resorces. For that you will need to install and enable [S3Filestore extension](https://github.com/datopian/ckanext-s3filestore) plugin. You will need following env variables
+```
+# docker-compose/ckan-secrets.sh
+AWS_ACCESS_KEY_ID=YourSecretKey
+AWS_SECRET_ACCESS_KEY=YourSecretAccessKey
+```
+
+SMTP service credentials - this credentials are used by CKAN to send email from Eg: password reset
+```
+# docker-compose/ckan-secrets.sh
+SMTP_SERVER=your.mailservice.org.ro:587 #Note port number should be present
+SMTP_USER=noreply@mailservice.org.ro
+SMTP_PASSWORD=Secret
+```
+
+Sentry DNS - Sentry endpoint to recored and report CKAN errors (sentry extension should be enabled)
+```
+SENTRY_DSN=https://user:oassword@sentry.io/123456
+```
+
 #### Traefik proxy service
 
 Traefik is the entry point from the outside world. It binds to the default HTTP (80) and HTTPS (443) ports and handles requests by forwarding them to the appropriate services within the stack. In our case, it will point to Nginx serving the CKAN web app.
@@ -82,10 +132,10 @@ This should be enough for the basic installation. In case you need to tweak vers
 
 * `docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini`
   This is the file used to generate the CKAN main configuration file.
-  
+
 * `.docker-compose.vital-strategies-theme.yaml`
   This is the file that defines the services used by this instance.
-  
+
 
 ## Running
 
@@ -112,7 +162,6 @@ sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker
 
 *If you want to tweak the source files, typically you need to destroy the instance and run it again once you're done editing. The choice of removing the volumes in the process is up to you.*
 
-
 ## Debugging
 
 To check all the logs at any time:  
@@ -125,3 +174,62 @@ To check the logs for a specific service:
 sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml logs -f ckan
 ```  
 *(exit the logs by pressing Ctrl+C at any time)*
+
+To get inside a running container
+
+```
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml exec {service-name} bash
+```  
+
+## Creating the sysadmin user
+
+In order to create organizations and give other user proper permissions, you will need sysamin user(s) who has all the privileges. You can add as many sysadmin as you want. To create sysamin user:
+
+```
+# ssh into ckan container
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml exec ckan bash
+
+# Creat sysadmin user using paster CLI tool
+/usr/local/bin/ckan-paster --plugin=ckan sysadmin add {username} --password={password} --email={email} - /etc/ckan/production.ini
+
+# Example
+/usr/local/bin/ckan-paster --plugin=ckan sysadmin add ckan_admin --password=iemae7Ai --email=info@datopian.com - /etc/ckan/production.ini
+```
+
+## Sysadmin Control Panel
+
+Here you can edit portal related configuration, like website title, site logo or add custom styling. Login as sysadmin and navigate to `ckan-admin/config` page and make changes you need. Eg: https://demo.ckan.org/ckan-admin/config
+
+
+## Installing and enabling a new extensions
+
+CKAN allows installing various extensions (plugins) to the existing core setup. In order to enable/disable them you will have to install them and include into the ckan config file.
+
+To install extension you need to modify `POST_INSTALL` section of ckan service in `.docker-compose.vital-strategies-theme.yaml`. Eg to install s3filestore extension
+
+```
+POST_INSTALL: |
+  install_standard_ckan_extension_github -r datopian/ckanext-s3filestore &&\
+```
+
+And add extension to the list of plugins in `docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini.template`
+
+```
+# in docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini.template
+ckan.plugins = image_view
+   ...
+   stats
+   s3filestore
+```
+
+Note: depending on extension you might also need to update extensions related configurations in the same file. If needed this typo of information is ussually included in extension REAMDE.
+
+```
+# in docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini.template
+ckanext.s3filestore.aws_bucket_name = a-bucket-to-store-your-stuff
+ckanext.s3filestore.host_name = host-to-S3-cloud storage
+ckanext.s3filestore.region_name= region-name
+ckanext.s3filestore.signature_version = signature (s3v4)
+```
+
+In order to disable extension you can simple remove it from the list of plugins. You will probably also want to remove it from `POST_INSTALL` part to avoid redundant installs, although this is not must.

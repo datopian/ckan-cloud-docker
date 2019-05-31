@@ -58,5 +58,3 @@ services:
                                    CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;"
   datapusher:
     container_name: datapusher
-    build:
-      context: datapusher/

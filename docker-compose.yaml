@@ -83,7 +83,6 @@ services:
     - ckan-multi
 
   datapusher:
-    container_name: datapusher
     build:
       context: datapusher/
     ports:
@@ -95,7 +94,6 @@ services:
     depends_on:
     - redis
     - solr
-    - datapusher
     image: viderum/ckan-cloud-docker:ckan-latest
     build:
       context: ckan

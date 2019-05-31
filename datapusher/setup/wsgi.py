@@ -1,6 +1,3 @@
-import os
-import sys
-
 import ckanserviceprovider.web as web
 web.init()
 

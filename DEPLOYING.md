@@ -45,11 +45,26 @@ cd ckan-cloud-docker
 
 #### Environment variables
 
-To change the default env vars used throughout the [CKAN configuration file](./docker-compose/ckan-conf-templates), adjust the secrets in `docker-compose/ckan-secrets.sh`:
+To change the default env vars used throughout the [CKAN configuration file](./docker-compose/ckan-conf-templates), create `docker-compose/ckan-secrets-local.sh`:
 
 ```
-vim docker-compose/ckan-secrets.sh
+vim docker-compose/ckan-secrets-local.sh
 ```
+
+Put the following variables in it:
+
+```
+export AWS_ACCESS_KEY_ID=YOUR_AWS_KEY_ID
+export AWS_SECRET_ACCESS_KEY=YOUR_AWS_ACCESS_KEY
+export SMTP_SERVER=YOUR_SMTP_SERVER_FQDN
+export SMTP_USER=YOUR_SMTP_USER
+export SMTP_PASSWORD=YOUR_SMTP_PASSWORD
+export CKAN_SITE_URL=YOUR_CKAN_URL
+export SENTRY_DSN=YOUR_SENTRY_DSN_IF_YOU_HAVE_ONE
+```
+
+Save and exit. Your file is going to be ignored by Git and will override the defaults in `docker-compose/ckan-secrets.sh`.
+
 
 Also, set or adjust deployment related environment variables in the [docker-compose.yaml](./docker-compose.yaml) and [.docker-compose.vital-strategies-theme.yaml](./.docker-compose.vital-strategies-theme.yaml) Few of them worth to talk about:
 

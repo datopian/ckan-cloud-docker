@@ -115,6 +115,10 @@ vim traefik/traefik.toml
 Traefik will attempt to obtain a Let's Encrypt SSL certificate. In order for this to happen, the following configuration items need to be filled in:
 
 * `email = "admin@example.com"`
+
+> IMPORTANT: Use FQDN for both ‘main’ and ‘rule’ entries.
+
+
   This is the [contact email](https://letsencrypt.org/docs/expiration-emails/) for Let's Encrypt
 * `main = "example.com"`
   This is the domain for which Let's Encrypt will generate a certificate for

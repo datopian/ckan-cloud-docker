@@ -13,3 +13,5 @@ export SMTP_USER=
 export SMTP_PASSWORD=
 export CKAN_SITE_URL=
 export SENTRY_DSN=
+
+[[ -f "./ckan-secrets-local.sh" ]] && source "./ckan-secrets-local.sh"

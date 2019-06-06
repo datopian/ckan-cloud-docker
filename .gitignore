@@ -106,4 +106,4 @@ venv.bak/
 .idea
 docker-compose.override.yaml
 
-docker-compose/ckan-secrets-local.sh
+docker-compose/secrets/ckan-secrets-local.sh

@@ -58,12 +58,12 @@ services:
     command: [/ckan-entrypoint.sh, ckan-paster, --plugin=ckan, jobs, -c, /etc/ckan/production.ini, worker]
     restart: always
     volumes:
-    - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets.sh
+    - ./docker-compose/secrets:/etc/ckan-conf/secrets
     - ./docker-compose/ckan-conf-templates:/etc/ckan-conf/templates
     - ckan-data:/var/lib/ckan
     environment:
     - CKAN_STORAGE_PATH=/var/lib/ckan/data
-    - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets.sh
+    - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/ckan-secrets.sh
     - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
     networks:
     - ckan-multi
@@ -102,12 +102,12 @@ services:
         CKAN_REPO: ${CKAN_REPO:-ckan/ckan}
     restart: always
     volumes:
-    - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets.sh
+    - ./docker-compose/secrets:/etc/ckan-conf/secrets
     - ./docker-compose/ckan-conf-templates:/etc/ckan-conf/templates
     - ckan-data:/var/lib/ckan
     environment:
     - CKAN_STORAGE_PATH=/var/lib/ckan/data
-    - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets.sh
+    - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/ckan-secrets.sh
     - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
     - GUNICORN_WORKERS=2
     ports:

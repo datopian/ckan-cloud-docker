@@ -14,4 +14,7 @@ export SMTP_PASSWORD=
 export CKAN_SITE_URL=
 export SENTRY_DSN=
 
-[[ -f "./ckan-secrets-local.sh" ]] && source "./ckan-secrets-local.sh"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+if [[ -f "$DIR/ckan-secrets-local.sh" ]]
+    then source "$DIR/ckan-secrets-local.sh"
+fi

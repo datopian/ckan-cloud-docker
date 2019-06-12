@@ -186,6 +186,13 @@ sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker
  exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add ckan_admin password=iemae7Ai email=info@datopian.com - /etc/ckan/production.ini
 ```
 
+You can also give sysadmin role to the existing user.
+
+```
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml \
+ exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add ckan_admin - /etc/ckan/production.ini
+```
+
 ## Sysadmin Control Panel
 
 Here you can edit portal related configuration, like website title, site logo or add custom styling. Login as sysadmin and navigate to `ckan-admin/config` page and make changes you need. Eg: https://demo.ckan.org/ckan-admin/config

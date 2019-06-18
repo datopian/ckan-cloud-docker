@@ -2,11 +2,6 @@ version: '3.2'
 
 services:
 
-  proxy:
-    ports:
-      - "80:80"
-      - "443:443"
-
   nginx:
     depends_on:
       - proxy

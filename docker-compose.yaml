@@ -3,6 +3,10 @@ version: '3.2'
 services:
 
   proxy:
+    ports:
+      - "80:80"
+      - "443:443"
+
     image: traefik:1.7.2-alpine
     restart: always
     volumes:
@@ -45,8 +49,8 @@ services:
   adminer:
     image: adminer
     restart: always
-    expose:
-      - 8080
+    ports:
+      - 8088:8080
     networks:
     - ckan-multi
 
@@ -76,11 +80,11 @@ services:
         SCHEMA_XML: ${SCHEMA_XML:-schema.xml}
     restart: always
     expose:
-    - "8983"
+      - "8983"
     volumes:
-    - solr:/opt/solr/server
+      - solr:/opt/solr/server
     networks:
-    - ckan-multi
+      - ckan-multi
 
   datapusher:
     build:
@@ -88,12 +92,12 @@ services:
     expose:
       - "8800"
     networks:
-    - ckan-multi
+      - ckan-multi
 
   ckan:
     depends_on:
-    - redis
-    - solr
+      - redis
+      - solr
     image: viderum/ckan-cloud-docker:ckan-latest
     build:
       context: ckan
@@ -125,8 +129,8 @@ services:
     - .:/etc/ckan-cloud/ckan-cloud-docker
     - /var/run/docker.sock:/var/run/docker.sock
     - ./jenkins/scripts/docker_compose_cca_operator.sh:/etc/ckan-cloud/cca_operator.sh
-    expose:
-    - "8080"
+    ports:
+    - "8089:8080"
     networks:
     - cloud-management
 
@@ -147,8 +151,8 @@ services:
   provisioning-api-db:
     image: postgres
     restart: always
-    expose:
-    - "5432"
+    ports:
+    - "5439:5432"
     environment:
     - POSTGRES_PASSWORD=123456
     volumes:
@@ -171,8 +175,8 @@ services:
     - GITHUB_SECRET
     - DATABASE_URL=postgresql://postgres:123456@provisioning-api-db:5432/postgres
     - EXTERNAL_ADDRESS=http://localhost:8092
-    expose:
-    - "8000"
+    ports:
+    - "8092:8000"
     networks:
     - cloud-management
 

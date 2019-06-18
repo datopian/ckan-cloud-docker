@@ -19,8 +19,8 @@ services:
   jobs-db:
     image: postgres
     restart: always
-    expose:
-    - "5432"
+    ports:
+    - "5433:5432"
     environment:
     - POSTGRES_PASSWORD=123456
     volumes:
@@ -31,8 +31,8 @@ services:
   datastore-db:
     image: viderum/ckan-cloud-docker:db-latest
     restart: always
-    expose:
-    - "5432"
+    ports:
+    - "5434:5432"
     environment:
     - POSTGRES_PASSWORD=123456
     - DATASTORE_RO_PASSWORD=123456

@@ -12,7 +12,7 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 def main():
     print('The script will create or update (if it is already exists) local secrets files.\n')
 
-    filename = os.path.join(current_dir, 'docker-compose', 'ckan-secrets.spec')
+    filename = os.path.join(current_dir, 'docker-compose', 'ckan-secrets.dat')
     secrets_filenames = os.path.join(current_dir, 'docker-compose', '*-secrets.sh')
     spec = open(filename, 'r').readlines()
 

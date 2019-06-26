@@ -44,11 +44,9 @@ cd ckan-cloud-docker
 ```
 
 #### Environment variables
-
-To change the default env vars used throughout the [CKAN configuration file](./docker-compose/ckan-conf-templates), adjust the secrets in `docker-compose/ckan-secrets.sh`:
-
+To create or update files with secrets and env vars run and follow all steps:
 ```
-vim docker-compose/ckan-secrets.sh
+./create_secrets.py
 ```
 
 Also, set or adjust deployment related environment variables in the [docker-compose.yaml](./docker-compose.yaml) and [.docker-compose.vital-strategies-theme.yaml](./.docker-compose.vital-strategies-theme.yaml) Few of them worth to talk about:

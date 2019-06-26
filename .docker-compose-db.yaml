@@ -9,8 +9,8 @@ services:
     restart: always
     ports:
     - "5432:5432"
-    environment:
-    - POSTGRES_PASSWORD=123456
+    env_file:
+    - docker-compose/db-secrets.sh
     volumes:
     - db:/var/lib/postgresql/data
     networks:
@@ -21,8 +21,8 @@ services:
     restart: always
     ports:
     - "5433:5432"
-    environment:
-    - POSTGRES_PASSWORD=123456
+    env_file:
+    - docker-compose/db-secrets.sh
     volumes:
     - jobs-db:/var/lib/postgresql/data
     networks:
@@ -33,11 +33,8 @@ services:
     restart: always
     ports:
     - "5434:5432"
-    environment:
-    - POSTGRES_PASSWORD=123456
-    - DATASTORE_RO_PASSWORD=123456
-    - DATASTORE_RO_USER=readonly
-    - DATASTORE_PUBLIC_RO_PASSWORD=123456
+    env_file:
+    - docker-compose/datastore-db-secrets.sh
     volumes:
     - datastore-db:/var/lib/postgresql/data
     networks:

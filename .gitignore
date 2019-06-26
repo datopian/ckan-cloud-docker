@@ -105,3 +105,5 @@ venv.bak/
 
 .idea
 docker-compose.override.yaml
+
+docker-compose/*-secrets.sh

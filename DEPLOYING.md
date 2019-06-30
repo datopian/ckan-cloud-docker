@@ -29,7 +29,7 @@ sudo docker info
 
 #### Extra dependencies
 
-- You will also need a SMTP server and its credentials for CKAN to work properly. This will not obstacle deployment, CKAN will be up and running, but won't be able to send emails (e.g. on password reset).
+- You will also need a SMTP server and its credentials for CKAN to work properly. This will not obstacle deployment, CKAN will be up and running, but won't be able to send emails (e.g. on password reset). You will be asked to provide SMTP server credentials while running `./create_secrets.py` script, see below.
 
 ### Source files and configuration
 

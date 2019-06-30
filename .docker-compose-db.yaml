@@ -7,8 +7,8 @@ services:
     build:
       context: db
     restart: always
-    ports:
-    - "5432:5432"
+    expose:
+    - "5432"
     env_file:
     - docker-compose/db-secrets.sh
     volumes:
@@ -19,8 +19,8 @@ services:
   jobs-db:
     image: postgres
     restart: always
-    ports:
-    - "5433:5432"
+    expose:
+    - "5432"
     env_file:
     - docker-compose/db-secrets.sh
     volumes:
@@ -31,8 +31,8 @@ services:
   datastore-db:
     image: viderum/ckan-cloud-docker:db-latest
     restart: always
-    ports:
-    - "5434:5432"
+    expose:
+    - "5432"
     env_file:
     - docker-compose/datastore-db-secrets.sh
     volumes:

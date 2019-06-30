@@ -108,8 +108,8 @@ cp docker-compose/ckan-conf-templates/production.ini.template \
 ```
 
 Edit the duplicated file and modify the settings, e.g. add the extensions to the `plugins` configuration and any additional required extension configurations.
-
-Create a docker-compose override file e.g. `.docker-compose.my-ckan.yaml`:
+`
+Copy docker compose override from `.docker-compose.sample-instance.yaml` to `.docker-compose.my-ckan.yaml` or create it from this template:
 
 ```
 version: '3.2'
@@ -153,14 +153,6 @@ Start the docker-compose environment with the modified config:
 
 ```
 docker-compose -f docker-compose.yaml -f .docker-compose.my-ckan.yaml up -d --build nginx
-```
-
-You can persist the modified configurations in Git for reference and documentation.
-
-For example, to start the datagov-theme configuration:
-
-```
-docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml up -d --build nginx
 ```
 
 ## External database server 

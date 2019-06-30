@@ -51,7 +51,7 @@ To change the default env vars used throughout the [CKAN configuration file](./d
 vim docker-compose/ckan-secrets.sh
 ```
 
-Also, set or adjust deployment related environment variables in the [docker-compose.yaml](./docker-compose.yaml) and [.docker-compose.vital-strategies-theme.yaml](./.docker-compose.vital-strategies-theme.yaml) Few of them worth to talk about:
+Also, set or adjust deployment related environment variables in the [docker-compose.yaml](./docker-compose.yaml). Few of them worth to talk about:
 
 Database passwords - This password will be set to the databases so make sure to update and choose them carefully
 ```
@@ -119,34 +119,35 @@ In addition to Let's Encrypt specific configuration, there is one more line you 
 
 This should be enough for the basic installation. In case you need to tweak versions or other initialization parameters for CKAN, you need these two files:
 
-* `docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini`
+* `docker-compose/ckan-conf-templates/production.ini`
   This is the file used to generate the CKAN main configuration file.
 
-* `.docker-compose.vital-strategies-theme.yaml`
+* `.docker-compose.sample-instance.yaml`
   This is the file that defines the services used by this instance.
 
 
 ## Running
 
-**To run the `vital-strategies` instance:**
+**To run the `my-ckan` instance:**
+Copy `.docker-compose.sample-instance.yaml` to `.docker-compose.my-ckan.yaml` end edit its content especially changing the `<tag>`.
 
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml up -d --build nginx
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml up -d --build nginx
 ```
 
 **To stop it, run:**
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml stop
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml stop
 ```
 
 **To destroy the instance, run:**
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml down
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml down
 ```
 
 **To destroy the instance, together with volumes, databases etc., run:**
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml down -v
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml down -v
 ```
 
 *If you want to tweak the source files, typically you need to destroy the instance and run it again once you're done editing. The choice of removing the volumes in the process is up to you.*
@@ -155,19 +156,19 @@ sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker
 
 To check all the logs at any time:  
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml logs -f
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml logs -f
 ```  
 
 To check the logs for a specific service:  
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml logs -f ckan
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml logs -f ckan
 ```  
 *(exit the logs by pressing Ctrl+C at any time)*
 
 To get inside a running container
 
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml exec {service-name} bash
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml exec {service-name} bash
 ```
 
 Note: for some services (Eg: Nginx) you mite need to use `sh` instead of `bash`
@@ -178,18 +179,18 @@ In order to create organizations and give other user proper permissions, you wil
 
 ```
 # Create sysadmin user using paster CLI tool
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml \
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml \
  exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add {username} password={password} email={email} -c /etc/ckan/production.ini
 
 # Example
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml \
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml \
  exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add ckan_admin password=iemae7Ai email=info@datopian.com -c /etc/ckan/production.ini
 ```
 
 You can also give sysadmin role to the existing user.
 
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml \
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml \
  exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add ckan_admin -c /etc/ckan/production.ini
 ```
 
@@ -202,17 +203,17 @@ Here you can edit portal related configuration, like website title, site logo or
 
 CKAN allows installing various extensions (plugins) to the existing core setup. In order to enable/disable them you will have to install them and include into the ckan config file.
 
-To install extension you need to modify `POST_INSTALL` section of ckan service in `.docker-compose.vital-strategies-theme.yaml`. Eg to install s3filestore extension
+To install extension you need to modify `POST_INSTALL` section of ckan service in `.docker-compose.my-ckan-theme.yaml`. Eg to install s3filestore extension
 
 ```
 POST_INSTALL: |
   install_standard_ckan_extension_github -r datopian/ckanext-s3filestore &&\
 ```
 
-And add extension to the list of plugins in `docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini.template`
+And add extension to the list of plugins in `docker-compose/ckan-conf-templates/my-ckan-theme-production.ini.template`
 
 ```
-# in docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini.template
+# in docker-compose/ckan-conf-templates/my-ckan-theme-production.ini.template
 ckan.plugins = image_view
    ...
    stats
@@ -222,7 +223,7 @@ ckan.plugins = image_view
 Note: depending on extension you might also need to update extensions related configurations in the same file. If needed this type of information is ussually included in extension REAMDE.
 
 ```
-# in docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini.template
+# in docker-compose/ckan-conf-templates/my-ckan-theme-production.ini.template
 ckanext.s3filestore.aws_access_key_id = Your-Access-Key-ID
 ckanext.s3filestore.aws_secret_access_key = Your-Secret-Access-Key
 ckanext.s3filestore.aws_bucket_name = a-bucket-to-store-your-stuff

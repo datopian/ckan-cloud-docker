@@ -78,6 +78,11 @@ ckan.redis.url = {{CKAN_REDIS_URL}}
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
 ckan.plugins = stats text_view image_view recline_view datastore xloader
+#    harvest ckan_harvester datajson_harvest datajson archiver report 
+#    dcat dcat_rdf_harvester dcat_json_harvester dcat_json_interface 
+#    structured_data geodatagov geodatagov_miscs 
+#    z3950_harvester arcgis_harvester geodatagov_geoportal_harvester waf_harvester_collection geodatagov_csw_harvester geodatagov_doc_harvester geodatagov_waf_harvester 
+#    spatial_query usmetadata
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -152,6 +157,35 @@ ckanext.xloader.jobs_db.uri = postgresql://postgres:123456@jobs-db/postgres
 #ckan.email_notifications_since = 2 days
 ckan.hide_activity_from_users = %(ckan.site_id)s
 
+## datajson settings
+ckanext.datajson.inventory_links_enabled = True
+ckanext.datajson.url_enabled = True
+
+## Harvest settings
+#ckan.harvest.mq.type = redis
+#ckan.harvest.mq.hostname = redis
+#ckan.harvest.mq.redis_db = 9
+
+## Sentry settings
+sentry_dsn = {{SENTRY_DSN}}
+ckan.sentry.configure_logging = True
+ckan.sentry.log_level = ERROR
+
+## Datapusher URL
+ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
+
+## AWS S3 settings
+
+# ckanext.cloudstorage.driver = S3_US_EAST2
+# ckanext.cloudstorage.container_name = my-ckan
+# ckanext.cloudstorage.driver_options = {"key": "{{AWS_ACCESS_KEY_ID}}", "secret": "{{AWS_SECRET_ACCESS_KEY}}"}
+# ckanext.s3filestore.host_name = https://my-ckan.s3.eu-east-1.amazonaws.com/
+#ckanext.s3filestore.aws_storage_path = demo
+#ckanext.s3filestore.aws_access_key_id = {{AWS_ACCESS_KEY_ID}}
+#ckanext.s3filestore.aws_secret_access_key = {{AWS_SECRET_ACCESS_KEY}}
+#ckanext.s3filestore.region_name = us-east-2
+#ckanext.s3filestore.aws_bucket_name = my-ckan
+#ckanext.s3filestore.signature_version = s3v4
 
 ## Email settings
 

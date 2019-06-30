@@ -15,32 +15,28 @@ This document details the procedure to be followed when running unit tests on Vi
 
 The following instructions deviate a bit from the instructions for bringing up a CKAN instance on your PC. Refer also to the installation instructions in the [ViderumGlobal/ckan-cloud-docker repository](https://github.com/ViderumGlobal/ckan-cloud-docker).
 
-First, cd to the directory containing your `docker-compose.yaml`, `.docker-compose-db.yaml` and `.docker-compose.datagov-theme.yaml` files.
+First, copy `.docker-compose.sample-instance.yaml` to `.docker-compose.my-ckan.yaml` end edit its content especially changing the `<tag>`.
+
+(optional) Ensure a fresh start with up-to-date images:
 
 ```
-$ cd ckan-cloud-docker
-```
-
-(optional) Eensure a fresh start with up-to-date images:
-
-
-```
-$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml \
+$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan.yaml \
       down -v
 ```
+
 Then remove images and volumes (only if you are paranoid).
 
 Start the CKAN instance
 
 ```
-$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml \
+$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan.yaml \
       up -d nginx
 
 ```
 
 Wait several seconds until the instance stabilizes. You may monitor its initialization process using:
 ```
-$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml \
+$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan.yaml \
       logs -f
 ```
 
@@ -54,7 +50,7 @@ An unsuccessful response would be HTTP 502 (Bad Gateway). A successful response 
 
 Once you see a successful response, create a CKAN admin user:
 ```
-$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml \
+$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan.yaml \
 	  exec ckan ckan-paster --plugin=ckan \
       sysadmin add -c /etc/ckan/production.ini admin password=12345678 email=admin@localhost
 ```
@@ -82,7 +78,7 @@ The following instructions are based upon [Testing CKAN - Back-end tests](https:
 
 The first step is to start a shell inside the `ckan` service (implemented by the `ckan-cloud-docker_ckan_1` container).
 ```
-$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml \
+$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan.yaml \
       exec ckan /bin/bash
 ```
 
@@ -113,7 +109,7 @@ Now prepare the datastore DB for unit tests as follows.
 Start `psql` inside the `datastore-db` service (the `ckan-cloud-docker_datastore-db_1` container).
 
 ```
-$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml \
+$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan.yaml \
       exec --user postgres datastore-db psql
 ```
 
@@ -126,9 +122,9 @@ postgres-# \q
 ```
 The last command closes psql and you are back in your host computer's shell. Now create the test databases:
 ```
-$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml \
+$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan.yaml \
       exec --user postgres datastore-db createdb -O ckan_default ckan_test -E utf-8 -T template0
-$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml \
+$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan.yaml \
       exec --user postgres datastore-db createdb -O ckan_default datastore_test -E utf-8 -T template0
 ```
 
@@ -140,7 +136,7 @@ docker cp TESTING.test-core.ini ckan-cloud-docker_ckan_1:/usr/lib/ckan/venv/src/
 ```
 Now we have to run a script in the `ckan` service and pipe its output into the `datastore-db` instance.
 ```
-$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml \
+$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan.yaml \
       exec ckan /bin/bash
 ```
 Inside the `ckan` service, execute:

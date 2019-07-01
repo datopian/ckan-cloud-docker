@@ -75,8 +75,8 @@ services:
       args:
         SCHEMA_XML: ${SCHEMA_XML:-schema.xml}
     restart: always
-    ports:
-    - "8983:8983"
+    expose:
+    - "8983"
     volumes:
     - solr:/opt/solr/server
     networks:
@@ -110,8 +110,8 @@ services:
     - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets.sh
     - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
     - GUNICORN_WORKERS=2
-    ports:
-    - "5000:5000"
+    expose:
+    - "5000"
     networks:
     - ckan-multi
 

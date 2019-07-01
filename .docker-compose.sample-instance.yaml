@@ -39,6 +39,7 @@ services:
     build:
       context: ckan
       args:
+        PIP_INDEX_URL: https://pypi.org/simple
         CKAN_BRANCH: ckan-2.7.3
         POST_INSTALL: |
           install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore &&\

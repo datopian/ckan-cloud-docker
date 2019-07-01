@@ -1,5 +1,7 @@
 FROM alpine:3.6
 
+ENV PIP_INDEX_URL="${PIP_INDEX_URL:-https://pypi.org/simple/}"
+
 RUN while ! ( apk update && apk add --no-cache \
         bash python grep jq python3 libcurl git docker openssl curl ca-certificates wget \
         openssh-server openssh-sftp-server postgresql-client \

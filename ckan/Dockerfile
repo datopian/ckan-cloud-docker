@@ -37,6 +37,7 @@ ENV CKAN_VENV $CKAN_HOME/venv
 ENV CKAN_CONFIG /etc/ckan
 ENV CKAN_STORAGE_PATH=/var/lib/ckan
 ENV CKAN_LOGS_PATH=/var/log/ckan
+ENV PIP_INDEX_URL="${PIP_INDEX_URL:-https://pypi.org/simple/}"
 
 # Create ckan user
 RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan

@@ -130,7 +130,7 @@ This should be enough for the basic installation. In case you need to tweak vers
 ## Running
 
 **To run the `my-ckan` instance:**
-Copy `.docker-compose.sample-instance.yaml` to `.docker-compose.my-ckan.yaml` end edit its content especially changing the `<tag>`.
+Copy `.docker-compose.sample-instance.yaml` to `.docker-compose.my-ckan.yaml` end edit its content especially changing the `<tag>`. In case you need to set a mirror for PyPi, update `PIP_INDEX_URL` env var.
 
 ```
 sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml up -d --build nginx

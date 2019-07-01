@@ -116,6 +116,7 @@ In addition to Let's Encrypt specific configuration, there is one more line you 
 
 > Note: All the necessary configuration items are marked with `TODO` flags in the `traefik.toml` configuration file.
 
+In case you need to store data in AWS (CKAN uses local filesystem by default), edit the `AWS S3 settings` config block in `docker-compose/ckan-conf-templates/production.ini.template`
 
 This should be enough for the basic installation. In case you need to tweak versions or other initialization parameters for CKAN, you need these two files:
 

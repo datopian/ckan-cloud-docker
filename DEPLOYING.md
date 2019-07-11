@@ -130,11 +130,13 @@ This should be enough for the basic installation. In case you need to tweak vers
 ## Running
 
 **To run the `my-ckan` instance:**
-Copy `.docker-compose.sample-instance.yaml` to `.docker-compose.my-ckan.yaml` end edit its content especially changing the `<tag>`. In case you need to set a mirror for PyPi, update `PIP_INDEX_URL` env var.
+Copy `.docker-compose.sample-instance.yaml` to `.docker-compose.my-ckan.yaml` end edit its content especially changing the `<tag>`. In case you need to set a mirror for PyPi, update `PIP_INDEX_URL` env var. Also update the `CKAN_CONFIG_TEMPLATE_PREFIX` env var.
 
 ```
 sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.my-ckan-theme.yaml up -d --build nginx
 ```
+
+If database is new, run `full_text_function.sql` from [ckanext-xloader](https://github.com/ckan/ckanext-xloader) repo on datastore database.
 
 **To stop it, run:**
 ```

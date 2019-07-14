@@ -22,6 +22,12 @@ Install Docker for [Windows](https://store.docker.com/editions/community/docker-
 [Install Docker Compose](https://docs.docker.com/compose/install/)
 
 
+## Generate or update files with secrets
+Run and follow all steps:
+```
+./create_secrets.py
+```
+
 ## Running a CKAN instance using the docker-compose environment
 
 (optional) Clear any existing compose environment to ensure a fresh start

@@ -75,8 +75,8 @@ services:
       args:
         SCHEMA_XML: ${SCHEMA_XML:-schema.xml}
     restart: always
-    ports:
-    - "8983:8983"
+    expose:
+    - "8983"
     volumes:
     - solr:/opt/solr/server
     networks:
@@ -110,8 +110,8 @@ services:
     - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets.sh
     - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
     - GUNICORN_WORKERS=2
-    ports:
-    - "5000:5000"
+    expose:
+    - "5000"
     networks:
     - ckan-multi
 
@@ -149,8 +149,8 @@ services:
     restart: always
     ports:
     - "5439:5432"
-    environment:
-    - POSTGRES_PASSWORD=123456
+    env_file:
+    - docker-compose/provisioning-api-db-secrets.sh
     volumes:
     - provisioning-api-db:/var/lib/postgresql/data
     networks:
@@ -162,6 +162,8 @@ services:
     - cca-operator
     image: viderum/ckan-cloud-provisioning-api:latest
     restart: always
+    env_file:
+    - docker-compose/provisioning-api-secrets.sh
     environment:
     - INSTANCE_MANAGER=root@cca-operator
     - PRIVATE_SSH_KEY
@@ -169,7 +171,6 @@ services:
     - PUBLIC_KEY
     - GITHUB_KEY
     - GITHUB_SECRET
-    - DATABASE_URL=postgresql://postgres:123456@provisioning-api-db:5432/postgres
     - EXTERNAL_ADDRESS=http://localhost:8092
     ports:
     - "8092:8000"

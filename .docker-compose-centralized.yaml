@@ -6,14 +6,14 @@ services:
     - INSTANCE_ID
     - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets-centralized.sh
     volumes:
-    - ./docker-compose/ckan-secrets-centralized.sh:/etc/ckan-conf/secrets/secrets-centralized.sh
+    - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets-centralized.sh
 
   jobs:
     environment:
     - INSTANCE_ID
     - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets-centralized.sh
     volumes:
-    - ./docker-compose/ckan-secrets-centralized.sh:/etc/ckan-conf/secrets/secrets-centralized.sh
+    - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets-centralized.sh
 
   solr:
     image: viderum/ckan-cloud-docker:solrcloud-latest
@@ -23,5 +23,5 @@ services:
       args:
         SCHEMA_XML: ${SCHEMA_XML:-schema.xml}
     entrypoint: [docker-entrypoint.sh, solr, start, -c, -f]
-    ports:
-     - "8983:8983"
+    expose:
+     - "8983"

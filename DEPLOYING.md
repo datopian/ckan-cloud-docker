@@ -29,7 +29,7 @@ sudo docker info
 
 #### Extra dependencies
 
-- You will also need a SMTP server and its credentials for CKAN to work properly. This will not obstacle deployment, CKAN will be up and running, but won't be able to send emails (e.g. on password reset).
+- You will also need a SMTP server and its credentials for CKAN to work properly. This will not obstacle deployment, CKAN will be up and running, but won't be able to send emails (e.g. on password reset). You will be asked to provide SMTP server credentials while running `./create_secrets.py` script, see below.
 
 ### Source files and configuration
 
@@ -44,11 +44,9 @@ cd ckan-cloud-docker
 ```
 
 #### Environment variables
-
-To change the default env vars used throughout the [CKAN configuration file](./docker-compose/ckan-conf-templates), adjust the secrets in `docker-compose/ckan-secrets.sh`:
-
+To create or update files with secrets and env vars run and follow all steps:
 ```
-vim docker-compose/ckan-secrets.sh
+./create_secrets.py
 ```
 
 Also, set or adjust deployment related environment variables in the [docker-compose.yaml](./docker-compose.yaml) and [.docker-compose.vital-strategies-theme.yaml](./.docker-compose.vital-strategies-theme.yaml) Few of them worth to talk about:

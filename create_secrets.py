@@ -8,13 +8,12 @@ if sys.version_info[0] < 3:
     input = raw_input
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
+write_secrets = {}
 
 
 def set_parsed_values(secrets, secrets_for, name, value):
     if secrets_for == 'ckan' and name == 'CKAN_DATASTORE_READ_URL':
-        print('dbg', value)
         res = re.findall(r'postgresql://([-_A-Za-z0-9]+):([^@]+)@datastore-db', value)
-        print('dbg', res)
         if not res:
             return
         user, password = res[0]
@@ -35,7 +34,6 @@ def main():
     spec = open(filename, 'r').readlines()
 
     secrets = {}
-    write_secrets = {}
     for filename in glob.glob(secrets_filenames):
         secrets_lines = open(filename, 'r').readlines()
         secrets_for = filename.split('/')[-1].replace('-secrets.sh', '')
@@ -48,12 +46,12 @@ def main():
             set_parsed_values(secrets, secrets_for, name, value)
 
     for i, line in enumerate(spec):
-        secrets_for, mode, name, example, description = line.split(' ', 4)
+        secrets_for, mode, name, default, description = line.split(' ', 4)
         saved_value = secrets.get('{}-{}'.format(secrets_for, name))
         if saved_value:
             example = 'Skip to use saved value "{}"'.format(saved_value)
         else:
-            example = 'Sample value "{}"'.format(example)
+            example = 'Default value "{}"'.format(default)
 
         if secrets_for in ('datastore-db', 'provisioning-api-db'):
             value = saved_value
@@ -80,8 +78,12 @@ def main():
         else:
             value = value.strip()
 
-        while not value and mode == 'required':
-            value = input('Value for {} could not be empty. Enter value: '.format(name))
+        if not value and mode == 'required':
+            print('Used default value: {}'.format(default))
+            value = default
+
+        if not value and mode == 'optional':
+            value = ''
 
         if secrets_for not in write_secrets:
             write_secrets[secrets_for] = []
@@ -92,6 +94,10 @@ def main():
         write_secrets[secrets_for].append('{}{}={}'.format(prefix, name, value))
         print('')
 
+    save_values()
+
+
+def save_values():
     for filename, write_secret in write_secrets.items():
         secrets_filename = os.path.join(current_dir, 'docker-compose', '%s-secrets.sh' % filename)
         with open(secrets_filename, 'w') as f:
@@ -100,4 +106,11 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        value = input('\n\nSave entered values (old non-entered values from secrets file will be also removed)? [y/N]: ')
+        if value == 'y':
+            save_values()
+        else:
+            print('\nExiting without saving')

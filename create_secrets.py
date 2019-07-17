@@ -1,12 +1,30 @@
 #!/usr/bin/env python
 import glob
 import os
+import re
 import sys
 
 if sys.version_info[0] < 3:
     input = raw_input
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
+
+
+def set_parsed_values(secrets, secrets_for, name, value):
+    if secrets_for == 'ckan' and name == 'CKAN_DATASTORE_READ_URL':
+        print('dbg', value)
+        res = re.findall(r'postgresql://([-_A-Za-z0-9]+):([^@]+)@datastore-db', value)
+        print('dbg', res)
+        if not res:
+            return
+        user, password = res[0]
+        secrets['datastore-db-DATASTORE_RO_PASSWORD'] = password
+        secrets['datastore-db-DATASTORE_RO_USER'] = user
+        secrets['datastore-db-DATASTORE_PUBLIC_RO_PASSWORD'] = password
+
+    if secrets_for == 'db' and name == 'POSTGRES_PASSWORD':
+        secrets['datastore-db-POSTGRES_PASSWORD'] = value
+        secrets['provisioning-api-db-POSTGRES_PASSWORD'] = value
 
 
 def main():
@@ -21,10 +39,13 @@ def main():
     for filename in glob.glob(secrets_filenames):
         secrets_lines = open(filename, 'r').readlines()
         secrets_for = filename.split('/')[-1].replace('-secrets.sh', '')
+        if secrets_for in ('datastore-db', 'provisioning-api-db'):
+            continue
         for secret in secrets_lines:
             idx = 1 if secrets_for == 'ckan' else 0
             name, value = secret.split()[idx].split('=')
             secrets['{}-{}'.format(secrets_for, name)] = value
+            set_parsed_values(secrets, secrets_for, name, value)
 
     for i, line in enumerate(spec):
         secrets_for, mode, name, example, description = line.split(' ', 4)
@@ -34,14 +55,23 @@ def main():
         else:
             example = 'Sample value "{}"'.format(example)
 
-        value = input('[{}] Enter {} value for {}, {} container [{}].\n({}): '.format(
-            i + 1,
-            description.strip('\n'),
-            name,
-            secrets_for,
-            mode,
-            example
-        ))
+        if secrets_for in ('datastore-db', 'provisioning-api-db'):
+            value = saved_value
+            print('[{}] Used parsed value for {}, {} container: {}'.format(
+                i + 1,
+                name,
+                secrets_for,
+                value
+            ))
+        else:
+            value = input('[{}] Enter {} value for {}, {} container [{}].\n({}): '.format(
+                i + 1,
+                description.strip('\n'),
+                name,
+                secrets_for,
+                mode,
+                example
+            ))
         if not value and saved_value:
             value = saved_value
 
@@ -55,6 +85,9 @@ def main():
 
         if secrets_for not in write_secrets:
             write_secrets[secrets_for] = []
+
+        set_parsed_values(secrets, secrets_for, name, value)
+
         prefix = 'export ' if secrets_for == 'ckan' else ''
         write_secrets[secrets_for].append('{}{}={}'.format(prefix, name, value))
         print('')

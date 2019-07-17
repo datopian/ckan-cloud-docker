@@ -22,7 +22,8 @@ def main():
         secrets_lines = open(filename, 'r').readlines()
         secrets_for = filename.split('/')[-1].replace('-secrets.sh', '')
         for secret in secrets_lines:
-            name, value = secret.split()[1].split('=')
+            idx = 1 if secrets_for == 'ckan' else 0
+            name, value = secret.split()[idx].split('=')
             secrets['{}-{}'.format(secrets_for, name)] = value
 
     for i, line in enumerate(spec):
@@ -54,7 +55,8 @@ def main():
 
         if secrets_for not in write_secrets:
             write_secrets[secrets_for] = []
-        write_secrets[secrets_for].append('export {}={}'.format(name, value))
+        prefix = 'export ' if secrets_for == 'ckan' else ''
+        write_secrets[secrets_for].append('{}{}={}'.format(prefix, name, value))
         print('')
 
     for filename, write_secret in write_secrets.items():

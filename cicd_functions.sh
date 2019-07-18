@@ -3,6 +3,8 @@ BUILD_APPS="ckan cca-operator jenkins nginx db solr"
 BUILD_CKAN_OVERRIDES="1"
 BUILD_SOLR_OVERRIDES="1"
 
+touch docker-compose/ckan-secrets.sh docker-compose/datastore-db-secrets.sh docker-compose/db-secrets.sh docker-compose/provisioning-api-db-secrets.sh docker-compose/provisioning-api-secrets.sh
+
 exec_build_apps() {
     for APP in $BUILD_APPS; do
         APP_LATEST_IMAGE="${DOCKER_IMAGE}:${APP}-latest"

@@ -1,0 +1,75 @@
+version: '3.2'
+
+services:
+
+  proxy:
+    ports:
+      - "80:80"
+      - "443:443"
+
+  nginx:
+    depends_on:
+      - proxy
+      - varnish
+
+  solr:
+    build:
+      context: solr
+      args:
+        SCHEMA_XML: schemas/schema26.xml
+
+  ckan:
+    depends_on:
+      - datapusher
+    links:
+      - datapusher
+    image: viderum/ckan-cloud-docker:ckan-latest-panama-theme
+    build:
+      context: ckan
+      args:
+        CKAN_BRANCH: ckan-2.6.6
+        POST_INSTALL: |
+          ckan-pip install --upgrade setuptools &&\
+          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-panama -b v1.0.17 &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-widgets &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-pdfview &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-geoview &&\
+          install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore -b v0.1.0&&\
+          install_standard_ckan_extension_github -r ckan/ckanext-fluent &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-scheming &&\
+          install_standard_ckan_extension_github -r keitaroinc/ckanext-showcase -b 26-fixes &&\
+          install_standard_ckan_extension_github -r NaturalHistoryMuseum/ckanext-contact &&\
+          install_standard_ckan_extension_github -r okfn/ckanext-spatial &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-pages &&\
+          install_standard_ckan_extension_github -r okfn/ckanext-sentry &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-disqus -b 709566b439df6a9cf45708c773c18a71b141f3ef &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-googleanalytics &&\
+          install_standard_ckan_extension_github -r okfn/ckanext-envvars &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-harvest -b v1.1.4 &&\
+          msgfmt ~/venv/src/ckanext-panama/i18n/es/LC_MESSAGES/ckan.po -o ~/venv//src/ckanext-panama/i18n/es/LC_MESSAGES/ckan.mo
+    environment:
+      - CKAN_CONFIG_TEMPLATE_PREFIX=panama-theme-
+
+  jobs:
+    image: viderum/ckan-cloud-docker:ckan-latest-panama-theme
+    build:
+      context: ckan
+      args:
+        CKAN_BRANCH: ckan-2.6.6
+        POST_INSTALL: |
+          install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-geoview
+    environment:
+      - CKAN_CONFIG_TEMPLATE_PREFIX=panama-theme-
+
+  db:
+    image: mdillon/postgis
+    build:
+      args:
+        DB_INIT: |
+          psql --dbname="ckan" -c "CREATE EXTENSION IF NOT EXISTS postgis;                  \
+                                   CREATE EXTENSION IF NOT EXISTS postgis_topology;         \
+                                   CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;            \
+                                   CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;"
+  datapusher:
+    container_name: datapusher

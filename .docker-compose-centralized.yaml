@@ -21,7 +21,7 @@ services:
       context: solr
       dockerfile: solrcloud.Dockerfile
       args:
-        SCHEMA_XML: ${SCHEMA_XML:-schema.xml}
+        SCHEMA_XML: ${SCHEMA_XML:-schemas/schema28.xml}
     entrypoint: [docker-entrypoint.sh, solr, start, -c, -f]
     expose:
      - "8983"

@@ -73,7 +73,7 @@ services:
     build:
       context: solr
       args:
-        SCHEMA_XML: ${SCHEMA_XML:-schema.xml}
+        SCHEMA_XML: ${SCHEMA_XML:-schemas/schema28.xml}
     restart: always
     expose:
     - "8983"

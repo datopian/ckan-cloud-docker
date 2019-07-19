@@ -49,37 +49,6 @@ To create or update files with secrets and env vars run and follow all steps:
 ./create_secrets.py
 ```
 
-Also, set or adjust deployment related environment variables in the [docker-compose.yaml](./docker-compose.yaml) and [.docker-compose.vital-strategies-theme.yaml](./.docker-compose.vital-strategies-theme.yaml) Few of them worth to talk about:
-
-Database passwords - This password will be set to the databases so make sure to update and choose them carefully
-```
-# in docker-compose.yaml and docker-compose-db.yaml
-POSTGRES_PASSWORD=123456
-DATASTORE_RO_PASSWORD=123456
-DATASTORE_PUBLIC_RO_PASSWORD=123456
-```
-
-Database URL - this URLs (URIs) will be used by CKAN to connect databases. Update them according to passwords set above
-```
-# in docker-compose/ckan-secrets.sh
-SQLALCHEMY_URL=postgresql://ckan:123456@db/ckan
-CKAN_DATASTORE_WRITE_URL=postgresql://postgres:123456@datastore-db/datastore
-CKAN_DATASTORE_READ_URL=postgresql://readonly:123456@datastore-db/datastore
-```
-
-SMTP service credentials - this credentials are used by CKAN to send email from Eg: password reset
-```
-# docker-compose/ckan-secrets.sh
-SMTP_SERVER=your.mailservice.org.ro:587 #Note port number should be present
-SMTP_USER=noreply@mailservice.org.ro
-SMTP_PASSWORD=Secret
-```
-
-Sentry DNS - Sentry endpoint to recored and report CKAN errors (sentry extension should be enabled)
-```
-SENTRY_DSN=https://user:oassword@sentry.io/123456
-```
-
 #### Traefik proxy service
 
 Traefik is the entry point from the outside world. It binds to the default HTTP (80) and HTTPS (443) ports and handles requests by forwarding them to the appropriate services within the stack. In our case, it will point to Nginx serving the CKAN web app.
@@ -148,6 +117,22 @@ sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker
 ```
 
 *If you want to tweak the source files, typically you need to destroy the instance and run it again once you're done editing. The choice of removing the volumes in the process is up to you.*
+
+## Migrate Data
+
+You will need public URLs to database dumps.
+
+```
+DB_DUMP_URL=<<DB_DUMP_URL.gz>>
+DATASTORE_DB_DUMP_URL=<<DATASTORE_DB_DUMP_URL.gz>>
+
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml exec ckan bash migrate_data.sh $DB_DUMP_URL $DATASTORE_DB_DUMP_URL
+```
+
+After migration rebuild the SOLR search index.
+```
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml exec ckan /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild  -c /etc/ckan/production.ini
+```
 
 ## Debugging
 

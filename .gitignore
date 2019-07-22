@@ -106,3 +106,6 @@ venv.bak/
 docker-compose.override.yaml
 
 docker-compose/*-secrets.sh
+
+# sanbdox
+sandbox

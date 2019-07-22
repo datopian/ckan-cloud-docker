@@ -34,7 +34,7 @@ services:
           install_standard_ckan_extension_github -r ckan/ckanext-widgets &&\
           install_standard_ckan_extension_github -r ckan/ckanext-pdfview &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview &&\
-          install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore -b v0.1.0&&\
+          install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b v0.1.1-mimetype &&\
           install_standard_ckan_extension_github -r ckan/ckanext-fluent &&\
           install_standard_ckan_extension_github -r ckan/ckanext-scheming &&\
           install_standard_ckan_extension_github -r keitaroinc/ckanext-showcase -b 26-fixes &&\

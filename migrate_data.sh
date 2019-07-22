@@ -24,6 +24,9 @@ fi
 
 # recover datastore DB
 if [ "$DATASTORE_DB_BACKUP" != "" ]; then
-  wget -O db_datastore_backup.gz $DB_BACKUP && gunzip db_datastore_backup.gz
+  psql $DB -c "SELECT pg_terminate_backend (pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'panama-datastore'"
+  psql $DB -c "DROP DATABASE panama-datastore;"
+  psql $DB -c "CREATE DATABASE panama-datastore;"
+  wget -O db_datastore_backup.gz $DATASTORE_DB_BACKUP && gunzip db_datastore_backup.gz
   psql $CKAN_DATASTORE_WRITE_URL -f db_datastore_backup ckan
 fi

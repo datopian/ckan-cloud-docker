@@ -15,6 +15,7 @@ beaker.session.key = ckan
 beaker.session.type = database
 beaker.session.table_name = beaker_sessions
 beaker.session.secret = {{BEAKER_SESSION_SECRET}}
+beaker.session.url = {{SQLALCHEMY_URL}}
 app_instance_uuid = {{APP_INSTANCE_UUID}}
 
 who.config_file = %(here)s/who.ini
@@ -110,6 +111,7 @@ ckan.plugins = stats
   spatial_metadata
   spatial_query
   googleanalytics
+  s3filestore
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -160,11 +162,11 @@ ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
 # ckanext.cloudstorage.driver = S3_US_EAST2
 # ckanext.cloudstorage.container_name = panama
 # ckanext.cloudstorage.driver_options = {"key": "{{AWS_ACCESS_KEY_ID}}", "secret": "{{AWS_SECRET_ACCESS_KEY}}"}
-# ckanext.s3filestore.host_name = https://panama-ckan.s3.eu-east-1.amazonaws.com/
-ckanext.s3filestore.aws_storage_path = demo
+ckanext.s3filestore.host_name = https://s3.amazonaws.com
+ckanext.s3filestore.aws_storage_path = panama
 ckanext.s3filestore.aws_access_key_id = {{AWS_ACCESS_KEY_ID}}
 ckanext.s3filestore.aws_secret_access_key = {{AWS_SECRET_ACCESS_KEY}}
-ckanext.s3filestore.region_name = us-east-2
+ckanext.s3filestore.region_name = us-east-1
 ckanext.s3filestore.aws_bucket_name = panama-ckan
 ckanext.s3filestore.signature_version = s3v4
 

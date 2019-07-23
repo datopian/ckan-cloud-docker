@@ -16,7 +16,7 @@ First we need to install **[git](https://help.github.com/en/articles/set-up-git)
 
 ```
 sudo apt update
-sudo apt instal git docker-compose
+sudo apt install git docker-compose
 ```
 
 Then start and enable the docker service and verify operation
@@ -120,6 +120,8 @@ sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker
 
 ## Migrate Data
 
+### Migrate Database
+
 You will need public URLs to database dumps.
 
 ```
@@ -128,6 +130,41 @@ DATASTORE_DB_DUMP_URL=<<DATASTORE_DB_DUMP_URL.gz>>
 
 sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml exec ckan bash migrate_data.sh $DB_DUMP_URL $DATASTORE_DB_DUMP_URL
 ```
+
+### Migrate files
+
+__For ckan-cloud devops only__ - Migrate data from ckan-cloud cluster to object store server (Eg: AWS S3):
+
+```
+# Grab the minio-mc pod name
+kubectl get pods -n ckan-cloud | grep minio-mc
+# SSH into the pod
+kubectl exec -it minio-mc-xya-abc -n ckan-cloud sh
+# Add minio server to hosts
+mc config host add exporter https://host.ckan.io <<access-key>> <<secret-key>>
+# Add client minio server to hosts
+mc config host add receiver https://host.client.io <<reciever-access-key>> <<reciever-secret-key>>
+# Depending on instance, some paths can be set to public download:
+mc policy download prod/ckan/<<instance-id>>/*
+# Make sure client server has bucket init with proper permissions. (IAM user owning credentials should have full access over bucket)
+# Migrate data
+mc cp --recursive exporter/ckan/<<instance-id>> receiver/<<bucket-name>>
+```
+
+Download the data to file system and mount on ckan persistent volumes:
+
+```
+# Install minio client on the server
+wget https://dl.min.io/client/mc/release/linux-amd64/mc && chmod +x mc
+# Add minio server to hosts
+./mc config host add receiver https://host.client.io <<client-access-key>> <<client-secret-key>>
+# Copy data into custom directory
+mkdir data && ./mc cp --recursive receiver/<<bucket-name>> data
+# Mount the data into the persistan volumes
+docker cp data/ ckanclouddocker_ckan_1:/var/lib/ckan
+```
+
+### Repopulate search index
 
 After migration rebuild the SOLR search index.
 ```

@@ -158,9 +158,9 @@ HOST=<<FileStorage Server>>
 ACCESS_KEY=<<Access Key>>
 SECRET_KEY=<<Secret Key>>
 BUCKET=<<Bucket Name>>
-STOREGE_PATH=<<Storage Path>>
+STORAGE_PATH=<<Storage Path>>
 
-bash migrate_filestorage.sh $HOST $ACCESS_KEY $SECRET_KEY $BUCKET $STOREGE_PATH
+bash migrate_filestorage.sh $HOST $ACCESS_KEY $SECRET_KEY $BUCKET $STORAGE_PATH
 ```
 
 ### Repopulate search index

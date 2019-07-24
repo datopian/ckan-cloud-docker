@@ -128,7 +128,7 @@ You will need public URLs to database dumps.
 DB_DUMP_URL=<<DB_DUMP_URL.gz>>
 DATASTORE_DB_DUMP_URL=<<DATASTORE_DB_DUMP_URL.gz>>
 
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml exec ckan bash migrate_data.sh $DB_DUMP_URL $DATASTORE_DB_DUMP_URL
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml exec ckan bash migrate_databases.sh $DB_DUMP_URL $DATASTORE_DB_DUMP_URL
 ```
 
 ### Migrate files
@@ -154,14 +154,13 @@ mc cp --recursive exporter/ckan/<<instance-id>> receiver/<<bucket-name>>
 Download the data to file system and mount on ckan persistent volumes:
 
 ```
-# Install minio client on the server
-wget https://dl.min.io/client/mc/release/linux-amd64/mc && chmod +x mc
-# Add minio server to hosts
-./mc config host add receiver https://host.client.io <<client-access-key>> <<client-secret-key>>
-# Copy data into custom directory
-mkdir data && ./mc cp --recursive receiver/<<bucket-name>> data
-# Mount the data into the persistan volumes
-docker cp data/ ckanclouddocker_ckan_1:/var/lib/ckan
+HOST=<<FileStorage Server>>
+ACCESS_KEY=<<Access Key>>
+SECRET_KEY=<<Secret Key>>
+BUCKET=<<Bucket Name>>
+STORAGE_PATH=<<Storage Path>>
+
+bash migrate_filestorage.sh $HOST $ACCESS_KEY $SECRET_KEY $BUCKET $STORAGE_PATH
 ```
 
 ### Repopulate search index

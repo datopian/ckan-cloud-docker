@@ -12,7 +12,7 @@ TMP_DATA_RECEIVED='/tmp/data_received'
 TMP_DATA='/tmp/data'
 
 # Download minio client
-wget https://dl.min.io/client/mc/release/linux-amd64/mc chmod +x mc
+wget https://dl.min.io/client/mc/release/linux-amd64/mc && chmod +x mc
 # Add host
 ./mc config host add filestorage $HOST $ACCESS_KEY $SECRET_KEY
 echo downloading from storage

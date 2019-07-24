@@ -1,5 +1,7 @@
 # CKAN Cloud Docker
 
+[![Build Status](https://travis-ci.org/ViderumGlobal/ckan-cloud-docker.svg?branch=master)](https://travis-ci.org/ViderumGlobal/ckan-cloud-docker)
+
 Contains Docker imgages for the different components of CKAN Cloud and a Docker compose environment for development and testing.
 
 Available components:
@@ -86,7 +88,7 @@ Edit any file in this repository
 docker-compose down -v
 ```
 
-(if you want to keep your volumes, for example if you populated the database with data you want 
+(if you want to keep your volumes, for example if you populated the database with data you want
 to keep, you need to drop the `-v` part from the command)
 
 Build the docker images
@@ -169,12 +171,12 @@ For example, to start the datagov-theme configuration:
 docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml up -d --build nginx
 ```
 
-## External database server 
+## External database server
 
 To use another database server, you will need to provide a `SQLACHEMY_URL` value by hand, by adding it
 to `docker-compose/ckan-secrets.sh` first.
 
-After specifying the address of the new server, you need to start the CKAN instance, this time without adding a db layer. 
+After specifying the address of the new server, you need to start the CKAN instance, this time without adding a db layer.
 For example, to start a custom configuration without starting up the database:
 
 ```

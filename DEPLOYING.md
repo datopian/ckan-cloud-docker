@@ -98,22 +98,22 @@ This should be enough for the basic installation. In case you need to tweak vers
 **To run the `vital-strategies` instance:**
 
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml up -d --build nginx
+sudo make start O=<<instance-id>>
 ```
 
 **To stop it, run:**
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml stop
+sudo make stop O=<<instance-id>>
 ```
 
 **To destroy the instance, run:**
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml down
+sudo make down O=<<instance-id>>
 ```
 
 **To destroy the instance, together with volumes, databases etc., run:**
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml down -v
+sudo make remove_volumes O=<<instance-id>>
 ```
 
 *If you want to tweak the source files, typically you need to destroy the instance and run it again once you're done editing. The choice of removing the volumes in the process is up to you.*
@@ -174,22 +174,23 @@ sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker
 
 To check all the logs at any time:  
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml logs -f
-```  
+sudo make logs O=<<instance-id>>
+```
 
 To check the logs for a specific service:  
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml logs -f ckan
-```  
+sudo make logs O=<<instance-id>> S=<<Service Name>>
+```
 *(exit the logs by pressing Ctrl+C at any time)*
 
-To get inside a running container
+To get inside a running ckan container
+
 
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml exec {service-name} bash
+sudo make shell O=<<instance-id>> S=<<Service Name>> C=<<command>>
 ```
 
-Note: for some services (Eg: Nginx) you mite need to use `sh` instead of `bash`
+Note: for some services (Eg: Nginx) you mite need to use C=`sh` instead of c=`bash`
 
 ## Creating the sysadmin user
 

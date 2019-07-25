@@ -25,12 +25,12 @@ services:
         POST_INSTALL: |
           install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore &&\
           install_standard_ckan_extension_github -r okfn/ckanext-sentry &&\
-          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b shanghai &&\
+          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.2a70 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview &&\
-          msgfmt ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/zh_CN/LC_MESSAGES/ckanext-querytool.po -o ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/zh_CN/LC_MESSAGES/ckanext-querytool.mo && \
-          msgfmt ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/es/LC_MESSAGES/ckanext-querytool.po -o ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/es/LC_MESSAGES/ckanext-querytool.mo && \
-          msgfmt ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/fr/LC_MESSAGES/ckanext-querytool.po -o ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/fr/LC_MESSAGES/ckanext-querytool.mo && \
-          msgfmt ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/pt_BR/LC_MESSAGES/ckanext-querytool.po -o ~/venv/src/ckanext-querytool/ckanext/querytool/i18n/pt_BR/LC_MESSAGES/ckanext-querytool.mo
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l es -f && \
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l fr -f && \
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l pt_BR -f && \
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l zh_CN -f
     environment:
       - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-
 

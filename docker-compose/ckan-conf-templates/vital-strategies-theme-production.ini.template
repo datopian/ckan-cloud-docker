@@ -157,7 +157,7 @@ ckanext.querytool.allow_nav_bar = True
 ## Language settings
 
 # VITALS
-ckan.locales_offered=en es zh_CN fr pt_PT
+ckan.locales_offered=en es zh_CN fr pt_BR
 # Shanghai default
 ckan.locale_default=zh_CN
 

@@ -36,3 +36,11 @@ install_standard_ckan_extension_github() {
 install_bundled_requirements() {
     ckan-pip install -r "/tmp/${1}"
 }
+
+patch_ckan() {
+  for d in /etc/patches/*; do
+    for f in `ls $d/*.patch | sort -g`; do
+      cd /usr/lib/ckan/venv/src/`basename "$d"` && echo "$0: Applying patch $f to /usr/lib/ckan/venv/src/`basename $d`"; patch -p1 < "$f" ;
+    done;
+  done;
+}

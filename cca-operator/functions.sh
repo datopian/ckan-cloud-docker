@@ -160,7 +160,7 @@ add_domain_to_traefik() {
     export SERVICE_PORT="${5:-8080}"
     export SERVICE_NAMESPACE="${6:-${INSTANCE_ID}}"
     ( [ -z "${DOMAIN}" ] || [ -z "${INSTANCE_ID}" ] ) && echo missing required args && return 1
-    ! python3 -c 'import toml' && python3 -m pip install toml
+    ! python3 -c 'import toml' && python3 -m pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} toml
     mkdir -p "/etc/ckan-cloud/backups/etc-traefik"
     BACKUP_FILE="/etc/ckan-cloud/backups/etc-traefik/`date +%Y%m%d%H%M%s`.yaml"
     kubectl $KUBECTL_GLOBAL_ARGS -n default get configmap etc-traefik -o yaml > $BACKUP_FILE &&\

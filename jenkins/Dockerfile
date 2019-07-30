@@ -17,7 +17,7 @@ RUN chmod +x /usr/local/bin/docker-compose && echo "jenkins ALL=NOPASSWD: ALL" >
     echo "export CKAN_CLOUD_DOCKER_JENKINS=1" > /etc/profile.d/ckan_cloud_docker_jenkins &&\
     chmod +x /etc/profile.d/ckan_cloud_docker_jenkins
 RUN apt update && apt install -y python3-pip
-RUN python3 -m pip install pyyaml
+RUN python3 -m pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} pyyaml
 
 USER jenkins
 

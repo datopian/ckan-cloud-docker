@@ -48,7 +48,7 @@ RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH $CKAN_LOGS_PATH && \
     ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster
 
 # Setup CKAN
-RUN ckan-pip install -U pip &&\
+RUN ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -U pip &&\
     chown -R ckan:ckan $CKAN_HOME $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH $CKAN_LOGS_PATH
 
 USER ckan
@@ -62,14 +62,14 @@ RUN CKAN_BRANCH="${CKAN_BRANCH:-ckan-2.8.1}" && CKAN_REPO="${CKAN_REPO:-ckan/cka
     cd $CKAN_VENV/src && tar -xzf ${CKAN_BRANCH}.tar.gz && mv ckan-${CKAN_BRANCH} ckan &&\
     rm $CKAN_VENV/src/${CKAN_BRANCH}.tar.gz
 
-RUN touch $CKAN_VENV/src/ckan/requirement-setuptools.txt && ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt
-RUN touch $CKAN_VENV/src/ckan/requirements.txt && ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt
+RUN touch $CKAN_VENV/src/ckan/requirement-setuptools.txt && ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt
+RUN touch $CKAN_VENV/src/ckan/requirements.txt && ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt
 
-RUN ckan-pip install -e $CKAN_VENV/src/ckan/
+RUN ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -e $CKAN_VENV/src/ckan/
 
 COPY requirements.txt /tmp/
-RUN ckan-pip install -r /tmp/requirements.txt &&\
-    ckan-pip install -U requests[security]
+RUN ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -r /tmp/requirements.txt &&\
+    ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -U requests[security]
 
 COPY post_install_functions.sh /post_install_functions.sh
 

@@ -27,6 +27,13 @@ sudo systemctl enable docker
 sudo docker info
 ```
 
+__Note:__ In case you need to use your local county mirrors as pip registry please set pip index URL:
+
+```
+export PIP_INDEX_URL=<<https://local-mirror-url.xy>>
+```
+
+
 #### Extra dependencies
 
 - You will also need a SMTP server and its credentials for CKAN to work properly. This will not obstacle deployment, CKAN will be up and running, but won't be able to send emails (e.g. on password reset). You will be asked to provide SMTP server credentials while running `./create_secrets.py` script, see below.

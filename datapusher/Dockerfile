@@ -28,7 +28,7 @@ RUN apk add --no-cache python \
     git clone -b ${GIT_BRANCH} --depth=1 --single-branch ${GIT_URL} && \
     cd datapusher && \
     python setup.py install && \
-    pip install --no-cache-dir -r requirements.txt && \
+    pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} --no-cache-dir -r requirements.txt && \
     # Remove temporary packages and files
     apk del .build-deps && \
     rm -rf ${APP_DIR}/src

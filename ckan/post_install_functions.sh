@@ -27,14 +27,14 @@ install_standard_ckan_extension_github() {
     for REQUIREMENTS_FILE_NAME in requirements pip-requirements
     do
       if wget -O $TEMPFILE https://raw.githubusercontent.com/${REPO_NAME}/$BRANCH/$REQUIREMENTS_FILE_NAME.txt
-        then ckan-pip install -r $TEMPFILE && break;
+        then ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -r $TEMPFILE && break;
       fi
     done &&\
-    ckan-pip install -e git+https://github.com/${REPO_NAME}.git@$BRANCH#egg=${EGG} && break
+    ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -e git+https://github.com/${REPO_NAME}.git@$BRANCH#egg=${EGG} && break
 }
 
 install_bundled_requirements() {
-    ckan-pip install -r "/tmp/${1}"
+    ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -r "/tmp/${1}"
 }
 
 patch_ckan() {

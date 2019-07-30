@@ -21,6 +21,7 @@ services:
     build:
       context: ckan
       args:
+        PIP_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
         CKAN_BRANCH: ckan-2.7.3
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
         POST_INSTALL: |
@@ -53,10 +54,16 @@ services:
     image: mdillon/postgis
     build:
       args:
+        APK_REPOSITORY: https://mirrors.tuna.tsinghua.edu.cn/alpine/v3.6/community/
         DB_INIT: |
           psql --dbname="ckan" -c "CREATE EXTENSION IF NOT EXISTS postgis;                  \
                                    CREATE EXTENSION IF NOT EXISTS postgis_topology;         \
                                    CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;            \
                                    CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;"
+
   datapusher:
     container_name: datapusher
+    build:
+      context: datapusher/
+      args:
+        APK_REPOSITORY: https://mirrors.tuna.tsinghua.edu.cn/alpine/v3.6/community/

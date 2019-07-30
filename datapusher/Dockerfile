@@ -9,6 +9,9 @@ ENV JOB_CONFIG ${APP_DIR}/datapusher_settings.py
 
 WORKDIR ${APP_DIR}
 
+
+ARG APK_REPOSITORY
+
 RUN apk add --no-cache python \
     py-pip \
     py-gunicorn \

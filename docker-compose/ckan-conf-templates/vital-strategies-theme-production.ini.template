@@ -84,11 +84,11 @@ ckan.plugins = image_view
    recline_view
    datastore
    datapusher
-   sentry
    resource_proxy
    geojson_view
    querytool
    stats
+   vitalstrategies_shanghai
 
 
 # Define which views should be created by default

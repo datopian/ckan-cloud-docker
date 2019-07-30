@@ -1,6 +1,6 @@
 FROM alpine:3.6
 
-RUN while ! ( apk update && apk add --no-cache \
+RUN while ! ( apk update && apk add --no-cache --update-cache --repository ${APK_REPOSITORY} --allow-untrusted \
         bash python grep jq python3 libcurl git docker openssl curl ca-certificates wget \
         openssh-server openssh-sftp-server postgresql-client \
     ); do sleep 1; done &&\

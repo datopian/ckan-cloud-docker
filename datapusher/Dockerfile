@@ -14,7 +14,7 @@ RUN apk add --no-cache python \
     py-gunicorn \
     libffi-dev \
     libressl-dev \
-    libxslt && \
+    libxslt --update-cache --repository ${APK_REPOSITORY} --allow-untrusted && \
     # Temporary packages to build CKAN requirements
     apk add --no-cache --virtual .build-deps \
     gcc \
@@ -22,7 +22,7 @@ RUN apk add --no-cache python \
     musl-dev \
     python-dev \
     libxml2-dev \
-    libxslt-dev && \
+    libxslt-dev --update-cache --repository ${APK_REPOSITORY} --allow-untrusted && \
     # Fetch datapusher and install
     mkdir ${APP_DIR}/src && cd ${APP_DIR}/src && \
     git clone -b ${GIT_BRANCH} --depth=1 --single-branch ${GIT_URL} && \

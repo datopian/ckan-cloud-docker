@@ -1,6 +1,6 @@
 FROM mdillon/postgis:9.6-alpine
 
-RUN apk --update add supervisor
+RUN apk --update add supervisor --update-cache --repository ${APK_REPOSITORY} --allow-untrusted
 
 COPY init_ckan_db.sh /docker-entrypoint-initdb.d/
 COPY *.sh /db-scripts/

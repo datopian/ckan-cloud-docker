@@ -111,7 +111,6 @@ ckan.plugins = stats
   spatial_metadata
   spatial_query
   googleanalytics
-  s3filestore
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -236,6 +235,11 @@ ckanext.contact.subject = Panama Contactenos
 ckanext.spatial.search_backend = solr
 ckan.featured_groups = agropecuario ambiente comercio-e-industrias desarrollo-social educacion justicia landuse municipios orden-publico-y-segurida salud transporte-y-logistica turismo
 googleanalytics.id = UA-97575653-1
+
+# Panama Emails
+ckanext.panama.mail_to = datosabiertos@innovacion.gob.pa
+ckanext.panama.recipient_name = Panama Datos Abiertos
+ckanext.panama.subject = Panama Contactenos
 
 #Custom translation
 CKAN__I18N_DIRECTORY=/srv/app/src/ckanext-panama

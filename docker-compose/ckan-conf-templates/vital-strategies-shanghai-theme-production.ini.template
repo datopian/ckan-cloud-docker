@@ -88,6 +88,8 @@ ckan.plugins = image_view
    geojson_view
    querytool
    stats
+   vitalstrategies_shanghai
+
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -157,7 +159,7 @@ ckanext.querytool.allow_nav_bar = True
 # VITALS
 ckan.locales_offered=en es zh_CN fr pt_BR
 # Shanghai default
-ckan.locale_default=en
+ckan.locale_default=zh_CN
 
 
 ## xloader settings

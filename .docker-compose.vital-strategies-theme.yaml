@@ -26,6 +26,7 @@ services:
         POST_INSTALL: |
           install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.2a74 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
+          install_standard_ckan_extension_github -r okfn/ckanext-sentry && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l es -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l fr -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l pt_BR -f && \

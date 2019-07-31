@@ -89,6 +89,7 @@ ckan.plugins = image_view
    querytool
    stats
    sentry
+   s3filestore
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)

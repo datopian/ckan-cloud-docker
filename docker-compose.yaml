@@ -17,8 +17,8 @@ services:
       - ckan
     volumes:
       - ./varnish:/etc/varnish
-    ports:
-      - "8081:80"
+    expose:
+      - "80"
     networks:
     - ckan-multi
 
@@ -37,16 +37,16 @@ services:
     build:
       context: nginx
     restart: always
-    ports:
-    - "8080:8080"
+    expose:
+    - "8080"
     networks:
     - ckan-multi
 
   adminer:
     image: adminer
     restart: always
-    ports:
-      - 8088:8080
+    expose:
+      - "8080"
     networks:
     - ckan-multi
 
@@ -85,8 +85,8 @@ services:
   datapusher:
     build:
       context: datapusher/
-    ports:
-      - "8800:8800"
+    expose:
+      - "8800"
     networks:
     - ckan-multi
 

@@ -15,8 +15,8 @@ The guide will try to cover all Linux-based operating systems, but some commands
 First we need to install **[git](https://help.github.com/en/articles/set-up-git)** and **[docker-compose](https://docs.docker.com/compose/install/)** \(*docker-compose* should already have *docker* as dependency. If this is not the case follow the **[official documentation on installing docker](https://docs.docker.com/v17.12/install/)**\):
 
 ```
-sudo apt update
-sudo apt install git docker-compose
+sudo apt-get update
+sudo apt-get install git docker-compose build-essential
 ```
 
 Then start and enable the docker service and verify operation
@@ -93,16 +93,16 @@ In addition to Let's Encrypt specific configuration, there is one more line you 
 
 This should be enough for the basic installation. In case you need to tweak versions or other initialization parameters for CKAN, you need these two files:
 
-* `docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini`
+* `docker-compose/ckan-conf-templates/{instance-id}-theme-production.ini`
   This is the file used to generate the CKAN main configuration file.
 
-* `.docker-compose.vital-strategies-theme.yaml`
+* `.docker-compose.{instance-id}-theme.yaml`
   This is the file that defines the services used by this instance.
 
 
 ## Running
 
-**To run the `vital-strategies` instance:**
+**To run the instance:**
 
 ```
 sudo make start O=<<instance-id>>
@@ -205,19 +205,16 @@ In order to create organizations and give other user proper permissions, you wil
 
 ```
 # Create sysadmin user using paster CLI tool
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml \
- exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add {username} password={password} email={email} -c /etc/ckan/production.ini
+sudo make sysadmin_create add U={username} P={password} E={email}
 
 # Example
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml \
- exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add ckan_admin password=iemae7Ai email=info@datopian.com -c /etc/ckan/production.ini
+sudo make sysadmin_create add U=ckan_admin P=123456 E=info@datopian.com
 ```
 
 You can also give sysadmin role to the existing user.
 
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-theme.yaml \
- exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add ckan_admin -c /etc/ckan/production.ini
+sudo make sysadmin_create add U=ckan_admin
 ```
 
 ## Sysadmin Control Panel
@@ -229,17 +226,17 @@ Here you can edit portal related configuration, like website title, site logo or
 
 CKAN allows installing various extensions (plugins) to the existing core setup. In order to enable/disable them you will have to install them and include into the ckan config file.
 
-To install extension you need to modify `POST_INSTALL` section of ckan service in `.docker-compose.vital-strategies-theme.yaml`. Eg to install s3filestore extension
+To install extension you need to modify `POST_INSTALL` section of ckan service in `.docker-compose.{instance-id}-theme.yaml`. Eg to install s3filestore extension
 
 ```
 POST_INSTALL: |
   install_standard_ckan_extension_github -r datopian/ckanext-s3filestore &&\
 ```
 
-And add extension to the list of plugins in `docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini.template`
+And add extension to the list of plugins in `docker-compose/ckan-conf-templates/{instance-id}-theme-production.ini.template`
 
 ```
-# in docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini.template
+# in docker-compose/ckan-conf-templates/{instance-id}-theme-production.ini.template
 ckan.plugins = image_view
    ...
    stats
@@ -249,7 +246,7 @@ ckan.plugins = image_view
 Note: depending on extension you might also need to update extensions related configurations in the same file. If needed this type of information is ussually included in extension REAMDE.
 
 ```
-# in docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini.template
+# in docker-compose/ckan-conf-templates/{instance-id}-theme-production.ini.template
 ckanext.s3filestore.aws_access_key_id = Your-Access-Key-ID
 ckanext.s3filestore.aws_secret_access_key = Your-Secret-Access-Key
 ckanext.s3filestore.aws_bucket_name = a-bucket-to-store-your-stuff

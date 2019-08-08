@@ -60,7 +60,26 @@ To create or update files with secrets and env vars run and follow all steps:
 
 Traefik is the entry point from the outside world. It binds to the default HTTP (80) and HTTPS (443) ports and handles requests by forwarding them to the appropriate services within the stack. In our case, it will point to Nginx serving the CKAN web app.
 
-Traefik needs strict permissions in order to run \(**[more info](https://www.digitalocean.com/community/tutorials/how-to-use-traefik-as-a-reverse-proxy-for-docker-containers-on-ubuntu-18-04)**\):
+Traefik will set up SSL for the website. There are two ways of doing this:
+
+1. By having a provided certificate we need to install
+2. By obtaining and installing a Let's Encrypt certificate
+
+
+##### Install a provided certificate
+
+To install an existing SSL certificate we need to use the `traefik/traefik_custom_ssl.toml` file. Make sure this file is the one mounted in the Traefik container, and not the default (which will attempt to obtain a Let's Encrypt certificate, see next step).
+
+The certificate chain and private key need to be copied in the `traefik/certs` directory using these exact names:
+
+* `domain.cert` for the certificate [chain] of the domain 
+* `domain.key` for the private key
+
+Modifying these names is possible by also altering the `traefik.toml` configuration file. This might be needed for installing multiple certificates, for example (subdomains, alternate TLDs etc.).
+
+##### Set up Let's Encrypt
+
+Traefik needs strict permissions in order to run Let's Encrypt \(**[more info](https://www.digitalocean.com/community/tutorials/how-to-use-traefik-as-a-reverse-proxy-for-docker-containers-on-ubuntu-18-04)**\):
 ```
 chmod 600 traefik/acme.json
 ```
@@ -82,7 +101,9 @@ Traefik will attempt to obtain a Let's Encrypt SSL certificate. In order for thi
 * `main = "example.com"`
   This is the domain for which Let's Encrypt will generate a certificate for
 
-In addition to Let's Encrypt specific configuration, there is one more line you need to adjust:
+---
+
+In addition to SSL specific configuration, there is one more line you need to adjust:
 
 * `rule = "Host:example.com"`
   This is the domain name that Traefik should respond to. Requests to any other domain not configured as a `Host` rule will result in Traefik not being able to handle the request.
@@ -90,6 +111,7 @@ In addition to Let's Encrypt specific configuration, there is one more line you 
 
 > Note: All the necessary configuration items are marked with `TODO` flags in the `traefik.toml` configuration file.
 
+---
 
 This should be enough for the basic installation. In case you need to tweak versions or other initialization parameters for CKAN, you need these two files:
 

@@ -109,3 +109,6 @@ docker-compose/*-secrets.sh
 
 # sanbdox
 sandbox
+
+# SSL certs
+traefik/certs

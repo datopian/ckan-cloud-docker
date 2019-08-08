@@ -6,6 +6,9 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ./traefik/traefik_custom_ssl.toml:/traefik.toml
+      - ./traefik/certs:/certs
 
   nginx:
     depends_on:

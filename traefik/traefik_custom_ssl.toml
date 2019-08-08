@@ -1,0 +1,41 @@
+debug = false
+defaultEntryPoints = ["http", "https"]
+
+[entryPoints]
+    [entryPoints.http]
+      address = ":80"
+
+    [entryPoints.https]
+      address = ":443"
+        [entryPoints.https.tls]
+          [[entryPoints.https.tls.certificates]]
+          certFile = "certs/domain.cert"
+          keyFile = "certs/domain.key"
+    [entryPoints.api]
+      address = ":8081"
+
+    [api]
+      entryPoint = "api"
+
+    [ping]
+      entryPoint = "http"
+
+    [accessLog]
+
+    [file]
+      watch = true
+
+    [backends]
+      [backends.ckan]
+        [backends.ckan.servers.server1]
+          url = "http://nginx:8080"
+
+    [frontends]
+      [frontends.ckan]
+        backend="ckan"
+        passHostHeader = true
+        [frontends.ckan.headers]
+          SSLRedirect = true
+        [frontends.ckan.routes.route1]
+          # TODO: replace with Host:domain
+          rule = "Host:example.com"

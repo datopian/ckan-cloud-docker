@@ -227,16 +227,16 @@ In order to create organizations and give other user proper permissions, you wil
 
 ```
 # Create sysadmin user using paster CLI tool
-sudo make sysadmin_create add U={username} P={password} E={email}
+sudo make sysadmin_create O={instance-id} U={username} P={password} E={email}
 
 # Example
-sudo make sysadmin_create add U=ckan_admin P=123456 E=info@datopian.com
+sudo make sysadmin_create O=panama U=ckan_admin P=123456 E=info@datopian.com
 ```
 
 You can also give sysadmin role to the existing user.
 
 ```
-sudo make sysadmin_create add U=ckan_admin
+sudo make sysadmin_add O=panama U=ckan_admin
 ```
 
 ## Sysadmin Control Panel

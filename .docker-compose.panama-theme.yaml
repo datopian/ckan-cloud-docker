@@ -33,7 +33,7 @@ services:
         CKAN_BRANCH: ckan-2.6.6
         POST_INSTALL: |
           ckan-pip install --upgrade setuptools &&\
-          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-panama -b v1.0.17 &&\
+          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-panama -b v1.0.18 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-widgets &&\
           install_standard_ckan_extension_github -r ckan/ckanext-pdfview &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview &&\

@@ -196,7 +196,7 @@ bash migrate_filestorage.sh $HOST $ACCESS_KEY $SECRET_KEY $BUCKET $STORAGE_PATH
 
 After migration rebuild the SOLR search index.
 ```
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml exec ckan /usr/local/bin/ckan-paster --plugin=ckan search-index rebuild  -c /etc/ckan/production.ini
+sudo make shell O=<<instance-id>> C='/usr/local/bin/ckan-paster --plugin=ckan search-index rebuild  -c /etc/ckan/production.ini'
 ```
 
 ## Debugging

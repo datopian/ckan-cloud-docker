@@ -157,7 +157,7 @@ You will need public URLs to database dumps.
 DB_DUMP_URL=<<DB_DUMP_URL.gz>>
 DATASTORE_DB_DUMP_URL=<<DATASTORE_DB_DUMP_URL.gz>>
 
-sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml exec ckan bash migrate_databases.sh $DB_DUMP_URL $DATASTORE_DB_DUMP_URL
+sudo make shell O=<<instance-id>> C='bash migrate_databases.sh $DB_DUMP_URL $DATASTORE_DB_DUMP_URL'
 ```
 
 ### Migrate files

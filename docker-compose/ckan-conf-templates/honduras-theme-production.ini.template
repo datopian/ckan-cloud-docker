@@ -11,6 +11,9 @@ use = egg:ckan
 full_stack = true
 max_content_length = 200000000
 
+cache_dir = /tmp/%(ckan.site_id)s/
+
+# Sessions
 beaker.session.key = ckan
 beaker.session.type = database
 beaker.session.table_name = beaker_sessions

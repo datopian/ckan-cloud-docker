@@ -1,7 +1,22 @@
 version: '3.2'
 
 services:
+  proxy:
+    ports:
+      - "80:80"
+      - "443:443"
+
+  nginx:
+    depends_on:
+      - proxy
+      - varnish
+
   ckan:
+    depends_on:
+      - datapusher
+    links:
+      - datapusher
+
     image: viderum/ckan-cloud-docker:ckan-latest-honduras-theme
     build:
       args:
@@ -19,6 +34,7 @@ services:
           install_standard_ckan_extension_github -r ckan/ckanext-pages -b bf25e93f98d1988db0614666afff11b14edd1b4b &&\
           install_standard_ckan_extension_github -r okfn/ckanext-sentry  &&\
           install_standard_ckan_extension_github -r ckan/ckanext-dcat  &&\
+          install_standard_ckan_extension_github -r okfn/ckanext-envvars &&\
           install_standard_ckan_extension_github -r datopian/ckanext-honduras -b 0.0.15
         ROOT_INIT: |
           . /post_install_functions.sh && patch_ckan

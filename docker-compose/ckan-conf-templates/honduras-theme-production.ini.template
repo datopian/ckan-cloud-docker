@@ -9,6 +9,8 @@ port = 5000
 [app:main]
 use = egg:ckan
 full_stack = true
+max_content_length = 200000000
+
 cache_dir = /tmp/%(ckan.site_id)s/
 
 # Sessions
@@ -16,10 +18,8 @@ beaker.session.key = ckan
 beaker.session.type = database
 beaker.session.table_name = beaker_sessions
 beaker.session.secret = {{BEAKER_SESSION_SECRET}}
-
+beaker.session.url = {{SQLALCHEMY_URL}}
 app_instance_uuid = {{APP_INSTANCE_UUID}}
-https_redirect=1
-maintenance_mode=false
 
 who.config_file = %(here)s/who.ini
 who.log_level = warning
@@ -41,8 +41,10 @@ ckan.datastore.default_fts_index_method = gist
 
 ## Site Settings
 
-ckan.site_url = http://nginx:8080
+ckan.site_id = honduras
+ckan.site_url = {{CKAN_SITE_URL}}
 #ckan.use_pylons_response_cleanup_middleware = true
+cache_dir = /tmp/%(ckan.site_id)s/
 
 ## Authorization Settings
 
@@ -56,10 +58,10 @@ ckan.auth.user_delete_organizations = false
 ckan.auth.create_user_via_api = false
 ckan.auth.create_user_via_web = true
 ckan.auth.roles_that_cascade_to_sub_groups = admin
+ckan.hide_activity_from_users = %(ckan.site_id)s
 
 ## Search Settings
 
-ckan.site_id = honduras
 solr_url = {{SOLR_URL}}
 
 
@@ -82,7 +84,27 @@ ckan.redis.url = {{CKAN_REDIS_URL}}
 
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = envvars honduras harvest geo_view pdf_view googleanalytics showcase pages sentry s3filestore image_view text_view recline_grid_view recline_graph_view recline_map_view recline_view datastore resource_proxy datapusher dcat dcat_rdf_harvester scheming_datasets stats
+ckan.plugins = envvars
+  honduras
+  harvest
+  geo_view
+  pdf_view
+  googleanalytics
+  showcase
+  pages
+  image_view
+  text_view
+  recline_grid_view
+  recline_graph_view
+  recline_map_view
+  recline_view
+  datastore
+  resource_proxy
+  datapusher
+  dcat
+  dcat_rdf_harvester
+  scheming_datasets
+  stats
 
 
 # Define which views should be created by default
@@ -100,12 +122,12 @@ ckan.views.default_views = image_view text_view recline_view
 ## Front-End Settings
 
 # Uncomment following configuration to enable using of Bootstrap 2
-#ckan.base_public_folder = public-bs2
-#ckan.base_templates_folder = templates-bs2
+ckan.base_public_folder = public-bs2
+ckan.base_templates_folder = templates-bs2
 
 ckan.site_title = Datos Abiertos del Gobierno de Honduras
 ckan.site_logo = /base/images/ckan-logo.png
-ckan.site_description = Local development environment
+ckan.site_description = Datos Abiertos del Gobierno de Honduras
 ckan.favicon = /base/images/ckan.ico
 ckan.gravatar_default = identicon
 ckan.preview.direct = png jpg gif
@@ -126,9 +148,9 @@ licenses_group_url = https://honduras.ckan.io/licenses.json
 
 
 ## Internationalisation Settings
+ckan.locales_offered = en es
 ckan.locale_default = es
 #    ckan.locale_order = {{ .Values.localeOrder }}
-#    ckan.locales_offered = {{ .Values.localesOffered }}
 #    ckan.locales_filtered_out = {{ .Values.localesFilteredOut }}
 
 ## Feeds Settings
@@ -146,7 +168,7 @@ ckan.max_image_size = 5
 
 ## xloader settings
 
-ckanext.xloader.jobs_db.uri = postgresql://postgres:123456@jobs-db/postgres
+#ckanext.xloader.jobs_db.uri = postgresql://postgres:123456@jobs-db/postgres
 
 # Resource Proxy settings
 # Preview size limit, default: 1MB
@@ -196,6 +218,9 @@ smtp.starttls = {{SMTP_STARTTLS}}
 smtp.user = {{SMTP_USER}}
 smtp.password = {{SMTP_PASSWORD}}
 smtp.mail_from = {{SMTP_MAIL_FROM}}
+
+## Datapusher URL
+ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
 
 ###
 

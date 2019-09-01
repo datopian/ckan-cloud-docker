@@ -72,7 +72,7 @@ To install an existing SSL certificate we need to use the `traefik/traefik_custo
 
 The certificate chain and private key need to be copied in the `traefik/certs` directory using these exact names:
 
-* `domain.cert` for the certificate [chain] of the domain 
+* `domain.cert` for the certificate [chain] of the domain
 * `domain.key` for the private key
 
 Modifying these names is possible by also altering the `traefik.toml` configuration file. This might be needed for installing multiple certificates, for example (subdomains, alternate TLDs etc.).
@@ -157,7 +157,7 @@ You will need public URLs to database dumps.
 DB_DUMP_URL=<<DB_DUMP_URL.gz>>
 DATASTORE_DB_DUMP_URL=<<DATASTORE_DB_DUMP_URL.gz>>
 
-sudo make shell O=<<instance-id>> C='bash migrate_databases.sh $DB_DUMP_URL $DATASTORE_DB_DUMP_URL'
+sudo make shell O=<<instance-id>> S=ckan C='bash migrate_databases.sh $(DB_DUMP_URL) $(DATASTORE_DB_DUMP_URL)'
 ```
 
 ### Migrate files
@@ -196,7 +196,7 @@ bash migrate_filestorage.sh $HOST $ACCESS_KEY $SECRET_KEY $BUCKET $STORAGE_PATH
 
 After migration rebuild the SOLR search index.
 ```
-sudo make shell O=<<instance-id>> C='/usr/local/bin/ckan-paster --plugin=ckan search-index rebuild  -c /etc/ckan/production.ini'
+sudo make shell O=<<instance-id>> S=ckan C='/usr/local/bin/ckan-paster --plugin=ckan search-index rebuild  -c /etc/ckan/production.ini'
 ```
 
 ## Debugging

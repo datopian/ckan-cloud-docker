@@ -1,0 +1,43 @@
+version: '3.2'
+
+services:
+  ckan:
+    image: viderum/ckan-cloud-docker:ckan-latest-honduras-theme
+    build:
+      args:
+        EXTRA_PACKAGES: supervisor cron
+        EXTRA_FILESYSTEM: "./overrides/honduras/filesystem/"
+        POST_INSTALL: |
+          install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b fix-null-content-type &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-harvest -b v1.1.4 &&\
+          install_standard_ckan_extension_github -r okfn/ckanext-geoview -b v0.0.14 &&\
+          install_standard_ckan_extension_github -r okfn/ckanext-pdfview -b lacounts-0.1 &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-googleanalytics &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-spatial &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-scheming &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-showcase  &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-pages -b bf25e93f98d1988db0614666afff11b14edd1b4b &&\
+          install_standard_ckan_extension_github -r okfn/ckanext-sentry  &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-dcat  &&\
+          install_standard_ckan_extension_github -r datopian/ckanext-honduras -b 0.0.15
+        ROOT_INIT: |
+          . /post_install_functions.sh && patch_ckan
+    environment:
+    - CKAN_CONFIG_TEMPLATE_PREFIX=honduras-theme-
+  jobs:
+    image: viderum/ckan-cloud-docker:ckan-latest-honduras-theme
+    environment:
+    - CKAN_CONFIG_TEMPLATE_PREFIX=honduras-theme-
+
+  db:
+    image: mdillon/postgis
+    build:
+      args:
+        DB_INIT: |
+          psql --dbname="ckan" -c "CREATE EXTENSION IF NOT EXISTS postgis;                  \
+                                   CREATE EXTENSION IF NOT EXISTS postgis_topology;         \
+                                   CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;            \
+                                   CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;"
+
+  datapusher:
+    container_name: datapusher

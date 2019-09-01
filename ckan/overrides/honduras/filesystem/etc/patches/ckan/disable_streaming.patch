@@ -1,0 +1,13 @@
+diff --git a/ckan/config/middleware/pylons_app.py b/ckan/config/middleware/pylons_app.py
+index 2d3523241..313a76dc9 100644
+--- a/ckan/config/middleware/pylons_app.py
++++ b/ckan/config/middleware/pylons_app.py
+@@ -137,7 +137,7 @@ def make_pylons_stack(conf, full_stack=True, static_files=True,
+     # The RegistryManager includes code to pop
+     # registry values after the stream has completed,
+     # so we need to prevent this with `streaming` set to True.
+-    app = RegistryManager(app, streaming=True)
++    app = RegistryManager(app, streaming=False)
+
+     if asbool(static_files):
+         # Serve static files

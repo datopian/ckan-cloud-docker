@@ -3,6 +3,7 @@ import glob
 import os
 import re
 import sys
+import uuid
 
 if sys.version_info[0] < 3:
     input = raw_input
@@ -48,6 +49,9 @@ def main():
     for i, line in enumerate(spec):
         secrets_for, mode, name, default, description = line.split(' ', 4)
         saved_value = secrets.get('{}-{}'.format(secrets_for, name))
+
+        if name == 'BEAKER_SESSION_SECRET' or name == 'APP_INSTANCE_UUID':
+            default = uuid.uuid4()
         if saved_value:
             example = 'Skip to use saved value "{}"'.format(saved_value)
         else:

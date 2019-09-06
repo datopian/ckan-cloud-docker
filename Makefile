@@ -1,4 +1,4 @@
-.PHONY: start stop build pull shell down remove logs sysamin_create sysadmin_add
+.PHONY: start stop build pull shell down remove logs user sysadmin secret
 
 start:
 	docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml up -d --build nginx
@@ -23,9 +23,11 @@ remove:
 
 logs:
 	docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml logs -f $S
-sysadmin_create:
+user:
 	docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml \
-	 exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add $U password=$P email=$E -c /etc/ckan/production.ini
-sysadmin_add:
+	 exec ckan /usr/local/bin/ckan-paster --plugin=ckan user add $U password=$P email=$E -c /etc/ckan/production.ini
+sysadmin:
 	docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml \
 	 exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add $U -c /etc/ckan/production.ini
+secret:
+	python create_secrets.py

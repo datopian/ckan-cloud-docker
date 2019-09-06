@@ -36,7 +36,7 @@ export PIP_INDEX_URL=<<https://local-mirror-url.xy>>
 
 #### Extra dependencies
 
-- You will also need a SMTP server and its credentials for CKAN to work properly. This will not obstacle deployment, CKAN will be up and running, but won't be able to send emails (e.g. on password reset). You will be asked to provide SMTP server credentials while running `./create_secrets.py` script, see below.
+- You will also need a SMTP server and its credentials for CKAN to work properly. This will not obstacle deployment, CKAN will be up and running, but won't be able to send emails (e.g. on password reset). You will be asked to provide SMTP server credentials while running `make secret` script, see below.
 
 ### Source files and configuration
 
@@ -53,7 +53,7 @@ cd ckan-cloud-docker
 #### Environment variables
 To create or update files with secrets and env vars run and follow all steps:
 ```
-./create_secrets.py
+make secret
 ```
 
 #### Traefik proxy service
@@ -226,17 +226,17 @@ Note: for some services (Eg: Nginx) you mite need to use C=`sh` instead of c=`ba
 In order to create organizations and give other user proper permissions, you will need sysamin user(s) who has all the privileges. You can add as many sysadmin as you want. To create sysamin user:
 
 ```
-# Create sysadmin user using paster CLI tool
-sudo make sysadmin_create O={instance-id} U={username} P={password} E={email}
+# Create user using paster CLI tool
+sudo make user O={instance-id} U={username} P={password} E={email}
 
 # Example
-sudo make sysadmin_create O=panama U=ckan_admin P=123456 E=info@datopian.com
+sudo make user O=panama U=ckan_admin P=123456 E=info@datopian.com
 ```
 
 You can also give sysadmin role to the existing user.
 
 ```
-sudo make sysadmin_add O=panama U=ckan_admin
+sudo make sysadmin O=panama U=ckan_admin
 ```
 
 ## Sysadmin Control Panel

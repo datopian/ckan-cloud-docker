@@ -12,20 +12,20 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 write_secrets = {}
 
 
-def set_parsed_values(secrets, secrets_for, name, value):
-    if secrets_for == 'ckan' and name == 'CKAN_DATASTORE_READ_URL':
-        res = re.findall(r'postgresql://([-_A-Za-z0-9]+):([^@]+)@datastore-db', value)
-        if not res:
-            return
-        user, password = res[0]
-        secrets['datastore-db-DATASTORE_RO_PASSWORD'] = password
-        secrets['datastore-db-DATASTORE_RO_USER'] = user
-        secrets['datastore-db-DATASTORE_PUBLIC_RO_PASSWORD'] = password
-
-    if secrets_for == 'db' and name == 'POSTGRES_PASSWORD':
-        secrets['datastore-db-POSTGRES_PASSWORD'] = value
-        secrets['provisioning-api-db-POSTGRES_PASSWORD'] = value
-
+def set_databse_urls(secrets):
+    write_secrets['ckan'].append(
+        'export SQLALCHEMY_URL=postgresql://ckan:{db_password}@db/ckan'.format(
+            db_password=secrets['db-POSTGRES_PASSWORD']
+    ))
+    write_secrets['ckan'].append(
+        'export CKAN_DATASTORE_WRITE_URL=postgresql://postgres:{datastore_password}@datastore-db/datastore'.format(
+            datastore_password = secrets['datastore-db-DATASTORE_PASSWORD']
+    ))
+    write_secrets['ckan'].append(
+        'export CKAN_DATASTORE_READ_URL=postgresql://{ro_user}:{ro_password}@datastore-db/datastore'.format(
+        ro_user=secrets['datastore-db-DATASTORE_RO_USER'],
+        ro_password=secrets['datastore-db-DATASTORE_RO_PASSWORD']
+    ))
 
 def main():
     print('The script will create or update (if it is already exists) local secrets files.\n')
@@ -33,18 +33,15 @@ def main():
     filename = os.path.join(current_dir, 'docker-compose', 'ckan-secrets.dat')
     secrets_filenames = os.path.join(current_dir, 'docker-compose', '*-secrets.sh')
     spec = open(filename, 'r').readlines()
-
     secrets = {}
+
     for filename in glob.glob(secrets_filenames):
         secrets_lines = open(filename, 'r').readlines()
         secrets_for = filename.split('/')[-1].replace('-secrets.sh', '')
-        if secrets_for in ('datastore-db', 'provisioning-api-db'):
-            continue
         for secret in secrets_lines:
             idx = 1 if secrets_for == 'ckan' else 0
             name, value = secret.split()[idx].split('=')
             secrets['{}-{}'.format(secrets_for, name)] = value
-            set_parsed_values(secrets, secrets_for, name, value)
 
     for i, line in enumerate(spec):
         secrets_for, mode, name, default, description = line.split(' ', 4)
@@ -57,23 +54,12 @@ def main():
         else:
             example = 'Default value "{}"'.format(default)
 
-        if secrets_for in ('datastore-db', 'provisioning-api-db'):
-            value = saved_value
-            print('[{}] Used parsed value for {}, {} container: {}'.format(
-                i + 1,
-                name,
-                secrets_for,
-                value
-            ))
-        else:
-            value = input('[{}] Enter {} value for {}, {} container [{}].\n({}): '.format(
-                i + 1,
-                description.strip('\n'),
-                name,
-                secrets_for,
-                mode,
-                example
-            ))
+
+        value = input('[{}] {} \n({}): '.format(
+            i + 1,
+            description.strip('\n'),
+            example
+        ))
         if not value and saved_value:
             value = saved_value
 
@@ -92,12 +78,14 @@ def main():
         if secrets_for not in write_secrets:
             write_secrets[secrets_for] = []
 
-        set_parsed_values(secrets, secrets_for, name, value)
 
         prefix = 'export ' if secrets_for == 'ckan' else ''
         write_secrets[secrets_for].append('{}{}={}'.format(prefix, name, value))
         print('')
+        secrets['{}-{}'.format(secrets_for, name)] = value
 
+
+    set_databse_urls(secrets)
     save_values()
 
 

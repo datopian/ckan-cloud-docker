@@ -48,7 +48,7 @@ def main():
         saved_value = secrets.get('{}-{}'.format(secrets_for, name))
 
         if name == 'BEAKER_SESSION_SECRET' or name == 'APP_INSTANCE_UUID':
-            default = uuid.uuid4()
+            default = str(uuid.uuid4())
         if saved_value:
             example = 'Skip to use saved value "{}"'.format(saved_value)
         else:

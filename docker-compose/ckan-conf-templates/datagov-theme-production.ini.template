@@ -78,11 +78,12 @@ ckan.redis.url = {{CKAN_REDIS_URL}}
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
 ckan.plugins = stats text_view image_view recline_view datastore xloader 
-    harvest ckan_harvester datajson_harvest datajson archiver report 
+    harvest ckan_harvester archiver report 
     dcat dcat_rdf_harvester dcat_json_harvester dcat_json_interface 
-    structured_data geodatagov geodatagov_miscs 
-    z3950_harvester arcgis_harvester geodatagov_geoportal_harvester waf_harvester_collection geodatagov_csw_harvester geodatagov_doc_harvester geodatagov_waf_harvester 
-    spatial_query usmetadata
+    structured_data geodatagov geodatagov_miscs z3950_harvester 
+    arcgis_harvester geodatagov_geoportal_harvester waf_harvester_collection 
+    geodatagov_csw_harvester geodatagov_doc_harvester geodatagov_waf_harvester spatial_query 
+    usmetadata datajson_harvest datajson
 # spatial_metadata
 
   
@@ -169,6 +170,10 @@ smtp.starttls = {{SMTP_STARTTLS}}
 smtp.user = {{SMTP_USER}}
 smtp.password = {{SMTP_PASSWORD}}
 smtp.mail_from = {{SMTP_MAIL_FROM}}
+
+## Logstash settings
+# logstash.kind = tcp
+# logstash.host =
 
 ###
 

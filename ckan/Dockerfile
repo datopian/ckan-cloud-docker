@@ -76,7 +76,7 @@ RUN ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -r /
 COPY post_install_functions.sh /post_install_functions.sh
 
 ARG POST_INSTALL
-RUN . /post_install_functions.sh &&  eval "${POST_INSTALL}"
+RUN . /post_install_functions.sh && eval "${POST_INSTALL}"
 
 COPY entrypoint.sh /ckan-entrypoint.sh
 COPY templater.sh /templater.sh

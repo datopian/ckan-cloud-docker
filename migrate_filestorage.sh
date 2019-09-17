@@ -33,5 +33,5 @@ done
 cp -r $TMP_DATA_RECEIVED/storage $TMP_DATA/storage
 
 echo mounting data into the persistent volumes
-docker cp $TMP_DATA ckanclouddocker_ckan_1:/var/lib/ckan
+docker cp $TMP_DATA ckan-cloud-docker_ckan_1:/var/lib/ckan
 docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.${5}-theme.yaml exec -u root ckan chown -R ckan:ckan /var/lib/ckan

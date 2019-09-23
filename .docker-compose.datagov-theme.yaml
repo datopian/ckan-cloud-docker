@@ -1,6 +1,21 @@
 version: '3.2'
 
 services:
+
+  nginx:
+    depends_on:
+    - ckan
+    image: viderum/ckan-cloud-docker:nginx-latest
+    build:
+      context: nginx
+    restart: always
+    expose:
+    - "8080"
+    ports:
+    - "8080:8080"
+    networks:
+    - ckan-multi
+
   ckan:
     image: viderum/ckan-cloud-docker:ckan-latest-datagov-theme
     expose:

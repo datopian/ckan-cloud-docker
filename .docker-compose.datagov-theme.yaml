@@ -28,7 +28,7 @@ services:
           install_standard_ckan_extension_github -r GSA/ckanext-geodatagov &&\
           install_standard_ckan_extension_github -r akariv/ckanext-datajson -b datagov &&\
           install_standard_ckan_extension_github -r akariv/USMetadata -e ckanext-usmetadata &&\
-          install_standard_ckan_extension_github -r GSA/ckanext-datagovtheme
+          install_standard_ckan_extension_github -r thejuliekramer/ckanext-datagovtheme
         POST_DOCKER_BUILD: |
           mkdir -p /var/tmp/ckan/dynamic_menu &&\
           mkdir -p /var/log/ckan/std/

@@ -1,8 +1,15 @@
 version: '3.2'
 
 services:
+
+  nginx:
+    ports:
+    - "8080:8080"
+
   ckan:
     image: viderum/ckan-cloud-docker:ckan-latest-datagov-theme
+    ports:
+    - "5000:5000"
     build:
       args:
         EXTRA_PACKAGES: supervisor cron

@@ -35,7 +35,7 @@ services:
           install_standard_ckan_extension_github -r okfn/ckanext-sentry  &&\
           install_standard_ckan_extension_github -r ckan/ckanext-dcat  &&\
           install_standard_ckan_extension_github -r okfn/ckanext-envvars &&\
-          install_standard_ckan_extension_github -r datopian/ckanext-honduras -b 0.0.17
+          install_standard_ckan_extension_github -r datopian/ckanext-honduras -b 0.0.18
         ROOT_INIT: |
           . /post_install_functions.sh && patch_ckan
     environment:

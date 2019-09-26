@@ -83,13 +83,12 @@ ckan.plugins = stats text_view image_view recline_view datastore xloader
     structured_data geodatagov geodatagov_miscs z3950_harvester 
     arcgis_harvester geodatagov_geoportal_harvester waf_harvester_collection 
     geodatagov_csw_harvester geodatagov_doc_harvester geodatagov_waf_harvester spatial_query 
-    usmetadata datajson_harvest datajson datagovtheme
-# spatial_metadata
+    usmetadata datagovtheme datajson_harvest datajson spatial_metadata
 
   
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
-ckan.views.default_views = image_view text_view recline_view
+# ckan.views.default_views = image_view text_view recline_view
 
 # Customize which text formats the text_view plugin will show
 #ckan.preview.json_formats = json
@@ -108,7 +107,7 @@ ckan.base_templates_folder = templates-bs2
 ckan.site_title = Datagov CKAN Demo
 ckan.site_logo = /base/images/ckan-logo.png
 ckan.site_description = Local development environment
-ckan.favicon = /base/images/ckan.ico
+ckan.favicon = /fanstatic/datagovtheme/images/favicon.ico
 ckan.gravatar_default = identicon
 ckan.preview.direct = png jpg gif
 ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json

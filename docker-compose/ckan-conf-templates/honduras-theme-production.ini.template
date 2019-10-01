@@ -217,7 +217,7 @@ smtp.starttls = False
 # SMTP server does not support authentication
 #smtp.user = {{SMTP_USER}}
 #smtp.password = {{SMTP_PASSWORD}}
-smtp.mail_from = {{MAIL_FROM}}
+smtp.server = {{SMTP_SERVER}}
 smtp.mail_from = {{SMTP_MAIL_FROM}}
 
 ## Datapusher URL

@@ -24,7 +24,7 @@ services:
         EXTRA_FILESYSTEM: "./overrides/honduras/filesystem/"
         POST_INSTALL: |
           install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b fix-null-content-type &&\
-          install_standard_ckan_extension_github -r ckan/ckanext-harvest -b v1.1.4 &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-harvest -b 819706ae5dce5c62b2283fd8405fd8b6fa804355 &&\
           install_standard_ckan_extension_github -r okfn/ckanext-geoview -b v0.0.14 &&\
           install_standard_ckan_extension_github -r okfn/ckanext-pdfview -b lacounts-0.1 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-googleanalytics &&\

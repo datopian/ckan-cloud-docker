@@ -230,7 +230,7 @@ ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
 #ckanext.datajson.url_enabled = True
 
 ## Harvest settings
-#ckan.harvest.mq.type = redis
+ckan.harvest.mq.type = redis
 #ckan.harvest.mq.hostname = redis
 #ckan.harvest.mq.redis_db = 9
 

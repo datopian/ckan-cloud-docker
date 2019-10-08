@@ -40,7 +40,7 @@ services:
           crontab /etc/crontab-harvester
           service supervisor start #rev1
     environment:
-    - CKAN_CONFIG_TEMPLATE_PREFIX=datagov-theme-
+    - CKAN_CONFIG_TEMPLATE_PREFIX=datagov-catalog-
   jobs:
     image: viderum/ckan-cloud-docker:ckan-latest-datagov-theme
     environment:

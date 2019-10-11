@@ -1,0 +1,17 @@
+diff --git a/ckanext/stats/templates/ckanext/stats/index.html b/ckanext/stats/templates/ckanext/stats/index.html
+index 0f9373f..ef4869d 100644
+--- a/ckanext/stats/templates/ckanext/stats/index.html
++++ b/ckanext/stats/templates/ckanext/stats/index.html
+@@ -189,11 +189,5 @@
+ 
+ {% block scripts %}
+   {{ super() }}
+-{#
+-Hellish hack to get excanvas to work in IE8. We disable html5shiv from
+-overriding the createElement() method on this page.
+-See: http://stackoverflow.com/questions/10208062/using-flot-with-bootstrap-ie8-incompatibility
+-#}
+-{% resource "vendor/block_html5_shim" %}
+ {% resource "ckanext_stats/stats" %}
+ {% endblock %}
+

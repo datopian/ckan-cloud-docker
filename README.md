@@ -35,7 +35,7 @@ Run and follow all steps:
 (optional) Clear any existing compose environment to ensure a fresh start
 
 ```
-docker-compose down -v
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml down -v
 ```
 
 Pull the latest images
@@ -47,7 +47,7 @@ docker-compose pull
 Start the Docker compose environment
 
 ```
-docker-compose up -d nginx
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml up -d nginx
 ```
 
 Add a hosts entry mapping domain `nginx` to `127.0.0.1`:
@@ -85,7 +85,7 @@ Edit any file in this repository
 (Optional) depending on the changes you made, you might need to destroy the current environment
 
 ```
-docker-compose down -v
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml down -v
 ```
 
 (if you want to keep your volumes, for example if you populated the database with data you want
@@ -100,7 +100,7 @@ docker-compose build | grep "Successfully tagged"
 Start the environment
 
 ```
-docker-compose up -d nginx
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml up -d nginx
 ```
 
 

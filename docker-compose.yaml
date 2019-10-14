@@ -39,8 +39,6 @@ services:
     restart: always
     expose:
     - "8080"
-    ports:
-    - "8080:8080"
     networks:
     - ckan-multi
 
@@ -116,8 +114,6 @@ services:
     - GUNICORN_WORKERS=2
     expose:
     - "5000"
-    ports:
-    - "5000:5000"
     networks:
     - ckan-multi
 

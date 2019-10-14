@@ -25,7 +25,7 @@ services:
         CKAN_BRANCH: ckan-2.7.3
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.2a74 &&\
+          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.2a75 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
           install_standard_ckan_extension_github -r datopian/ckanext-vitalstrategies_shanghai -b v0.0.9 && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l es -f && \

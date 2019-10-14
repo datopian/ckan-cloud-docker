@@ -1,7 +1,7 @@
-.PHONY: start stop build pull shell down remove logs user sysadmin secret
+.PHONY: start stop build pull shell down remove logs user sysadmin secret cron
 
 start:
-	docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml up -d --build nginx
+	docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml up -d --build nginx && make cron
 
 stop:
 	docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml stop
@@ -31,3 +31,5 @@ sysadmin:
 	 exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add $U -c /etc/ckan/production.ini
 secret:
 	python create_secrets.py
+cron:
+	docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml exec --user=root ckan service cron start

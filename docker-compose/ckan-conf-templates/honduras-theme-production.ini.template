@@ -213,10 +213,11 @@ ckanext.spatial.common_map.attribution = Map tiles by <a href="http://stamen.com
 
 #email_to = errors@example.com
 #error_email_from = ckan-errors@example.com
+smtp.starttls = False
+# SMTP server does not support authentication
+#smtp.user = {{SMTP_USER}}
+#smtp.password = {{SMTP_PASSWORD}}
 smtp.server = {{SMTP_SERVER}}
-smtp.starttls = {{SMTP_STARTTLS}}
-smtp.user = {{SMTP_USER}}
-smtp.password = {{SMTP_PASSWORD}}
 smtp.mail_from = {{SMTP_MAIL_FROM}}
 
 ## Datapusher URL
@@ -229,7 +230,7 @@ ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
 #ckanext.datajson.url_enabled = True
 
 ## Harvest settings
-#ckan.harvest.mq.type = redis
+ckan.harvest.mq.type = redis
 #ckan.harvest.mq.hostname = redis
 #ckan.harvest.mq.redis_db = 9
 

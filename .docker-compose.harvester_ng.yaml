@@ -1,0 +1,82 @@
+version: '3.2'
+# based on https://github.com/puckel/docker-airflow
+# and https://medium.com/@tomaszdudek/yet-another-scalable-apache-airflow-with-docker-example-setup-84775af5c451
+services:
+
+    harvester_redis:
+        image: 'redis:5.0.5'
+        # command: redis-server --requirepass redispass
+
+    harvester_postgres:
+        image: postgres:9.6
+        command: -p 5434  # avoid internal conflicts
+        env_file:
+          - harvester_ng/env.airflow
+        # Uncomment these lines to persist data on the local filesystem.
+        #     - PGDATA=/var/lib/postgresql/data/pgdata
+        # volumes:
+        #     - ./pgdata:/var/lib/postgresql/data/pgdata
+
+    harvester:
+        image: harvester_ng:latest
+        restart: always
+        depends_on:
+            - harvester_postgres
+            - harvester_redis
+        env_file:
+          - harvester_ng/env.harvester
+          - harvester_ng/env.airflow
+        # volumes:
+        #     - .:/app
+        #     - ./automate-tasks/airflow/dags:/usr/local/airflow/dags
+        #     # Uncomment to include custom plugins
+        #     # - ./plugins:/usr/local/airflow/plugins
+        ports:
+            - "8081:8081"
+        extra_hosts:
+            # to a local CKAN instance called nginx at hosts file
+            # export HOST_IP=`ip -4 addr show scope global dev docker0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
+            - "nginx:${HOST_IP}"
+        command: webserver
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3
+
+    harvester_flower:
+        image: puckel/docker-airflow:1.10.4
+        restart: always
+        depends_on:
+            - harvester_redis
+        env_file:
+          - harvester_ng/env.airflow
+        ports:
+            - "5555:5555"
+        command: flower
+
+    harvester_scheduler:
+        image: puckel/docker-airflow:1.10.4
+        restart: always
+        depends_on:
+            - harvester
+        volumes:
+            - ./dags:/usr/local/airflow/dags
+            # Uncomment to include custom plugins
+            # - ./plugins:/usr/local/airflow/plugins
+        env_file:
+          - harvester_ng/env.airflow
+        command: scheduler
+
+    harvester_worker:
+        image: puckel/docker-airflow:1.10.4
+        restart: always
+        depends_on:
+            - harvester_scheduler
+        volumes:
+            - ./dags:/usr/local/airflow/dags
+            # Uncomment to include custom plugins
+            # - ./plugins:/usr/local/airflow/plugins
+        env_file:
+          - harvester_ng/env.airflow
+        command: worker

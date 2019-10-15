@@ -88,6 +88,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+harvester_ng/env.airflow
+harvester_ng/env.harvester
 
 # Spyder project settings
 .spyderproject

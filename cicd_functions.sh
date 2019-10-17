@@ -20,6 +20,7 @@ get_ckan_compose_ovverride_name() {
 exec_ckan_compose_overrides() {
     for DOCKER_COMPOSE_OVERRIDE in `ls .docker-compose.*.yaml`; do
         OVERRIDE_NAME=$(get_ckan_compose_ovverride_name "${DOCKER_COMPOSE_OVERRIDE}")
+        echo "OVERRIDE ${OVERRIDE_NAME}"
         ! eval "${1}" && return 1
     done
     return 0

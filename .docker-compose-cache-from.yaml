@@ -21,8 +21,8 @@ services:
       cache_from:
       - viderum/ckan-cloud-docker:ckan-latest
       - viderum/ckan-cloud-docker:ckan-latest-datagov-theme
-      - viderum/ckan-cloud-docker:ckan-latest-filenames-unicode
-      - viderum/ckan-cloud-docker:solr-latest-filenames-unicode
+      # - viderum/ckan-cloud-docker:ckan-latest-filenames-unicode
+      # - viderum/ckan-cloud-docker:solr-latest-filenames-unicode
 
   jenkins:
     build:

@@ -71,7 +71,7 @@ RUN ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -e $
 
 COPY requirements.txt /tmp/
 RUN ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -r /tmp/requirements.txt &&\
-    ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -U requests[security]==2.21
+    ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -U requests[security]
 
 COPY post_install_functions.sh /post_install_functions.sh
 

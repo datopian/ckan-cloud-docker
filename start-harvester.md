@@ -79,7 +79,9 @@ In order to fill the CKAN instance with harvest sources you could add it manuall
 ![ckan](docs/imgs/new-harvest-source.png)
 
 Or you can import all the harvest sources from another CKAN instance with the Harvester NG.  
-You will need to clone [this repo](https://gitlab.com/datopian/ckan-ng-harvest/blob/develop/automate-tasks/airflow/dags/harvest_with_airflow.py), install the _requirements_ and run the import script
+You will need to clone [this repo](https://gitlab.com/datopian/ckan-ng-harvest/blob/develop/automate-tasks/airflow/dags/harvest_with_airflow.py), install the _requirements_ and run the import script.  
+
+In order to define the destination CKAN instance (at http://nginx:8080) you will need to copy the _settings.py_ file as _local_settings.py_ file and define the API key and other required values.  
 
 ```
 # Data.json type

@@ -91,6 +91,10 @@ python3 import_harvest_sources.py --import_from_url https://catalog.data.gov --s
 
 ```
 
+While the harvest sources filled Airflow will read them and create _Dags_
+
+![harvest empty](docs/imgs/dags_ready.png)
+
 ### Other tools
 
 Clean all the data at the images

@@ -16,18 +16,9 @@ This includes:
 
 ## Bring up the CKAN Harvester NG instance
 
-### Build the Harvester NG image
+### About the Harvester NG image
 
-**This will be removed when we register this image.**  
-
-Clone the CKAN NG harveter repo: https://gitlab.com/datopian/ckan-ng-harvest.  
-Follow the instruction at the [docker.md](https://gitlab.com/datopian/ckan-ng-harvest/blob/develop/docker.md) file in order to build the image with the tag _viderum/ckan-harvest-ng_.  
-
-```
-docker build -t viderum/ckan-harvest-ng:latest .
-```
-
-Now we have lcoally registered the _viderum/ckan-harvest-ng_ docker image.  
+The docker image for harvester+airflow is defined in this [GitHub repo](https://gitlab.com/datopian/ckan-ng-harvest).  
 
 ### Running the full docker envirnoment
 
@@ -69,6 +60,34 @@ docker-compose \
 
 Now you are able to togin to CKAN at http://nginx:8080 with username `admin` and password `12345678`
 
+![ckan](docs/imgs/ckan-ready.png)
+
+Your harvest source list will be empty
+
+![harvest empty](docs/imgs/harvest-sources-empty.png)
+
+## Harvesting
+
+After starts, Airflow will [read all the harvest sources](https://gitlab.com/datopian/ckan-ng-harvest/blob/develop/automate-tasks/airflow/dags/harvest_with_airflow.py) (at the moment just _data.json_ and _CSW_ sources) at the CKAN instance.  
+
+The first time this will be empty, you don't have any harvest source defined in this clean CKAN instance.  
+You could check the Airflow status at http://nginx:8080/airflow/.  
+
+![ckan](docs/imgs/airflow-ready.png)
+
+In order to fill the CKAN instance with harvest sources you could add it manually at http://nginx:8080/harvest/new.  
+![ckan](docs/imgs/new-harvest-source.png)
+
+Or you can import all the harvest sources from another CKAN instance with the Harvester NG.  
+You will need to clone [this repo](https://gitlab.com/datopian/ckan-ng-harvest/blob/develop/automate-tasks/airflow/dags/harvest_with_airflow.py), install the _requirements_ and run the import script
+
+```
+# Data.json type
+python3 import_harvest_sources.py --import_from_url https://catalog.data.gov --source_type datajson --method GET
+# CSW type
+python3 import_harvest_sources.py --import_from_url https://catalog.data.gov --source_type csw --method GET
+
+```
 
 ### Other tools
 

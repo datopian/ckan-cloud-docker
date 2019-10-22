@@ -86,6 +86,9 @@ docker-compose \
 Check logs
 
 ```
-$ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml \
+$ docker-compose \
+      -f docker-compose.yaml \
+      -f .docker-compose-db.yaml \
+      -f .docker-compose.datagov-theme.yaml \
       logs -f
 ```

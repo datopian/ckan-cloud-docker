@@ -22,9 +22,8 @@ The docker image for harvester+airflow is defined in this [GitHub repo](https://
 
 ### Running the full docker envirnoment
 
-Go back to the _ckan-clod-docker_ folder (this repo).  
+In this repo folder run and follow all steps:
 
-Run and follow all steps:
 ```
 ./create_secrets.py
 ```

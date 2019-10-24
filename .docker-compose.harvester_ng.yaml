@@ -16,6 +16,9 @@ services:
             
     harvester:
         image: viderum/ckan-ng-harvest:latest
+        # build:
+        #     context:
+        #         harvester
         restart: always
         command: webserver
         expose: 
@@ -24,6 +27,7 @@ services:
             - "8082:8082"
         depends_on:
             - harvester_postgres
+            - ckan
         environment:
             # - AIRFLOW__CORE__LOGGING_LEVEL=DEBUG
             - LOAD_EX=n
@@ -33,8 +37,12 @@ services:
             - POSTGRES_DB=airflow
             - POSTGRES_HOST=harvester_postgres
             # - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql://airflow:airflow@harvester_postgres:5432/airflow
+            
             # CKAN instance to write harvested packages
-            - CKAN_API_KEY=625bafb3-42da-48a5-b9c2-c35c0e6085e1
+            # Tell to harvester to read from DB
+            - CKAN_API_KEY=READ_FROM_DB
+            # will be readed here:
+            - PSQL_CKAN_CONN=postgresql://ckan:123456@db/ckan
             - CKAN_BASE_URL=http://ckan:5000
             - CKAN_VALID_USER_ID=admin
             - HARVESTER_APP_PATH=/app

@@ -15,8 +15,7 @@ services:
             - ckan-multi
             
     harvester:
-        # image: viderum/ckan-ng-harvest:latest
-        image: harvester_ng:0.4
+        image: viderum/ckan-ng-harvest:latest
         # build:
         #     context:
         #         harvester

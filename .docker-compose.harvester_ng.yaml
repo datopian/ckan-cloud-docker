@@ -16,9 +16,9 @@ services:
             
     harvester:
         image: viderum/ckan-ng-harvest:latest
-        build:
-            context:
-                harvester
+        #build:
+        #    context:
+        #        harvester
         restart: always
         command: webserver
         expose: 
@@ -31,6 +31,7 @@ services:
         env_file:
             - docker-compose/ckan-secrets.sh
         environment:
+            - PATH_SECRETS=docker-compose/ckan-secrets.sh
             # - AIRFLOW__CORE__LOGGING_LEVEL=DEBUG
             - LOAD_EX=n
             - EXECUTOR=Local

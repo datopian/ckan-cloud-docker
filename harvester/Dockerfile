@@ -1,1 +1,0 @@
-# FROM viderum/ckan-ng-harvest:latest

@@ -29,9 +29,8 @@ services:
             - harvester_postgres
             - ckan
         env_file:
-            - docker-compose/ckan-secrets.sh
+            - docker-compose/ckanenv-secrets.sh
         environment:
-            - PATH_SECRETS=docker-compose/ckan-secrets.sh
             # - AIRFLOW__CORE__LOGGING_LEVEL=DEBUG
             - LOAD_EX=n
             - EXECUTOR=Local

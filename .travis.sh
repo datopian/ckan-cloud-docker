@@ -13,7 +13,7 @@ elif [ "${1}" == "script" ]; then
 
 elif [ "${1}" == "deploy" ]; then
     echo "Logging in to Docker"
-    ./travis_ci_operator.sh docker-login
+    $HOME/bin/travis_ci_operator.sh docker-login
     TAG="${TRAVIS_TAG:-${TRAVIS_COMMIT}}"
     ! tag_images "${TAG}" && exit 1
     if [ "${TRAVIS_BRANCH}" == "master" ]; then

@@ -16,9 +16,6 @@ services:
             
     harvester:
         image: viderum/ckan-ng-harvest:latest
-        #build:
-        #    context:
-        #        harvester
         restart: always
         command: webserver
         expose: 

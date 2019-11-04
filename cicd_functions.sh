@@ -20,6 +20,7 @@ get_ckan_compose_ovverride_name() {
 exec_ckan_compose_overrides() {
     for DOCKER_COMPOSE_OVERRIDE in `ls .docker-compose.*.yaml`; do
         OVERRIDE_NAME=$(get_ckan_compose_ovverride_name "${DOCKER_COMPOSE_OVERRIDE}")
+        echo "OVERRIDE ${OVERRIDE_NAME}"
         ! eval "${1}" && return 1
     done
     return 0
@@ -33,7 +34,6 @@ pull_latest_images() {
     fi
     if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
         docker pull "${DOCKER_IMAGE}:solrcloud-latest"
-        docker pull "${DOCKER_IMAGE}:solr-latest-filenames-unicode"
     fi
     return 0
 }
@@ -53,9 +53,6 @@ build_latest_images() {
         ! docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml \
                          -f .docker-compose-cache-from.yaml \
                          -f .docker-compose-centralized.yaml build solr && return 1
-        ! docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml \
-                         -f .docker-compose-cache-from.yaml \
-                         -f .docker-compose.filenames-unicode.yaml build solr && return 1
     fi
     return 0
 }
@@ -76,9 +73,6 @@ tag_images() {
         ' && return 1
     fi
     if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
-        docker tag "${DOCKER_IMAGE}:solr-latest-filenames-unicode" \
-                   "${DOCKER_IMAGE}:solr-${TAG_SUFFIX}-filenames-unicode" &&\
-        echo tagged solr override ${OVERRIDE_NAME} latest image: ${DOCKER_IMAGE}:solr-${TAG_SUFFIX}-filenames-unicode &&\
         docker tag "${DOCKER_IMAGE}:solrcloud-latest" \
                    "${DOCKER_IMAGE}:solrcloud-${TAG_SUFFIX}" &&\
         echo tagged solrcloud latest image: ${DOCKER_IMAGE}:solrcloud-${TAG_SUFFIX}
@@ -98,7 +92,6 @@ push_latest_images() {
         ' && return 1
     fi
     if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
-        ! docker push "${DOCKER_IMAGE}:solr-latest-filenames-unicode" && return 1
         ! docker push "${DOCKER_IMAGE}:solrcloud-latest" && return 1
     fi
     return 0
@@ -117,7 +110,6 @@ push_tag_images() {
         ' && return 1
     fi
     if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
-        ! docker push "${DOCKER_IMAGE}:solr-${TAG_SUFFIX}-filenames-unicode" && return 1
         ! docker push "${DOCKER_IMAGE}:solrcloud-${TAG_SUFFIX}" && return 1
     fi
     return 0
@@ -135,7 +127,6 @@ print_summary() {
             exec_ckan_compose_overrides 'echo "${DOCKER_IMAGE}:ckan-latest-${OVERRIDE_NAME}"'
         fi
         if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
-            echo "${DOCKER_IMAGE}:solr-latest-filenames-unicode"
             echo "${DOCKER_IMAGE}:solrcloud-latest"
         fi
     fi
@@ -144,7 +135,6 @@ print_summary() {
         exec_ckan_compose_overrides 'echo "${DOCKER_IMAGE}:ckan-${TAG_SUFFIX}-${OVERRIDE_NAME}"'
     fi
     if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
-        echo "${DOCKER_IMAGE}:solr-${TAG_SUFFIX}-filenames-unicode"
         echo "${DOCKER_IMAGE}:solrcloud-${TAG_SUFFIX}"
     fi
     return 0

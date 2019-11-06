@@ -17,7 +17,10 @@ def set_databse_urls(secrets):
             db_password=secrets['db-POSTGRES_PASSWORD']
             )
     write_secrets['ckan'].append('export {}'.format(alchemy_url))
+    
     # add as env file also
+    if 'harvester' not in write_secrets:
+        write_secrets['harvester'] = []
     write_secrets['harvester'].append(alchemy_url)
 
     write_secrets['ckan'].append(
@@ -80,9 +83,7 @@ def main():
 
         if secrets_for not in write_secrets:
             write_secrets[secrets_for] = []
-        # aditional version as env file
-        write_secrets['harvester'] = []
-
+        
         prefix = 'export ' if secrets_for == 'ckan' else ''
         write_secrets[secrets_for].append('{}{}={}'.format(prefix, name, value))
         print('')

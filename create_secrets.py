@@ -19,8 +19,7 @@ def set_databse_urls(secrets):
     write_secrets['ckan'].append('export {}'.format(alchemy_url))
     
     # add as env file also
-    if 'harvester' not in write_secrets:
-        write_secrets['harvester'] = []
+    write_secrets.setdefault('harvester', [])
     write_secrets['harvester'].append(alchemy_url)
 
     write_secrets['ckan'].append(
@@ -81,8 +80,7 @@ def main():
         if not value and mode == 'optional':
             value = ''
 
-        if secrets_for not in write_secrets:
-            write_secrets[secrets_for] = []
+        write_secrets.setdefault(secrets_for, [])
         
         prefix = 'export ' if secrets_for == 'ckan' else ''
         write_secrets[secrets_for].append('{}{}={}'.format(prefix, name, value))

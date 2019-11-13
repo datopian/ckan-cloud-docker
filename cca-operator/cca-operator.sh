@@ -74,34 +74,6 @@ if [ "${1}" == "initialize-ckan-env-vars" ]; then
         echo Ckan env vars secret already exists && exit 0
     fi
 
-elif [ "${1}" == "initialize-harvester-secrets" ]; then
-    ENV_VARS_SECRET="${2}"
-    HARVESTER_SECRETS_SECRET="${3}"
-    ( [ -z "${ENV_VARS_SECRET}" ] || [ -z "${HARVESTER_SECRETS_SECRET}" ] ) \
-        && echo usage: cca-operator initialize-harvester-secrets '<ENV_VARS_SECRET_NAME>' '<HARVESTER_SECRETS_SECRET_NAME>' \
-        && exit 1
-    if ! kubectl $KUBECTL_GLOBAL_ARGS get secret "${HARVESTER_SECRETS_SECRET}"; then
-        echo Creating ckan secrets secret $HARVESTER_SECRETS_SECRET from env vars secret $ENV_VARS_SECRET
-        ! export_ckan_env_vars $ENV_VARS_SECRET && exit 1
-        TEMPFILE=`mktemp`
-        echo "SQLALCHEMY_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}/${POSTGRES_DB_NAME:-ckan}" > $TEMPFILE
-        cat $TEMPFILE
-        
-        kubectl $KUBECTL_GLOBAL_ARGS create secret generic "${HARVESTER_SECRETS_SECRET}" --from-file=secrets.sh=$TEMPFILE
-        CKAN_SECRET_RES="$?"
-        rm $TEMPFILE
-        [ "$CKAN_SECRET_RES" != "0" ] && echo failed to create ckan secrets secret && exit 1
-        ckan_cloud_log '{"event":"harvester-secrets-created", "secrets-secret-name": "'${HARVESTER_SECRETS_SECRET}'"}'
-        echo Great Success
-        echo Created new ckan secrets secret: $HARVESTER_SECRETS_SECRET
-        echo Please update the relevant values.yaml file with the new secret name
-        exit 0
-    else
-        ckan_cloud_log '{"event":"ckan-secrets-exists", "secrets-secret-name": "'${HARVESTER_SECRETS_SECRET}'"}'
-        echo Ckan secrets secret $HARVESTER_SECRETS_SECRET already exists
-        exit 0
-    fi
-
 elif [ "${1}" == "initialize-ckan-secrets" ]; then
     ENV_VARS_SECRET="${2}"
     CKAN_SECRETS_SECRET="${3}"

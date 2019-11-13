@@ -112,3 +112,6 @@ sandbox
 
 # SSL certs
 traefik/certs
+
+# local test yamls
+.local-test-*.yaml

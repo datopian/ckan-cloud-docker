@@ -35,7 +35,7 @@ docker-compose \
       -f docker-compose.yaml \
       -f .docker-compose-db.yaml \
       -f .docker-compose.datagov-theme.yaml \
-      -f .docker-compose.harvester_ng.yaml \
+      -f .docker-compose-harvester_ng.yaml \
       up -d --build nginx harvester
 ```
 
@@ -103,7 +103,7 @@ docker-compose \
       -f docker-compose.yaml \
       -f .docker-compose-db.yaml \
       -f .docker-compose.datagov-theme.yaml \
-      -f .docker-compose.harvester_ng.yaml \
+      -f .docker-compose-harvester_ng.yaml \
       down -v
 ```
 

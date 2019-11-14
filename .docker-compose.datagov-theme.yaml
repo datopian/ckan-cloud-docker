@@ -28,7 +28,7 @@ services:
           install_standard_ckan_extension_github -r datopian/ckanext-logstash &&\
           install_standard_ckan_extension_github -r ckan/ckanext-dcat ckanext-dcat &&\
           install_standard_ckan_extension_github -r datopian/ckanext-geodatagov &&\
-          install_standard_ckan_extension_github -r avdata99/ckanext-datajson -b datagov &&\
+          install_standard_ckan_extension_github -r datopian/ckanext-datajson -b datagov &&\
           install_standard_ckan_extension_github -r akariv/USMetadata -e ckanext-usmetadata &&\
           install_standard_ckan_extension_github -r GSA/ckanext-datagovtheme
         POST_DOCKER_BUILD: |

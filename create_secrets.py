@@ -80,10 +80,8 @@ def main():
         if not value and mode == 'optional':
             value = ''
 
-        write_secrets.setdefault(secrets_for, [])
-        
         prefix = 'export ' if secrets_for == 'ckan' else ''
-        write_secrets[secrets_for].append('{}{}={}'.format(prefix, name, value))
+        write_secrets.setdefault(secrets_for, []).append('{}{}={}'.format(prefix, name, value))
         print('')
         secrets['{}-{}'.format(secrets_for, name)] = value
 

@@ -84,10 +84,14 @@ ckan.plugins = stats text_view image_view recline_view datastore xloader
     arcgis_harvester geodatagov_geoportal_harvester waf_harvester_collection 
     geodatagov_csw_harvester geodatagov_doc_harvester geodatagov_waf_harvester spatial_query 
 <<<<<<< HEAD
+<<<<<<< HEAD
     usmetadata datajson_harvest datajson 
 =======
     datajson_harvest datajson
 >>>>>>> remove datagov new flavour
+=======
+    datajson_harvest datajson
+>>>>>>> 27ce2c57b1a113bb61b2fff10c0c081d16acec5b
 # spatial_metadata
 
   

@@ -8,6 +8,8 @@ services:
 
   ckan:
     image: viderum/ckan-cloud-docker:ckan-latest-datagov-theme
+    expose:
+    - "5000"
     ports:
     - "5000:5000"
     build:

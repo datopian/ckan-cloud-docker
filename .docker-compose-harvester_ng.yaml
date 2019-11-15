@@ -43,9 +43,11 @@ services:
             - CKAN_VALID_USER_ID=admin
             - HARVESTER_APP_PATH=/app
             - AIRFLOW__WEBSERVER__WEB_SERVER_PORT=8082
-            - AIRFLOW__WEBSERVER__BASE_URL=http://my_host:8080/airflow
+            - AIRFLOW__WEBSERVER__BASE_URL=http://nginx:8080/airflow
             - AIRFLOW__CORE__DAGS_FOLDER=/app/automate-tasks/airflow/dags
             - AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT=180
+            # - AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL=300
+            # - AIRFLOW__SCHEDULER__RUN_DURATION=60
             
             # The amount of parallelism as a setting to the executor. This defines
             # the max number of task instances that should run simultaneously

@@ -42,7 +42,8 @@ docker-compose \
 Add a hosts entry mapping domain `nginx` to `127.0.0.1`:
 
 ```
-127.0.0.1 nginx
+127.0.0.1   nginx
+127.0.0.1   ckan
 ```
 
 Create a CKAN admin user

@@ -13,10 +13,15 @@ write_secrets = {}
 
 
 def set_databse_urls(secrets):
-    write_secrets['ckan'].append(
-        'export SQLALCHEMY_URL=postgresql://ckan:{db_password}@db/ckan'.format(
+    alchemy_url = 'SQLALCHEMY_URL=postgresql://ckan:{db_password}@db/ckan'.format(
             db_password=secrets['db-POSTGRES_PASSWORD']
-    ))
+            )
+    write_secrets['ckan'].append('export {}'.format(alchemy_url))
+    
+    # add as env file also
+    write_secrets.setdefault('harvester', [])
+    write_secrets['harvester'].append(alchemy_url)
+
     write_secrets['ckan'].append(
         'export CKAN_DATASTORE_WRITE_URL=postgresql://postgres:{datastore_password}@datastore-db/datastore'.format(
             datastore_password = secrets['datastore-db-DATASTORE_PASSWORD']
@@ -75,12 +80,8 @@ def main():
         if not value and mode == 'optional':
             value = ''
 
-        if secrets_for not in write_secrets:
-            write_secrets[secrets_for] = []
-
-
         prefix = 'export ' if secrets_for == 'ckan' else ''
-        write_secrets[secrets_for].append('{}{}={}'.format(prefix, name, value))
+        write_secrets.setdefault(secrets_for, []).append('{}{}={}'.format(prefix, name, value))
         print('')
         secrets['{}-{}'.format(secrets_for, name)] = value
 

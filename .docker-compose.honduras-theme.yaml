@@ -39,7 +39,6 @@ services:
         ROOT_INIT: |
           mkdir -p /var/log/supervisor
           chown ckan:ckan /var/log/supervisor
-          . /post_install_functions.sh && patch_ckan
         POST_DOCKER_BUILD: |
           mkdir -p /var/log/ckan/std/
         CKAN_INIT: |

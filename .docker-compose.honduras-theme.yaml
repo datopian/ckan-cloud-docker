@@ -24,7 +24,7 @@ services:
         EXTRA_FILESYSTEM: "./overrides/honduras/filesystem/"
         POST_INSTALL: |
           install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b fix-null-content-type &&\
-          install_standard_ckan_extension_github -r ckan/ckanext-harvest -b v1.1.4 &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-harvest -b 819706ae5dce5c62b2283fd8405fd8b6fa804355 &&\
           install_standard_ckan_extension_github -r okfn/ckanext-geoview -b v0.0.14 &&\
           install_standard_ckan_extension_github -r okfn/ckanext-pdfview -b lacounts-0.1 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-googleanalytics &&\
@@ -35,9 +35,16 @@ services:
           install_standard_ckan_extension_github -r okfn/ckanext-sentry  &&\
           install_standard_ckan_extension_github -r ckan/ckanext-dcat  &&\
           install_standard_ckan_extension_github -r okfn/ckanext-envvars &&\
-          install_standard_ckan_extension_github -r datopian/ckanext-honduras -b 0.0.16
+          install_standard_ckan_extension_github -r datopian/ckanext-honduras -b 0.0.20
         ROOT_INIT: |
-          . /post_install_functions.sh && patch_ckan
+          mkdir -p /var/log/supervisor
+          chown ckan:ckan /var/log/supervisor
+        POST_DOCKER_BUILD: |
+          mkdir -p /var/log/ckan/std/
+        CKAN_INIT: |
+          ckan-paster --plugin=ckanext-harvest harvester initdb  -c "CKAN_CONFIG/production.ini"
+          crontab /etc/crontab-harvester
+          service supervisor start #rev1
     environment:
     - CKAN_CONFIG_TEMPLATE_PREFIX=honduras-theme-
   jobs:

@@ -1,0 +1,66 @@
+version: '3.2'
+# based on https://github.com/puckel/docker-airflow
+# and https://medium.com/@tomaszdudek/yet-another-scalable-apache-airflow-with-docker-example-setup-84775af5c451
+services:
+
+    harvester_postgres:
+        image: postgres:9.6
+        expose:
+            - "5432"
+        environment:
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+        networks:
+            - ckan-multi
+            
+    harvester:
+        image: viderum/ckan-ng-harvest:latest
+        restart: always
+        command: webserver
+        expose: 
+            - "8082"
+        ports:
+            - "8082:8082"
+        depends_on:
+            - harvester_postgres
+            - ckan
+        env_file:
+            - docker-compose/harvester-secrets.sh
+        environment:
+            # - AIRFLOW__CORE__LOGGING_LEVEL=DEBUG
+            - LOAD_EX=n
+            - EXECUTOR=Local
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+            - POSTGRES_HOST=harvester_postgres
+            
+            # CKAN instance to write harvested packages
+            # Tell to harvester to read API KEY from DB
+            - CKAN_API_KEY=READ_FROM_DB
+            - CKAN_BASE_URL=http://ckan:5000
+            - CKAN_VALID_USER_ID=admin
+            - HARVESTER_APP_PATH=/app
+            - AIRFLOW__WEBSERVER__WEB_SERVER_PORT=8082
+            - AIRFLOW__WEBSERVER__BASE_URL=http://nginx:8080/airflow
+            - AIRFLOW__CORE__DAGS_FOLDER=/app/automate-tasks/airflow/dags
+            - AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT=180
+            # - AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL=300
+            # - AIRFLOW__SCHEDULER__RUN_DURATION=60
+            
+            # The amount of parallelism as a setting to the executor. This defines
+            # the max number of task instances that should run simultaneously
+            # on this airflow installation
+            - AIRFLOW__CORE__PARALLELISM=3
+            # if False all (or limited by other settings) the harvesters will run at start
+            - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=False
+
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3
+        
+        networks:
+            - ckan-multi

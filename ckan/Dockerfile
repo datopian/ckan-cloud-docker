@@ -96,6 +96,7 @@ COPY ${EXTRA_FILESYSTEM} /
 # Initialization that should be done as root
 ARG ROOT_INIT
 RUN eval "${ROOT_INIT}"
+RUN . /post_install_functions.sh && patch_ckan
 
 USER ckan
 

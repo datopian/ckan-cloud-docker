@@ -10,7 +10,6 @@ services:
 install:
 - curl -L https://raw.githubusercontent.com/OriHoch/travis-ci-operator/master/travis_ci_operator.sh > $HOME/bin/travis_ci_operator.sh
 - bash $HOME/bin/travis_ci_operator.sh init
-- travis_ci_operator.sh docker-login
 - bash .travis.sh install
 script:
 - bash .travis.sh script

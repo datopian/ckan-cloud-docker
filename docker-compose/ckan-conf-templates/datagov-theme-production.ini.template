@@ -82,9 +82,10 @@ ckan.plugins = stats text_view image_view recline_view datastore xloader
     dcat dcat_rdf_harvester dcat_json_harvester dcat_json_interface 
     structured_data geodatagov geodatagov_miscs z3950_harvester 
     arcgis_harvester geodatagov_geoportal_harvester waf_harvester_collection 
-    geodatagov_csw_harvester geodatagov_doc_harvester geodatagov_waf_harvester spatial_query 
-    datajson_harvest datajson datagovtheme
-  
+    geodatagov_csw_harvester geodatagov_doc_harvester geodatagov_waf_harvester 
+    datajson_harvest datajson datagovtheme datagov_harvest
+    spatial_metadata spatial_query spatial_harvest_metadata_api
+
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
 ckan.views.default_views = image_view text_view recline_view

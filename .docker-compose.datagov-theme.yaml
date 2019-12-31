@@ -12,7 +12,6 @@ services:
     - "5000:5000"
     build:
       args:
-        # CKAN_BRANCH: 2.8
         EXTRA_PACKAGES: supervisor cron
         EXTRA_FILESYSTEM: "./overrides/datagov/filesystem/"
         ROOT_INIT: |

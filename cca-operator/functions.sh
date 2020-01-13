@@ -215,10 +215,6 @@ create_db_base() {
     # Azuresql users ar formated lik <string>"@"<string>. and psql needs dbname to connect
     if [[ "${POSTGRES_USER}" == *"@"* ]]; then
         DB_NAME_FOR_AZ="-d postgres"
-        # Also we need that role to exist
-        psql -v ON_ERROR_STOP=off -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "
-          CREATE ROLE \"${POSTGRES_USER}\"
-        "
     fi
 
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "

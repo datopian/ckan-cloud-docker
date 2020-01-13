@@ -261,8 +261,14 @@ create_datastore_db() {
     export DS_RO_USER
     export DB_NAME_FOR_AZ
     # Azuresql admin users are formated like <string>"@"<string>. and psql needs dbname to connect
+    DB_NAME_FOR_AZ="-d \"${DS_RW_USER}\""
+    POSTGRES_USER_HOSTLESS=$(echo $POSTGRES_USER | cut -f1 -d"@")
     if [[ "${POSTGRES_USER}" == *"@"* ]]; then
         DB_NAME_FOR_AZ="-d postgres"
+        GRANT_ROLE="
+GRANT \"${SITE_USER}\" TO \"${POSTGRES_USER_HOSTLESS}\";
+GRANT \"${DS_RW_USER}\" TO \"${POSTGRES_USER_HOSTLESS}\";
+"
     fi
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "
         CREATE ROLE \"${DS_RO_USER}\" WITH LOGIN PASSWORD '${DS_RO_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
@@ -274,20 +280,21 @@ create_datastore_db() {
         GRANT USAGE ON SCHEMA public TO \"${SITE_USER}\";
         GRANT CREATE ON SCHEMA public TO \"${DS_RW_USER}\";
         GRANT USAGE ON SCHEMA public TO \"${DS_RW_USER}\";
-        ALTER DATABASE \"${SITE_USER}\" OWNER TO \"${POSTGRES_USER}\";
-        ALTER DATABASE \"${DS_RW_USER}\" OWNER TO \"${POSTGRES_USER}\";
+        ALTER DATABASE \"${SITE_USER}\" OWNER TO \"${POSTGRES_USER_HOSTLESS}\";
+        ALTER DATABASE \"${DS_RW_USER}\" OWNER TO \"${POSTGRES_USER_HOSTLESS}\";
         REVOKE CONNECT ON DATABASE \"${SITE_USER}\" FROM \"${DS_RO_USER}\";
         GRANT CONNECT ON DATABASE \"${DS_RW_USER}\" TO \"${DS_RO_USER}\";
         GRANT USAGE ON SCHEMA public TO \"${DS_RO_USER}\";
+        ${GRANT_ROLE}
         ALTER DATABASE \"${SITE_USER}\" OWNER TO \"${SITE_USER}\";
         ALTER DATABASE \"${DS_RW_USER}\" OWNER TO \"${DS_RW_USER}\";
     " &&\
-    PGPASSWORD="${DS_RW_PASSWORD}" psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${DS_RW_USER}" -d "${DS_RW_USER}" -c "
+    PGPASSWORD="${DS_RW_PASSWORD}" psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
         GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"${DS_RO_USER}\";
         ALTER DEFAULT PRIVILEGES FOR USER \"${DS_RW_USER}\" IN SCHEMA public GRANT SELECT ON TABLES TO \"${DS_RO_USER}\";
     " &&\
     bash ./templater.sh ./datastore-permissions.sql.template | grep ' OWNER TO ' -v \
-        | PGPASSWORD="${DS_RW_PASSWORD}" psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${DS_RW_USER}" -d "${DS_RW_USER}" &&\
+        | PGPASSWORD="${DS_RW_PASSWORD}" psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" &&\
     ckan_cloud_log '{"event":"ckan-datastore-db-initialized"}' &&\
     echo Datastore DB initialized successfully && return 0
     echo Datastore DB initialization failed && return 1

@@ -210,10 +210,21 @@ create_db_base() {
     local CREATE_POSTGRES_PASSWORD="${4}"
     ( [ -z "${POSTGRES_HOST}" ] || [ -z "${POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_USER}" ] || [ -z "${CREATE_POSTGRES_PASSWORD}" ] ) && return 1
     echo Initializing ${CREATE_POSTGRES_USER} on ${POSTGRES_HOST}
-    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+
+    export DB_NAME_FOR_AZ
+    # Azuresql users ar formated lik <string>"@"<string>. and psql needs dbname to connect
+    if [[ "${POSTGRES_USER}" == *"@"* ]]; then
+        DB_NAME_FOR_AZ="-d postgres"
+        # Also we need that role to exist
+        psql -v ON_ERROR_STOP=off -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "
+          CREATE ROLE \"${POSTGRES_USER}\"
+        "
+    fi
+
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "
         CREATE ROLE \"${CREATE_POSTGRES_USER}\" WITH LOGIN PASSWORD '${CREATE_POSTGRES_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
     " &&\
-    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d postgres -c "
         CREATE DATABASE \"${CREATE_POSTGRES_USER}\";
     " &&\
     echo DB initialized successfully && return 0
@@ -252,7 +263,12 @@ create_datastore_db() {
     export SITE_USER
     export DS_RW_USER
     export DS_RO_USER
-    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
+    export DB_NAME_FOR_AZ
+    # Azuresql admin users are formated like <string>"@"<string>. and psql needs dbname to connect
+    if [[ "${POSTGRES_USER}" == *"@"* ]]; then
+        DB_NAME_FOR_AZ="-d postgres"
+    fi
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "
         CREATE ROLE \"${DS_RO_USER}\" WITH LOGIN PASSWORD '${DS_RO_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
     " &&\
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
@@ -262,8 +278,8 @@ create_datastore_db() {
         GRANT USAGE ON SCHEMA public TO \"${SITE_USER}\";
         GRANT CREATE ON SCHEMA public TO \"${DS_RW_USER}\";
         GRANT USAGE ON SCHEMA public TO \"${DS_RW_USER}\";
-        ALTER DATABASE \"${SITE_USER}\" OWNER TO ${POSTGRES_USER};
-        ALTER DATABASE \"${DS_RW_USER}\" OWNER TO ${POSTGRES_USER};
+        ALTER DATABASE \"${SITE_USER}\" OWNER TO \"${POSTGRES_USER}\";
+        ALTER DATABASE \"${DS_RW_USER}\" OWNER TO \"${POSTGRES_USER}\";
         REVOKE CONNECT ON DATABASE \"${SITE_USER}\" FROM \"${DS_RO_USER}\";
         GRANT CONNECT ON DATABASE \"${DS_RW_USER}\" TO \"${DS_RO_USER}\";
         GRANT USAGE ON SCHEMA public TO \"${DS_RO_USER}\";

@@ -53,16 +53,20 @@ if [ "${1}" == "initialize-ckan-env-vars" ]; then
             CENTRALIZED_SOLR=1
         fi
         echo "Creating ckan env vars secret ${ENV_VARS_SECRET}"
+        # Azuresql users are formated like <username@hostname>.
+        if [[ "${POSTGRES_HOST}" == *azure.com* ]]; then
+            HOST_SUFFIX="%40$(echo ${POSTGRES_HOST} | cut -f1 -d".")"
+        fi
         ! kubectl $KUBECTL_GLOBAL_ARGS create secret generic $ENV_VARS_SECRET \
                   --from-literal=CKAN_APP_INSTANCE_UUID=`python -c "import uuid;print(uuid.uuid1())"` \
                   --from-literal=CKAN_BEAKER_SESSION_SECRET=`python -c "import binascii,os;print(binascii.hexlify(os.urandom(25)))"` \
                   --from-literal=POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
-                  --from-literal=POSTGRES_USER=${POSTGRES_USER} \
+                  --from-literal=POSTGRES_USER=${POSTGRES_USER}${HOST_SUFFIX} \
                   --from-literal=POSTGRES_HOST=${POSTGRES_HOST} \
                   --from-literal=POSTGRES_DB_NAME=${POSTGRES_DB_NAME} \
                   --from-literal=DATASTORE_POSTGRES_PASSWORD=${DATASTORE_POSTGRES_PASSWORD} \
-                  --from-literal=DATASTORE_POSTGRES_USER=${DATASTORE_POSTGRES_USER} \
-                  --from-literal=DATASTORE_RO_USER=${DATASTORE_RO_USER} \
+                  --from-literal=DATASTORE_POSTGRES_USER=${DATASTORE_POSTGRES_USER}${HOST_SUFFIX} \
+                  --from-literal=DATASTORE_RO_USER=${DATASTORE_RO_USER}${HOST_SUFFIX} \
                   --from-literal=DATASTORE_RO_PASSWORD=${DATASTORE_RO_PASSWORD} \
                   --from-literal=SOLR_URL=${SOLR_URL} \
             && echo Failed to create ckan env vars secret && exit 1
@@ -82,13 +86,17 @@ elif [ "${1}" == "initialize-ckan-secrets" ]; then
         && exit 1
     if ! kubectl $KUBECTL_GLOBAL_ARGS get secret "${CKAN_SECRETS_SECRET}"; then
         echo Creating ckan secrets secret $CKAN_SECRETS_SECRET from env vars secret $ENV_VARS_SECRET
+        # Azuresql users are formated like <username@hostname>.
+        if [[ "${POSTGRES_HOST}" == *azure.com* ]]; then
+            HOST_SUFFIX="%40$(echo ${POSTGRES_HOST} | cut -f1 -d".")"
+        fi
         ! export_ckan_env_vars $ENV_VARS_SECRET && exit 1
         TEMPFILE=`mktemp`
         echo "export BEAKER_SESSION_SECRET=${CKAN_BEAKER_SESSION_SECRET}
 export APP_INSTANCE_UUID=${CKAN_APP_INSTANCE_UUID}
-export SQLALCHEMY_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}/${POSTGRES_DB_NAME:-ckan}
-export CKAN_DATASTORE_WRITE_URL=postgresql://${DATASTORE_POSTGRES_USER}:${DATASTORE_POSTGRES_PASSWORD}@${POSTGRES_HOST:-datastore-db}/${DATASTORE_POSTGRES_USER:-datastore}
-export CKAN_DATASTORE_READ_URL=postgresql://${DATASTORE_RO_USER}:${DATASTORE_RO_PASSWORD}@${POSTGRES_HOST:-datastore-db}/${DATASTORE_POSTGRES_USER:-datastore}
+export SQLALCHEMY_URL=postgresql://${POSTGRES_USER}${HOST_SUFFIX}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}/${POSTGRES_DB_NAME:-ckan}
+export CKAN_DATASTORE_WRITE_URL=postgresql://${DATASTORE_POSTGRES_USER}${HOST_SUFFIX}:${DATASTORE_POSTGRES_PASSWORD}@${POSTGRES_HOST:-datastore-db}/$(echo ${DATASTORE_POSTGRES_USER} | cut -f1 -d"%40"):-datastore}
+export CKAN_DATASTORE_READ_URL=postgresql://${DATASTORE_RO_USER}${HOST_SUFFIX}:${DATASTORE_RO_PASSWORD}@${POSTGRES_HOST:-datastore-db}/$(echo ${DATASTORE_POSTGRES_USER} | cut -f1 -d"%40"):-datastore}
 export SOLR_URL=${SOLR_URL}
 export CKAN_REDIS_URL=redis://redis:6379/1
 export CKAN_DATAPUSHER_URL=

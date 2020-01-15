@@ -1,0 +1,35 @@
+diff --git a/ckan/lib/search/__init__.py b/ckan/lib/search/__init__.py
+index dbc8ac12c..487a32118 100644
+--- a/ckan/lib/search/__init__.py
++++ b/ckan/lib/search/__init__.py
+@@ -5,7 +5,7 @@ import sys
+ import cgitb
+ import warnings
+ import xml.dom.minidom
+-import urllib2
++import requests
+ 
+ from paste.deploy.converters import asbool
+ 
+@@ -284,16 +284,14 @@ def check_solr_schema_version(schema_file=None):
+ 
+         url = solr_url.strip('/') + SOLR_SCHEMA_FILE_OFFSET
+ 
+-        req = urllib2.Request(url=url)
++        headers = {}
+         if http_auth:
+-            req.add_header('Authorization', http_auth)
+-
+-        res = urllib2.urlopen(req)
++            headers['Authorization'] = http_auth
++        res = requests.get(url, headers=headers).text
+     else:
+-        url = 'file://%s' % schema_file
+-        res = urllib2.urlopen(url)
++        res = open(schema_file).read()
+ 
+-    tree = xml.dom.minidom.parseString(res.read())
++    tree = xml.dom.minidom.parseString(res)
+ 
+     version = tree.documentElement.getAttribute('version')
+     if not len(version):

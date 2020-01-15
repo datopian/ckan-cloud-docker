@@ -1,0 +1,16 @@
+diff --git a/ckanext/datastore/backend/postgres.py b/ckanext/datastore/backend/postgres.py
+index 50f57d1c0..8444b38e6 100644
+--- a/ckanext/datastore/backend/postgres.py
++++ b/ckanext/datastore/backend/postgres.py
+@@ -1597,6 +1597,11 @@ class DatastorePostgresqlBackend(DatastoreBackend):
+         write_connection = self._get_write_engine().connect()
+         read_connection_user = sa_url.make_url(self.read_url).username
+
++        # MB - Try workaround for role name issues with Azure PG when using has_Table_privilege()
++        # https://stackoverflow.com/questions/49521984/cannot-connect-to-azure-postresql-username-should-be-in-usernamehostname-fo?rq=1
++        if "@" in read_connection_user:
++            read_connection_user = read_connection_user.split("@")[0]
++
+         drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
+
+         write_connection.execute(drop_foo_sql)

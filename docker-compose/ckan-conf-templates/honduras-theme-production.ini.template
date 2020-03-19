@@ -191,6 +191,7 @@ scheming.dataset_schemas = ckanext.honduras:dataset.json
 ## Dcat
 
 ckanext.dcat.translate_keys = false
+ckanext.dcat.rdf.profiles = euro_dcat_ap honduras_dcat_ap
 
 ## Pages
 

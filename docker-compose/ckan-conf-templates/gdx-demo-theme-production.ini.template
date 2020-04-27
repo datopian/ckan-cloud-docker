@@ -22,6 +22,17 @@ who.log_file = %(cache_dir)s/who_log.ini
 # Inactive by default, so the session doesn't expire.
 # who.timeout = 86400
 
+## External Storage Settings
+
+ckanext.external_storage.storage_service_url = https://nginx:8080
+
+## Auth service
+ckanext.authz_service.jwt_algorithm = RS256
+ckanext.authz_service.jwt_private_key_file = /etc/ssh/jwt-rs256.key
+ckanext.authz_service.jwt_public_key_file = /etc/ssh/jwt-rs256.key.pub
+ckanext.authz_service.jwt_include_user_email = true
+
+
 ## Database Settings
 sqlalchemy.url = {{SQLALCHEMY_URL}}
 
@@ -77,8 +88,7 @@ ckan.redis.url = {{CKAN_REDIS_URL}}
 
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore xloader
-    spatial_metadata spatial_query spatial_harvest_metadata_api
+ckan.plugins = stats text_view image_view recline_view datastore
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -175,9 +185,9 @@ ckanext.datajson.inventory_links_enabled = True
 ckanext.datajson.url_enabled = True
 
 ## Harvest settings
-ckan.harvest.mq.type = redis
-ckan.harvest.mq.hostname = redis
-ckan.harvest.mq.redis_db = 9
+#ckan.harvest.mq.type = redis
+#ckan.harvest.mq.hostname = redis
+#ckan.harvest.mq.redis_db = 9
 
 ## Logging configuration
 [loggers]

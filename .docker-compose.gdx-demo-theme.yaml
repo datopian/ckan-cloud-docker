@@ -12,20 +12,16 @@ services:
     - "5000:5000"
     build:
       args:
-        EXTRA_PACKAGES: supervisor cron
+        EXTRA_PACKAGES: cron
         EXTRA_FILESYSTEM: "./overrides/gdx-demo/filesystem/"
-        ROOT_INIT: |
-          mkdir -p /var/log/supervisor
-          chown ckan:ckan /var/log/supervisor
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r ckan/ckanext-spatial &&\
-          install_standard_ckan_extension_github -r ckan/ckanext-xloader 
+          install_standard_ckan_extension_github -r datopian/ckanext-authz-service &&\
+          install_standard_ckan_extension_github -r datopian/ckanext-external-storage
         POST_DOCKER_BUILD: |
           mkdir -p /var/tmp/ckan/dynamic_menu &&\
           mkdir -p /var/log/ckan/std/
         CKAN_INIT: |
           cp /var/lib/ckan/main.css /usr/lib/ckan/venv/src/ckan/ckan/public/base/css/main.min.css || true
-          service supervisor start #rev1
     environment:
     - CKAN_CONFIG_TEMPLATE_PREFIX=gdx-demo-theme-
   jobs:

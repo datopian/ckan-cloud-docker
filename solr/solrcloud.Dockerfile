@@ -2,7 +2,7 @@ FROM solr:6.6.2
 
 USER root
 
-RUN apt-get update && apt-get install -y sudo
+RUN apt-get update && apt-get install -y --force-yes sudo
 
 # add default ckan configset
 ADD solrconfig.xml \

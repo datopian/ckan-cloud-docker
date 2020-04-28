@@ -147,7 +147,7 @@ ckan.max_image_size = 5
 
 ## xloader settings
 
-ckanext.xloader.jobs_db.uri = postgresql://postgres:123456@jobs-db/postgres
+# ckanext.xloader.jobs_db.uri = postgresql://postgres:123456@jobs-db/postgres
 
 # Resource Proxy settings
 # Preview size limit, default: 1MB

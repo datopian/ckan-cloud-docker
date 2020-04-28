@@ -12,7 +12,7 @@ services:
     - "5000:5000"
     build:
       args:
-        EXTRA_PACKAGES: npm
+        EXTRA_PACKAGES: curl
         EXTRA_FILESYSTEM: "./overrides/gdx-demo/filesystem/"
         POST_INSTALL: |
           install_standard_ckan_extension_github -r datopian/ckanext-authz-service &&\
@@ -23,7 +23,9 @@ services:
         CKAN_INIT: |
           cp /var/lib/ckan/main.css /usr/lib/ckan/venv/src/ckan/ckan/public/base/css/main.min.css || true
         ROOT_INIT: |
-          npm install /usr/lib/ckan/venv/src/ckanext-external-storage && npm run build /home/zelima/datopian/cco/ckan-cloud-docker/.docker-compose.gdx-demo-theme.yaml
+          curl -sL https://deb.nodesource.com/setup_13.x | bash - && apt-get install nodejs && npm version &&\
+          cd /usr/lib/ckan/venv/src/ckanext-external-storage &&\
+          npm install && npm run build && cd -
     environment:
     - CKAN_CONFIG_TEMPLATE_PREFIX=gdx-demo-theme-
   jobs:

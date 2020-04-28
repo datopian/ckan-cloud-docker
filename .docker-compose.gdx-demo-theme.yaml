@@ -16,7 +16,7 @@ services:
         EXTRA_FILESYSTEM: "./overrides/gdx-demo/filesystem/"
         POST_INSTALL: |
           install_standard_ckan_extension_github -r datopian/ckanext-authz-service &&\
-          install_standard_ckan_extension_github -r datopian/ckanext-external-storage
+          install_standard_ckan_extension_github -r datopian/ckanext-external-storage -b implement-resource-upload-flow
         POST_DOCKER_BUILD: |
           mkdir -p /var/tmp/ckan/dynamic_menu &&\
           mkdir -p /var/log/ckan/std/

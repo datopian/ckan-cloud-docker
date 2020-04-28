@@ -88,7 +88,7 @@ ckan.redis.url = {{CKAN_REDIS_URL}}
 
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore
+ckan.plugins = stats text_view image_view recline_view datastore authz_service external_storage
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)

@@ -24,7 +24,7 @@ who.log_file = %(cache_dir)s/who_log.ini
 
 ## External Storage Settings
 
-ckanext.external_storage.storage_service_url = https://nginx:8080
+ckanext.external_storage.storage_service_url = http://giftless:5000
 
 ## Auth service
 ckanext.authz_service.jwt_algorithm = RS256

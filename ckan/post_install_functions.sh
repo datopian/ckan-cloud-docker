@@ -24,7 +24,7 @@ install_standard_ckan_extension_github() {
 #    echo "#### EGG: $EGG ####"
 
     TEMPFILE=`mktemp`
-    for REQUIREMENTS_FILE_NAME in requirements pip-requirements requirements.p2 
+    for REQUIREMENTS_FILE_NAME in requirements pip-requirements requirements.py2 
     do
       if wget -O $TEMPFILE https://raw.githubusercontent.com/${REPO_NAME}/$BRANCH/$REQUIREMENTS_FILE_NAME.txt
         then ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -r $TEMPFILE && break;

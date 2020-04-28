@@ -4,7 +4,6 @@ source $CKAN_K8S_SECRETS &&\
 rm -f $CKAN_CONFIG/*.ini &&\
 cp -f $CKAN_K8S_TEMPLATES/${CKAN_WHO_TEMPLATE_PREFIX}who.ini $CKAN_CONFIG/who.ini &&\
 bash /templater.sh $CKAN_K8S_TEMPLATES/${CKAN_CONFIG_TEMPLATE_PREFIX}production.ini.template > $CKAN_CONFIG/production.ini &&\
-echo ${CKAN_CONFIG_TEMPLATE_PREFIX} && echo "::::::::::::::::::::::::" && echo $CKAN_K8S_TEMPLATES && \
 echo 'production.ini:' && cat $CKAN_CONFIG/production.ini &&\
 bash /templater.sh $CKAN_K8S_TEMPLATES/${CKAN_INIT_TEMPLATE_PREFIX}ckan_init.sh.template > $CKAN_CONFIG/ckan_init.sh &&\
 echo 'ckan_init.sh:' && cat $CKAN_CONFIG/ckan_init.sh &&\

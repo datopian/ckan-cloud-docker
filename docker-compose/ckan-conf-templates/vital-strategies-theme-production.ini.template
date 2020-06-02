@@ -88,8 +88,6 @@ ckan.plugins = image_view
    geojson_view
    querytool
    stats
-   sentry
-   s3filestore
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -133,19 +131,6 @@ ckan.max_image_size = 5
 
 ## Datapusher URL
 ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
-
-## AWS S3 settings
-
-# ckanext.cloudstorage.driver = S3_US_EAST2
-# ckanext.cloudstorage.container_name = vital-strategies
-# ckanext.cloudstorage.driver_options = {"key": "{{AWS_ACCESS_KEY_ID}}", "secret": "{{AWS_SECRET_ACCESS_KEY}}"}
-ckanext.s3filestore.host_name = https://vital-strategies-ckan.s3.us-east-2.amazonaws.com
-ckanext.s3filestore.aws_storage_path = demo
-ckanext.s3filestore.aws_access_key_id = {{AWS_ACCESS_KEY_ID}}
-ckanext.s3filestore.aws_secret_access_key = {{AWS_SECRET_ACCESS_KEY}}
-ckanext.s3filestore.region_name = us-east-2
-ckanext.s3filestore.aws_bucket_name = vital-strategies-ckan
-ckanext.s3filestore.signature_version = s3v4
 
 ## Query Tool Settings
 
@@ -201,12 +186,6 @@ ckanext.datajson.url_enabled = False
 ckan.harvest.mq.type = redis
 ckan.harvest.mq.hostname = redis
 ckan.harvest.mq.redis_db = 9
-
-## Sentry settings
-sentry_dsn = {{SENTRY_DSN}}
-ckan.sentry.configure_logging = True
-ckan.sentry.log_level = ERROR
-
 
 ## Logging configuration
 [loggers]

@@ -10,7 +10,7 @@ ENV PIP_INDEX_URL=$PIP_INDEX_URL
 RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list \
     && apt-get -q -y update \
     && DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade \
-    && apt-get -q -y install \
+    && apt-get -q -y --force-yes install \
         python-dev \
         python-pip \
         python-virtualenv \
@@ -58,7 +58,7 @@ USER ckan
 ARG CKAN_BRANCH
 ARG CKAN_REPO
 
-RUN CKAN_BRANCH="${CKAN_BRANCH:-ckan-2.8.1}" && CKAN_REPO="${CKAN_REPO:-ckan/ckan}" &&\
+RUN CKAN_BRANCH="${CKAN_BRANCH:-ckan-2.7.3}" && CKAN_REPO="${CKAN_REPO:-ckan/ckan}" &&\
     mkdir -p $CKAN_VENV/src &&\
     wget --no-verbose -O $CKAN_VENV/src/${CKAN_BRANCH}.tar.gz https://github.com/${CKAN_REPO}/archive/${CKAN_BRANCH}.tar.gz &&\
     cd $CKAN_VENV/src && tar -xzf ${CKAN_BRANCH}.tar.gz && mv ckan-${CKAN_BRANCH} ckan &&\

@@ -37,6 +37,8 @@ services:
     build:
       context: nginx
     restart: always
+    ports:
+    - "8080:8080"
     expose:
     - "8080"
     networks:
@@ -98,7 +100,7 @@ services:
     build:
       context: ckan
       args:
-        CKAN_BRANCH: ${CKAN_BRANCH:-ckan-2.8.1}
+        CKAN_BRANCH: ${CKAN_BRANCH:-ckan-2.7.3}
         CKAN_REPO: ${CKAN_REPO:-ckan/ckan}
     restart: always
     volumes:

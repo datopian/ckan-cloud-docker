@@ -27,8 +27,6 @@ services:
         POST_INSTALL: |
           install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.5 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
-          install_standard_ckan_extension_github -r okfn/ckanext-sentry && \
-          install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b fix-null-content-type && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l en -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l es -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l fr -f && \
@@ -44,7 +42,6 @@ services:
       args:
         CKAN_BRANCH: ckan-2.7.3
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore &&\
           install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview
     environment:

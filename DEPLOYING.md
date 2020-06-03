@@ -1,62 +1,351 @@
-# Deployment
+# Deployment on Windows Server 2008 R2 SP1
 
-This is a step by step guide covering all the necessary steps to deploy CKAN using custom template on a new machine.
+This is a step by step guide covering all the necessary steps to deploy CKAN using custom Vital Strategies Philippines template on Windows Server 2008 R2 SP1 machine.
 
-The guide will try to cover all Linux-based operating systems, but some commands might be specific to Ubuntu and its derivatives. However, links containing further information were added in order to simplify the installation process on other operating systems as well.
+The guide will try to cover all Windows based prerequisites and installation of needed software, but also will cover installation of Ubuntu 18.04 LTS in VirtualBox virtual machine. After that we will install CCD with Vital Strategies Philippines template and do the final setting and customization.
 
 ## Installation
 
-### Dependencies
+### Hardware and software prerequisites
 
-* A GNU/Linux operating system with good internet connectivity.  
-* Unrestricted access to external domains, such as **[GitHub](https://github.com/)**, **[DockerHub](https://hub.docker.com/)**, etc.
-* git, docker-engine (docker) and docker-compose
+* Any computer with multicore CPU with basic virtualization capabilities
+* 8GB RAM (more is desirable)
+* Windows Server 2008 R2 SP1 64-bit installed
+* At least 30 GB of hardrive free space for initial installation of VirtualBox, Ubuntu 18.04 inside VM and CCD with Vital Strategies template.
 
-First we need to install **[git](https://help.github.com/en/articles/set-up-git)** and **[docker-compose](https://docs.docker.com/compose/install/)** \(*docker-compose* should already have *docker* as dependency. If this is not the case follow the **[official documentation on installing docker](https://docs.docker.com/v17.12/install/)**\):
+---
+---
 
+Installation of CCD Vital Strategies Philippines on Ubuntu 18.04 LTS inside Virtual Box VM
+===
+
+### Steps
+
+1. VirtualBox installation
+2. Creating and setting up Vurtual Machine for Ubuntu 18.04 LTS installation
+3. Ubuntu 18.04 LTS inside VM installation
+4. Additional settings for Ubuntu in VM
+5. CCD Vital Strategies installation
+6. Exposing CKAN Vital Strategies to outside World
+
+## 1. VirtualBox installation
+
+#### 1 - Download VirtualBox installer for Windows
+
+The installer can be found on its download page here https://www.virtualbox.org/wiki/Downloads
+
+Go to the page above and download the binary version for Windows hosts
+
+#### 2 - Run the installer and follow the instructions
+
+![](https://i.imgur.com/47Qk8zV.png)
+
+#### 3 – Custom setup dialog box
+
+You will see custom setup dialog box. There is not much to choose from. You can accept the default and click next.
+If you wish to change the installation directory, you van change it by clicking on the browse button and selecting the new directory and clicking OK. Normally I leave it as the default as the whole installation process does not take much space on your hard drive.
+
+![](https://i.imgur.com/eJfBrNG.png)
+
+VirtualBox Installation – Custom setup dialog box screenshot
+
+#### 4 – Custom setup dialog box – Feature to install
+
+In this dialog box you can choose which features to install. As you can see, there is not much to choose. You can accept the default and click next. You can uncheck Create a shortcut in the quick launch bar and register file association.
+
+![](https://i.imgur.com/R7aIe7b.png)
+
+VirtualBox Installation – Custom Setup – Select feature to Install
+
+#### 5 – Network Interface setup
+
+This dialog box warns you about setting up a Network Interface. what this means that VirtualBox will install network interfaces that will interact with the installed virtual machines and the host operating system which in our case is windows. This will temporarily disconnect you from the internet but that OK, nothing to worry.
+
+![](https://i.imgur.com/NhpgPPG.png)
+
+VirtualBox Installation – Network Interface warning
+
+#### 6 – Ready to Install
+
+You will see ready to install dialog box.
+
+![](https://i.imgur.com/WGvTus0.png)
+
+VirtualBox Installation – Ready to Install
+
+#### 7 – Installation begins
+
+After clicking install, you will mostly probably see User access control confirmation dialog box from Windows OS. This is a security feature in Windows that wants to confirm if the application should be allowed to proceed with the installation process. Click Yes to continue and you will see that the installation process will begin. Wait for the installation to complete.
+
+If you see Windows User Account Control Warning, click yes to accept and continue.
+
+![](https://i.imgur.com/YWG81Qn.png)
+
+VirtualBox Installation in Progress
+
+#### 8 – Installation Completes
+
+After the installation completes, you will see installation completion dialog box. Click finish. If you leave Start Oracle VM VirtualBox after installation checked, VirtualBox will launch automatically. If you uncheck it, you will have to launch Virtualbox manually. Its not big deal anyways. Click finish to exit installation.
+
+![](https://i.imgur.com/IYbdSmO.png)
+
+VirtualBox Installation complete
+
+---
+---
+
+## 2. Creating Vurtual Machine for Ubuntu 18.04 LTS installation
+
+* Start VirtualBox
+* Click on the `New` icon to create a new machine
+* Give the name of your new VM
+* Choose `Type` Linux
+* Choose `Version` Ubuntu(64-bit)
+
+![](https://i.imgur.com/JnZT6A0.png)
+
+* Click on `Next`
+* Increase memory size to the half of vailable memory (green is safe)
+
+![](https://i.imgur.com/Tv3C4Zl.png)
+
+* Click on `Next`
+* Choose `Create a virtual hard disk now`
+
+![](https://i.imgur.com/1JK4CCr.png)
+
+* Click on `Create`
+* Choose `VDI (VirtualBox Disk Image)`
+
+![](https://i.imgur.com/dZZKq1Y.png)
+
+* Click on `Next`
+* Choose `Dynamically allocated`
+
+![](https://i.imgur.com/pXwJeYP.png)
+
+* Click on `Next`
+
+![](https://i.imgur.com/lZKJaeu.png)
+
+* In VirtualBox select your newly created VM and click on `Settings`
+* In `System/Processor` tab, increase the number of CPUs to one half of available CPUs.
+* Check `Enable PAE/NX`
+
+![](https://i.imgur.com/rRDTAsf.png)
+
+Your VM for Ubuntu installation is created and setup.
+
+---
+---
+
+## 3. Ubuntu 18.04 LTS inside VM installation
+
+* Download Ubuntu 18.04 LTS installation `.iso` file from http://releases.ubuntu.com/18.04.4/ubuntu-18.04.4-desktop-amd64.iso
+* In VirtualBox select your VM and click on `Start` icon
+
+![](https://i.imgur.com/G0URd9t.png)
+
+* Click on the folder icon and from your file explorer select the Ubuntu 18.04 iso file which you downloaded earlier. Once that is done and you can click on `Start` to begin the installation process.
+
+![](https://i.imgur.com/YnfXjh8.png)
+
+* Click on `Continue`
+* In the next screen, you’ll be provided following beneath options including:
+    * Type of Installation: choose `Normal installation`
+    * Check `Download Updates While Installing Ubuntu` (select this option if your system has internet connectivity during installation)
+    * Check `Install third party software for graphics and Wi-Fi hardware, MP3 and additional media formats`  (select this option if your system has internet connectivity)
+
+
+![](https://i.imgur.com/TtKp68Y.png)
+
+* Click on `Continue`
+
+![](https://i.imgur.com/V4Iw9LD.png)
+
+* Now choose `Erase disk and install Ubuntu` and click on `Continue`
+
+![](https://i.imgur.com/5o60CRl.png)
+
+* When you get warning message click on `Continue`
+* A pop-up window will inform you what kind of changes it will make to your disk. Click on `Continue` to agree to the changes and erase any existing software on your drive.
+* Next, it will ask you for your location (time zone). Select the appropriate one and press `Continue`.
+
+![](https://i.imgur.com/g9pL3sX.png)
+
+* Choose your `User name`, `Password` and `log in` option.
+* Click on `Continue` to begin installation
+
+![](https://i.imgur.com/86zeDT9.png)
+
+* ... and wait to finish. When finished you will be asked to restart computer (in this case Ubuntu VM)
+
+![](https://i.imgur.com/IaOvbnD.png)
+
+* Click on `Restart Now`
+
+---
+---
+
+## 4. Additional settings for Ubuntu in VM
+
+#### 1. Git installation
+
+Open `Terminal` app, than run following command:
 ```
-sudo apt-get update
-sudo apt-get install git docker-compose build-essential
-```
-
-Then start and enable the docker service and verify operation
-
-```
-sudo systemctl start docker
-sudo systemctl enable docker
-sudo docker info
-```
-
-__Note:__ In case you need to use your local county mirrors as pip registry please set pip index URL:
-
-```
-export PIP_INDEX_URL=<<https://local-mirror-url.xy>>
+sudo apt update
+sudo apt install git
 ```
 
 
-#### Extra dependencies
+#### 2. `docker-compose` installation
 
-- You will also need a SMTP server and its credentials for CKAN to work properly. This will not obstacle deployment, CKAN will be up and running, but won't be able to send emails (e.g. on password reset). You will be asked to provide SMTP server credentials while running `make secret` script, see below.
-
-### Source files and configuration
-
-Now we have the runtime, next we need to download the cluster configuration files and build the services.
-
-Navigate to where you want the source files to live on your server (e.g. `/opt`) and clone the repository:
-
+Open `Terminal` app, than run following command:
 ```
-cd /opt
-git clone https://github.com/ViderumGlobal/ckan-cloud-docker.git
+sudo apt update
+sudo apt install docker-compose
+```
+
+---
+---
+
+## 5. CCD Vital Strategies installation
+
+1. Clone repository from https://github.com/datopian/ckan-cloud-docker
+```
+git clone https://github.com/datopian/ckan-cloud-docker
+```
+
+2. Change directory to `/ckan-cloud-docker` to enter the cloned folder.
+```
 cd ckan-cloud-docker
 ```
 
-#### Environment variables
-To create or update files with secrets and env vars run and follow all steps:
+3. Change branch to `ccd-windows-philippines`
 ```
-make secret
+git checkout ccd-windows-philippines
 ```
 
-#### Traefik proxy service
+4. Run
+```
+python create_secrets.py
+```
+
+Hit `Enter` on every question.
+
+5. Run
+```
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml up -d --build nginx
+```
+
+and wait setup to finish
+
+6. Run
+```
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml down
+``` 
+
+and wait to finish.
+
+7. In the folowing files change `CKAN_BRANCH:-ckan-2.7.3` to `CKAN_BRANCH:-ckan-2.8.1`:
+  * **`docker-compose.yaml`** - line #103
+  * **`.docker-compose.vital-strategies-philippines-theme.yaml`** - lines #24 and #43
+  * **`ckan/Dockerfile`** - line #61
+
+8. Run
+```
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml up -d --build nginx
+```
+
+again and wait to finish and get prompt in terminal.
+
+10. Setup should be finished successfully. You can check logs
+```
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml logs -f
+```
+
+and if there is no errors CKAN instance is installed. To exit logs press `CTRL+C`
+
+11. Now we should create sysadmin user
+```
+docker-compose exec ckan ckan-paster --plugin=ckan sysadmin add -c /etc/ckan/production.ini admin password=12345678 email=admin@localhost
+```
+
+Now we can access our CKAN server by visiting `localhost:8080` in browser inside Ubuntu VM.
+Login to CKAN at http://localhost:8080 with username `admin` and password `12345678`.
+You should be able to see
+
+![](https://i.imgur.com/PSizKmS.png)
+
+---
+---
+
+## 6. Exposing CKAN Vital Strategies to outside World
+
+Now, it's time to make our CKAN instance to be visible from host Windows Server 2008.
+There are two ways for doing this:
+1. using port forwarding
+2. using `bridge adapter` in network configuration
+
+### 1. Port forwarding method
+
+In Ubuntu VM settings go to network section and for the first adapter
+
+![](https://i.imgur.com/R88FkM1.png)
+
+click on `Advanced` than `Port Forwarding`, and add new rule (here `Rule 1`).
+
+![](https://i.imgur.com/z3ERRzF.png)
+
+In VirtualBox go to `File --> Host Network Manager`
+
+![](https://i.imgur.com/ZRJBMsw.png)
+
+Here we should noticed that ip address of our Ubuntu VM in this case is `192.168.56.1`.
+**Now we can access our CKAN server from host Windows Server 2008 by visiting `192.168.56.1:8080`**
+
+### 2. Using `bridge adapter` method
+
+Stop your CKAN server and turn off Ubuntu and VM.
+Go to your Ubuntu VM settings and select `Network`
+
+![](https://i.imgur.com/vL1qEYm.png)
+
+Instead of `NAT`, choose `Bridge Adapter` and click on `OK`.
+
+Start your Ubuntu VM again and open Terminal app.
+Type
+```
+sudo apt install net-tools
+```
+
+After setup finishes type
+```
+ifconfig | grep inet
+```
+
+You should see somethin similar to this:
+
+![](https://i.imgur.com/TT3ndrf.png)
+
+The IP address of your Ubuntu in VM is from the domain of your local network - in this case `192.168.1.103`
+
+Now you can access your CKAN instance from host Windows Server 2008 by visiting `192.168.1.103:8080`
+
+---
+---
+
+### Exposing CKAN instance outside Windows Server 2008
+
+For that, we only need to create `inbound` rule in Windows Firewall for port `8080` to allow access through that port.
+
+---
+---
+---
+
+# Additional settings, customizations and debugging
+
+## Traefik proxy service
 
 Traefik is the entry point from the outside world. It binds to the default HTTP (80) and HTTPS (443) ports and handles requests by forwarding them to the appropriate services within the stack. In our case, it will point to Nginx serving the CKAN web app.
 
@@ -123,6 +412,8 @@ This should be enough for the basic installation. In case you need to tweak vers
 
 
 ## Running
+
+**`instance-id`** in our case is `vital-strategies-philippines`
 
 **To run the instance:**
 
@@ -278,3 +569,4 @@ ckanext.s3filestore.signature_version = signature (s3v4)
 ```
 
 In order to disable extension you can simple remove it from the list of plugins. You will probably also want to remove it from `POST_INSTALL` part to avoid redundant installs, although this is not must.
+

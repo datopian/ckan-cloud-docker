@@ -16,7 +16,7 @@ The guide will try to cover all Windows based prerequisites and installation of 
 * At least 30 GB of hardrive free space for initial installation of VirtualBox, Ubuntu 18.04 inside VM and CCD with Vital Strategies template.
 
 
-## Installation of CCD Vital Strategies Philippines on Ubuntu 18.04 LTS inside Virtual Box VM
+## Installation guide of CKAN instance for Philipines project on Ubuntu 18.04 LTS inside Virtual Box VM
 
 ### VirtualBox installation
 
@@ -32,8 +32,7 @@ Go to the page above and download the binary version for Windows hosts
 
 #### Custom setup dialog box
 
-You will see custom setup dialog box. There is not much to choose from. You can accept the default and click next.
-If you wish to change the installation directory, you van change it by clicking on the browse button and selecting the new directory and clicking OK. Normally I leave it as the default as the whole installation process does not take much space on your hard drive.
+You will see custom setup dialog box. There is not much to choose from. You should accept the defaults and click next.
 
 ![](https://i.imgur.com/eJfBrNG.png)
 
@@ -41,11 +40,11 @@ VirtualBox Installation – Custom setup dialog box screenshot
 
 #### Custom setup dialog box – Feature to install
 
-In this dialog box you can choose which features to install. As you can see, there is not much to choose. You can accept the default and click next. You can uncheck Create a shortcut in the quick launch bar and register file association.
+In this dialog box you can choose which features to install. You can accept the defaults and click next.
 
 ![](https://i.imgur.com/R7aIe7b.png)
 
-VirtualBox Installation – Custom Setup – Select feature to Install
+VirtualBox Installation – Custom Setup – Select feature to Install - screenshot
 
 #### Network Interface setup
 
@@ -53,7 +52,7 @@ This dialog box warns you about setting up a Network Interface. what this means 
 
 ![](https://i.imgur.com/NhpgPPG.png)
 
-VirtualBox Installation – Network Interface warning
+VirtualBox Installation – Network Interface warning - screenshot
 
 #### Ready to Install
 
@@ -71,11 +70,11 @@ If you see Windows User Account Control Warning, click yes to accept and continu
 
 ![](https://i.imgur.com/YWG81Qn.png)
 
-VirtualBox Installation in Progress
+VirtualBox Installation in Progress - screenshot
 
 #### Installation Completes
 
-After the installation completes, you will see installation completion dialog box. Click finish. If you leave Start Oracle VM VirtualBox after installation checked, VirtualBox will launch automatically. If you uncheck it, you will have to launch Virtualbox manually. Its not big deal anyways. Click finish to exit installation.
+After the installation completes, you will see installation completion dialog box. Check `Start Oracle VM VirtualBox after installation` and click on `Finish` button. 
 
 ![](https://i.imgur.com/IYbdSmO.png)
 
@@ -186,11 +185,11 @@ sudo apt update
 sudo apt install docker-compose
 ```
 
-### CCD Vital Strategies installation
+### CKAN installation for Vital Strategies Philippines project
 
 1. Clone repository from https://github.com/datopian/ckan-cloud-docker
 ```
-git clone https://github.com/datopian/ckan-cloud-docker
+git clone -b cd-windows-philippines https://github.com/datopian/ckan-cloud-docker
 ```
 
 2. Change directory to `/ckan-cloud-docker` to enter the cloned folder.
@@ -198,26 +197,21 @@ git clone https://github.com/datopian/ckan-cloud-docker
 cd ckan-cloud-docker
 ```
 
-3. Change branch to `ccd-windows-philippines`
-```
-git checkout ccd-windows-philippines
-```
-
-4. Run
+3. To create secrets run
 ```
 python create_secrets.py
 ```
 
 Hit `Enter` on every question except for `CKAN_SITE_URL` - here add `http://localhost:8080`
 
-5. Run
+5. Build the image and start the application
 ```
 docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml up -d --build nginx
 ```
 
-and wait setup to finish
+When finished you will get the prompt in your Terminal window.
 
-6. Setup should be finished successfully. You can check logs
+6. Setup should be finished successfully. You can check logs with
 ```
 docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml logs -f
 ```
@@ -229,7 +223,7 @@ and when you see that CKAN is in the running state you can proceed.
 docker-compose exec ckan ckan-paster --plugin=ckan sysadmin add -c /etc/ckan/production.ini admin password=12345678 email=admin@localhost
 ```
 
-8. Now we can access our CKAN server by visiting `localhost:8080` in browser inside Ubuntu VM.
+8. At this moment we can access our CKAN server by visiting `localhost:8080` in browser inside Ubuntu VM.
 Login to CKAN at http://localhost:8080 with username `admin` and password `12345678`.
 You should be able to see
 
@@ -237,12 +231,12 @@ You should be able to see
 
 10. To close logs you should press `CTRL+C`
 
-11. To stop our CKAN server you should run
+11. To stop your CKAN server you should run
 ```
 docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml down
 ```
 
-## Exposing CKAN Vital Strategies to outside World
+## Expose CKAN to outside World
 
 Now, it's time to make our CKAN instance to be visible from host Windows Server 2008.
 
@@ -264,7 +258,7 @@ After setup finishes type
 ifconfig | grep inet
 ```
 
-You should see somethin similar to this:
+You should see something similar to this:
 
 ![](https://i.imgur.com/TT3ndrf.png)
 

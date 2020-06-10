@@ -10,7 +10,7 @@ ENV PIP_INDEX_URL=$PIP_INDEX_URL
 RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list \
     && apt-get -q -y update \
     && DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade \
-    && apt-get -q -y install \
+    && apt-get -q -y --force-yes install \
         python-dev \
         python-pip \
         python-virtualenv \

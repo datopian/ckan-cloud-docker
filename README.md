@@ -35,7 +35,7 @@ Run and follow all steps:
 (optional) Clear any existing compose environment to ensure a fresh start
 
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml down -v
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml down -v
 ```
 
 Pull the latest images
@@ -47,7 +47,7 @@ docker-compose pull
 Start the Docker compose environment
 
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml up -d nginx
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml up -d nginx
 ```
 
 Add a hosts entry mapping domain `nginx` to `127.0.0.1`:
@@ -85,7 +85,7 @@ Edit any file in this repository
 (Optional) depending on the changes you made, you might need to destroy the current environment
 
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml down -v
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml down -v
 ```
 
 (if you want to keep your volumes, for example if you populated the database with data you want
@@ -100,7 +100,7 @@ docker-compose build | grep "Successfully tagged"
 Start the environment
 
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml up -d nginx
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml up -d nginx
 ```
 
 
@@ -130,9 +130,7 @@ services:
         # install extensions / dependencies
         POST_INSTALL: |
           install_standard_ckan_extension_github -r ckan/ckanext-spatial &&\
-          install_standard_ckan_extension_github -r ckan/ckanext-harvest &&\
-          install_standard_ckan_extension_github -r GSA/ckanext-geodatagov &&\
-          install_standard_ckan_extension_github -r GSA/ckanext-datagovtheme
+          install_standard_ckan_extension_github -r ckan/ckanext-harvest
         # other initialization
         POST_DOCKER_BUILD: |
           mkdir -p /var/tmp/ckan/dynamic_menu
@@ -146,9 +144,7 @@ services:
         # install extensions / dependencies
         POST_INSTALL: |
           install_standard_ckan_extension_github -r ckan/ckanext-spatial &&\
-          install_standard_ckan_extension_github -r ckan/ckanext-harvest &&\
-          install_standard_ckan_extension_github -r GSA/ckanext-geodatagov &&\
-          install_standard_ckan_extension_github -r GSA/ckanext-datagovtheme
+          install_standard_ckan_extension_github -r ckan/ckanext-harvest
         # other initialization
         POST_DOCKER_BUILD: |
           mkdir -p /var/tmp/ckan/dynamic_menu
@@ -165,10 +161,10 @@ docker-compose -f docker-compose.yaml -f .docker-compose.my-ckan.yaml up -d --bu
 
 You can persist the modified configurations in Git for reference and documentation.
 
-For example, to start the datagov-theme configuration:
+For example, to start the panama-theme configuration:
 
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml up -d --build nginx
+docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.panama-theme.yaml up -d --build nginx
 ```
 
 ## External database server

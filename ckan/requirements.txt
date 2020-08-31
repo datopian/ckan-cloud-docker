@@ -1,5 +1,0 @@
-gunicorn
-ckanext-xloader
-messytables
-pdftables
-Unidecode

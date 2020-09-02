@@ -2,7 +2,17 @@
 
 [![Build Status](https://travis-ci.org/ViderumGlobal/ckan-cloud-docker.svg?branch=master)](https://travis-ci.org/ViderumGlobal/ckan-cloud-docker)
 
-Contains Docker imgages for the different components of CKAN Cloud and a Docker compose environment for development and testing.
+Contains Docker images for the different components of CKAN Cloud and a Docker compose environment for development and testing. 
+
+All the projects have their own dedicated branches.
+
+Available projects:
+
+* [Datagov](https://github.com/datopian/ckan-cloud-docker/tree/ccd-datagov)
+* [Panama](https://github.com/datopian/ckan-cloud-docker/tree/ccd-panama)
+* [Honduras](https://github.com/datopian/ckan-cloud-docker/tree/ccd-honduras)
+* [Vital Strategies](https://github.com/datopian/ckan-cloud-docker/tree/ccd-vital-strategies)
+* [Vital Strategies Philippines](https://github.com/datopian/ckan-cloud-docker/tree/ccd-windows-philippines)
 
 Available components:
 
@@ -33,6 +43,10 @@ Run and follow all steps:
 ## Running a CKAN instance using the docker-compose environment
 
 (optional) Clear any existing compose environment to ensure a fresh start
+
+We have used `datagov` as a general example over here you. 
+You can replace `.docker-compose.datagov-theme.yaml` with yaml file of the theme you
+are working on.
 
 ```
 docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml down -v

@@ -1,4 +1,4 @@
-FROM keitaro/base:0.4
+FROM viderum/base:0.4
 
 MAINTAINER Keitaro Inc <info@keitaro.info>
 

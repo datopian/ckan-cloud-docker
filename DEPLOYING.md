@@ -189,7 +189,7 @@ sudo apt install docker-compose
 
 1. Clone repository from https://github.com/datopian/ckan-cloud-docker
 ```
-git clone -b cd-windows-philippines https://github.com/datopian/ckan-cloud-docker
+git clone -b ccd-windows-philippines https://github.com/datopian/ckan-cloud-docker
 ```
 
 2. Change directory to `/ckan-cloud-docker` to enter the cloned folder.

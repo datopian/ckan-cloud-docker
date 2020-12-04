@@ -156,10 +156,10 @@ ckanext.querytool.allow_nav_bar = True
 
 ## Google Analytics
 
-googleanalytics.id = {{GA_ID}}
-googleanalytics.account = {{GA_ACCOUNT}}
-googleanalytics.username = {{GA_USERNAME}}
-googleanalytics.password = {{GA_PASSWORD}}
+ckanext.googleanalytics.id = {{GA_ID}}
+ckanext.googleanalytics.account = {{GA_ACCOUNT}}
+ckanext.googleanalytics.username = {{GA_USERNAME}}
+ckanext.googleanalytics.password = {{GA_PASSWORD}}
 
 ## Language settings
 

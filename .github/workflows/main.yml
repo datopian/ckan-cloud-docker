@@ -1,0 +1,33 @@
+name: Continuous Deployment
+on: [push]
+jobs:
+  CICD:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.1
+    - name: Setup env variables
+      uses: FranzDiebold/github-env-vars-action@v2
+    - name: Install and init 
+      run: |
+        mkdir -p $HOME/bin/
+        mv travis_ci_operator.sh $HOME/bin/travis_ci_operator.sh
+        sudo bash $HOME/bin/travis_ci_operator.sh init
+        sudo bash .travis.sh install
+    - name: Run the script
+      run: |
+        sudo bash .travis.sh script
+    - name: Deploy
+      env:
+        TRAVIS_REPO_SLUG: datopian/ckan-cloud-helm
+        TRAVIS_BRANCH: ${{ env.CI_ACTION_REF_NAME }}
+        TRAVIS_TAG: ${{ env.CI_ACTION_REF_NAME }}
+      run: |
+        mkdir -p ~/.ssh/
+        git config --global user.email "travis-ci-operator@null"
+        git config --global user.name "travis-ci-operator"
+        cp .travis-ci-operator.yaml $HOME/bin/.travis-ci-operator.yaml
+        bash .travis.sh deploy

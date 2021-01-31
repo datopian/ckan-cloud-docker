@@ -206,21 +206,21 @@ Hit `Enter` on every question except for `CKAN_SITE_URL` - here add `http://loca
 
 5. Build the image and start the application
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml up -d --build nginx
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml up -d --build nginx
 ```
 
 When finished you will get the prompt in your Terminal window.
 
 6. Setup should be finished successfully. You can check logs with
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml logs -f
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml logs -f
 ```
 
 and when you see that CKAN is in the running state you can proceed.
 
 7. Now we should create sysadmin user. Open another Terminal window and run following command twice. First run will create user `admin` with password `12345678`. The second run will promote `admin` to sysadmin user.
 ```
-docker-compose exec ckan ckan-paster --plugin=ckan sysadmin add -c /etc/ckan/production.ini admin password=12345678 email=admin@localhost
+sudo docker-compose exec ckan ckan-paster --plugin=ckan sysadmin add -c /etc/ckan/production.ini admin password=12345678 email=admin@localhost
 ```
 
 8. At this moment we can access our CKAN server by visiting `localhost:8080` in browser inside Ubuntu VM.
@@ -233,7 +233,7 @@ You should be able to see
 
 11. To stop your CKAN server you should run
 ```
-docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml down
+sudo docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.vital-strategies-philippines-theme.yaml down
 ```
 
 ## Expose CKAN to outside World

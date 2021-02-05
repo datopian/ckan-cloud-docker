@@ -85,6 +85,8 @@ services:
   datapusher:
     build:
       context: datapusher/
+      args:
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple/}
     expose:
       - "8800"
     networks:
@@ -100,6 +102,7 @@ services:
       args:
         CKAN_BRANCH: ${CKAN_BRANCH:-ckan-2.8.1}
         CKAN_REPO: ${CKAN_REPO:-ckan/ckan}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple/}
     restart: always
     volumes:
     - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets.sh

@@ -90,6 +90,7 @@ ckan.plugins = image_view
    stats
    sentry
    s3filestore
+   googleanalytics
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -153,6 +154,13 @@ ckanext.querytool.groups = mortality:Mortality,riskfactors:Risk Factors,birth:Bi
 ckanext.querytool.map_osm_url = https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png
 ckanext.querytool.map_osm_attribute = &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>
 ckanext.querytool.allow_nav_bar = True
+
+## Google Analytics
+
+ckanext.googleanalytics.id = {{GA_ID}}
+ckanext.googleanalytics.account = {{GA_ACCOUNT}}
+ckanext.googleanalytics.username = {{GA_USERNAME}}
+ckanext.googleanalytics.password = {{GA_PASSWORD}}
 
 ## Language settings
 

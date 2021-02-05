@@ -25,9 +25,10 @@ services:
         EXTRA_PACKAGES: cron
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.5 &&\
+          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.8.0.3 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
           install_standard_ckan_extension_github -r okfn/ckanext-sentry && \
+          install_standard_ckan_extension_github -r ckan/ckanext-googleanalytics -b v2.0.2 && \
           install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b fix-null-content-type && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l en -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l es -f && \

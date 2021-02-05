@@ -11,6 +11,8 @@ WORKDIR ${APP_DIR}
 
 
 ARG APK_REPOSITORY
+ARG PIP_INDEX_URL
+ENV PIP_INDEX_URL=$PIP_INDEX_URL
 
 RUN apk add --no-cache python \
     py-pip \

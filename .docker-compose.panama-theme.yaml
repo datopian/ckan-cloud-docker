@@ -41,7 +41,7 @@ services:
           install_standard_ckan_extension_github -r ckan/ckanext-fluent &&\
           install_standard_ckan_extension_github -r ckan/ckanext-scheming &&\
           install_standard_ckan_extension_github -r keitaroinc/ckanext-showcase -b 26-fixes &&\
-          install_standard_ckan_extension_github -r NaturalHistoryMuseum/ckanext-contact &&\
+          install_standard_ckan_extension_github -r datopian/ckanext-contact -b v1.0.1a &&\
           install_standard_ckan_extension_github -r okfn/ckanext-spatial &&\
           install_standard_ckan_extension_github -r ckan/ckanext-pages &&\
           install_standard_ckan_extension_github -r okfn/ckanext-sentry &&\

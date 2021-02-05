@@ -1,5 +1,8 @@
 FROM jenkins/jenkins:lts
 
+ARG PIP_INDEX_URL
+ENV PIP_INDEX_URL=$PIP_INDEX_URL
+
 RUN /usr/local/bin/install-plugins.sh \
         build-timeout envfile copyartifact extensible-choice-parameter fail-the-build file-operations \
         filesystem-list-parameter fstrigger generic-webhook-trigger git-parameter github-branch-source \

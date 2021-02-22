@@ -32,7 +32,8 @@ RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://ar
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
 
-
+# Pip dropped support of python 2.7. We need older version
+RUN ckan-pip install --upgrade "pip < 21.0"
 # Define environment variables
 ENV CKAN_HOME /usr/lib/ckan
 ENV CKAN_VENV $CKAN_HOME/venv

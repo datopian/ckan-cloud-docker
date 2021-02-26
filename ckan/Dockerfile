@@ -48,6 +48,9 @@ RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH $CKAN_LOGS_PATH && \
     virtualenv $CKAN_VENV && \
     ln -s $CKAN_VENV/bin/pip /usr/local/bin/ckan-pip &&\
     ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster
+    
+# Pip dropped support of python 2.7. We need older version
+RUN ckan-pip install --upgrade "pip < 21.0"
 
 # Setup CKAN
 RUN ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -U pip &&\

@@ -1,0 +1,54 @@
+version: '3.2'
+
+services:
+
+  proxy:
+    ports:
+      - "80:80"
+      - "443:443"
+
+  nginx:
+    depends_on:
+      - proxy
+      - varnish
+
+  ckan:
+    depends_on:
+      - datapusher
+    links:
+      - datapusher
+    image: viderum/ckan-cloud-docker:ckan-ncs-theme
+    build:
+      context: ckan
+      args:
+        CKAN_BRANCH: ckan-2.8.2
+        EXTRA_PACKAGES: cron
+        POST_INSTALL: |
+          install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
+          install_standard_ckan_extension_github -r okfn/ckanext-sentry
+    environment:
+      - CKAN_CONFIG_TEMPLATE_PREFIX=ncs-theme-
+
+  jobs:
+    image: viderum/ckan-cloud-docker:ckan-latest-ncs-theme
+    build:
+      context: ckan
+      args:
+        CKAN_BRANCH: ckan-2.8.2
+        POST_INSTALL: |
+          install_standard_ckan_extension_github -r ckan/ckanext-geoview
+    environment:
+      - CKAN_CONFIG_TEMPLATE_PREFIX=ncs-theme-
+
+  db:
+    image: mdillon/postgis
+    build:
+      args:
+        DB_INIT: |
+          psql --dbname="ckan" -c "CREATE EXTENSION IF NOT EXISTS postgis;                  \
+                                   CREATE EXTENSION IF NOT EXISTS postgis_topology;         \
+                                   CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;            \
+                                   CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;"
+
+  datapusher:
+    container_name: datapusher

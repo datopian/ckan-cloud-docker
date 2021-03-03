@@ -18,7 +18,7 @@ fi
 
 if [ "$*" == "" ]; then
     echo running ckan-paster db init &&\
-    ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/production.ini" &&\
+    ckan --config="${CKAN_CONFIG}/production.ini" db init &&\
     echo db initialization complete
     [ "$?" != "0" ] && echo ERROR: DB Initialization failed && exit 1
 
@@ -30,8 +30,9 @@ if [ "$*" == "" ]; then
     [ "$?" != "0" ] && echo ERROR: CKAN extra initialization failed && exit 1
 
     echo '--START_CKAN_CLOUD_LOG--{"event":"ckan-entrypoint-extra-init-success"}--END_CKAN_CLOUD_LOG--' >/dev/stderr
-
-    exec ${CKAN_VENV}/bin/gunicorn --paste ${CKAN_CONFIG}/production.ini --workers ${GUNICORN_WORKERS} --timeout ${GUNICORN_TIMEOUT}
+    
+    ckan --config="${CKAN_CONFIG}/production.ini" run --host 0.0.0.0
+    #exec ${CKAN_VENV}/bin/gunicorn --paste ${CKAN_CONFIG}/production.ini --workers ${GUNICORN_WORKERS} --timeout ${GUNICORN_TIMEOUT}
 else
     sleep 180
     exec "$@"

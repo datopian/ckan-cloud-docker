@@ -1,4 +1,4 @@
-FROM mdillon/postgis:9.6-alpine
+FROM mdillon/postgis:11-alpine
 
 ARG APK_REPOSITORY
 

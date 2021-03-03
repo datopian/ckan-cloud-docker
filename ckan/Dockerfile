@@ -1,20 +1,23 @@
 # Based on CKAN 2.8 Dockerfile with minor modifications for deployment on multi-tenant CKAN cluster
 
-FROM debian:jessie
+FROM debian:buster
 
 ARG EXTRA_PACKAGES
 ARG PIP_INDEX_URL
 ENV PIP_INDEX_URL=$PIP_INDEX_URL
 
 # Install required system packages
-RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list \
-    && apt-get -q -y --force-yes update \
-    && DEBIAN_FRONTEND=noninteractive apt-get -q -y --force-yes upgrade \
+RUN apt-get -q -y update \
+    && DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade \
     && apt-get -q -y --force-yes install \
         python-dev \
         python-pip \
         python-virtualenv \
         python-wheel \
+	python3-dev \
+        python3-pip \
+        python3-virtualenv \
+        python3-wheel \
         libpq-dev \
         libxml2-dev \
         libxslt-dev \
@@ -44,9 +47,9 @@ RUN useradd -r -u 900 -m -c "ckan account" -d $CKAN_HOME -s /bin/false ckan
 
 # Setup virtual environment for CKAN
 RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH $CKAN_LOGS_PATH && \
-    virtualenv $CKAN_VENV && \
+    virtualenv --no-site-packages -p python3 $CKAN_VENV && \
     ln -s $CKAN_VENV/bin/pip /usr/local/bin/ckan-pip &&\
-    ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster
+    ln -s $CKAN_VENV/bin/ckan /usr/local/bin/ckan
 
 # Pip dropped support of python 2.7. We need older version
 RUN ckan-pip install --upgrade "pip < 21.0"
@@ -73,7 +76,10 @@ RUN ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -e $
 
 COPY requirements.txt /tmp/
 RUN ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -r /tmp/requirements.txt &&\
-    ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -U requests[security]
+    ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -U requests[security] &&\
+    ckan-pip install --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt
+
+RUN ln -s $CKAN_VENV/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini
 
 COPY post_install_functions.sh /post_install_functions.sh
 
@@ -100,13 +106,14 @@ ARG ROOT_INIT
 RUN eval "${ROOT_INIT}"
 RUN . /post_install_functions.sh && patch_ckan
 
-USER ckan
 
+USER ckan
 ENTRYPOINT ["/ckan-entrypoint.sh"]
 
 EXPOSE 5000
+#CMD ["ckan","-c","/etc/ckan/production.ini", "run", "--host", "0.0.0.0"]
 
-ENV GUNICORN_WORKERS=4
-ENV GUNICORN_TIMEOUT=200
+#ENV GUNICORN_WORKERS=4
+#ENV GUNICORN_TIMEOUT=200
 
 WORKDIR /usr/lib/ckan

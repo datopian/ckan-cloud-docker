@@ -55,7 +55,7 @@ services:
     - ckan
     - nginx
     image: viderum/ckan-cloud-docker:ckan-latest
-    command: [/ckan-entrypoint.sh, ckan-paster, --plugin=ckan, jobs, -c, /etc/ckan/production.ini, worker]
+    command: [/ckan-entrypoint.sh, ckan, jobs, -c, /etc/ckan/production.ini, worker]
     restart: always
     volumes:
     - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets.sh

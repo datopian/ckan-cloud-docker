@@ -21,11 +21,10 @@ services:
     build:
       context: ckan
       args:
-        CKAN_BRANCH: ckan-2.8.2
+        CKAN_BRANCH: ckan-2.9.1
         EXTRA_PACKAGES: cron
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
-          install_standard_ckan_extension_github -r okfn/ckanext-sentry
+          install_standard_ckan_extension_github -r ckan/ckanext-geoview
     environment:
       - CKAN_CONFIG_TEMPLATE_PREFIX=ncs-theme-
 
@@ -34,7 +33,7 @@ services:
     build:
       context: ckan
       args:
-        CKAN_BRANCH: ckan-2.8.2
+        CKAN_BRANCH: ckan-2.9.1
         POST_INSTALL: |
           install_standard_ckan_extension_github -r ckan/ckanext-geoview
     environment:

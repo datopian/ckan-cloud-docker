@@ -116,10 +116,10 @@ In addition to SSL specific configuration, there is one more line you need to ad
 
 This should be enough for the basic installation. In case you need to tweak versions or other initialization parameters for CKAN, you need these two files:
 
-* `docker-compose/ckan-conf-templates/{instance-id}-theme-production.ini`
+* `docker-compose/ckan-conf-templates/ncs-theme-production.ini`
   This is the file used to generate the CKAN main configuration file.
 
-* `.docker-compose.{instance-id}-theme.yaml`
+* `.docker-compose.ncs-theme.yaml`
   This is the file that defines the services used by this instance.
 
 
@@ -196,7 +196,7 @@ bash migrate_filestorage.sh $HOST $ACCESS_KEY $SECRET_KEY $BUCKET $STORAGE_PATH
 
 After migration rebuild the SOLR search index.
 ```
-sudo make shell O=ncs S=ckan C='/usr/local/bin/ckan-paster --plugin=ckan search-index rebuild  -c /etc/ckan/production.ini'
+sudo make shell O=ncs S=ckan C='/usr/local/bin/ckan --config=/etc/ckan/production.ini search-index rebuild'
 ```
 
 ## Debugging

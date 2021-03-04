@@ -25,10 +25,10 @@ logs:
 	docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml logs -f $S
 user:
 	docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml \
-	 exec ckan /usr/local/bin/ckan sysadmin add $U password=$P email=$E name=$U
+	 exec ckan /usr/local/bin/ckan --config=/etc/ckan/production.ini user add $U password=$P email=$E name=$U
 sysadmin:
 	docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml \
-	 exec ckan /usr/local/bin/ckan sysadmin add $U -c /etc/ckan/production.ini
+	 exec ckan /usr/local/bin/ckan --config=/etc/ckan/production.ini sysadmin add $U
 secret:
 	python create_secrets.py
 cron:

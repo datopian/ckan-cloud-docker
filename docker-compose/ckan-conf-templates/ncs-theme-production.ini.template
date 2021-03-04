@@ -27,6 +27,7 @@ sqlalchemy.url = {{SQLALCHEMY_URL}}
 
 ckan.datastore.write_url = {{CKAN_DATASTORE_WRITE_URL}}
 ckan.datastore.read_url = {{CKAN_DATASTORE_READ_URL}}
+ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
 
 # PostgreSQL' full-text search parameters
 ckan.datastore.default_fts_lang = english

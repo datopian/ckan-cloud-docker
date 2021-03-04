@@ -47,6 +47,7 @@ Navigate to where you want the source files to live on your server (e.g. `/opt`)
 ```
 cd /opt
 git clone https://github.com/ViderumGlobal/ckan-cloud-docker.git
+git checkout ccd-ncs
 cd ckan-cloud-docker
 ```
 
@@ -127,22 +128,22 @@ This should be enough for the basic installation. In case you need to tweak vers
 **To run the instance:**
 
 ```
-sudo make start O=<<instance-id>>
+sudo make start O=ncs
 ```
 
 **To stop it, run:**
 ```
-sudo make stop O=<<instance-id>>
+sudo make stop O=ncs
 ```
 
 **To destroy the instance, run:**
 ```
-sudo make down O=<<instance-id>>
+sudo make down O=ncs
 ```
 
 **To destroy the instance, together with volumes, databases etc., run:**
 ```
-sudo make remove_volumes O=<<instance-id>>
+sudo make remove_volumes O=ncs
 ```
 
 *If you want to tweak the source files, typically you need to destroy the instance and run it again once you're done editing. The choice of removing the volumes in the process is up to you.*
@@ -151,13 +152,12 @@ sudo make remove_volumes O=<<instance-id>>
 
 ### Migrate Database
 
-You will need public URLs to database dumps.
-
+You will need public URLs to database dumps. 
 ```
 DB_DUMP_URL=<<DB_DUMP_URL.gz>>
 DATASTORE_DB_DUMP_URL=<<DATASTORE_DB_DUMP_URL.gz>>
 
-sudo make shell O=<<instance-id>> S=ckan C='bash migrate_databases.sh $(DB_DUMP_URL) $(DATASTORE_DB_DUMP_URL)'
+sudo make shell O=ncs S=ckan C='bash migrate_databases.sh $(DB_DUMP_URL) $(DATASTORE_DB_DUMP_URL)'
 ```
 
 ### Migrate files
@@ -196,19 +196,19 @@ bash migrate_filestorage.sh $HOST $ACCESS_KEY $SECRET_KEY $BUCKET $STORAGE_PATH
 
 After migration rebuild the SOLR search index.
 ```
-sudo make shell O=<<instance-id>> S=ckan C='/usr/local/bin/ckan-paster --plugin=ckan search-index rebuild  -c /etc/ckan/production.ini'
+sudo make shell O=ncs S=ckan C='/usr/local/bin/ckan-paster --plugin=ckan search-index rebuild  -c /etc/ckan/production.ini'
 ```
 
 ## Debugging
 
 To check all the logs at any time:  
 ```
-sudo make logs O=<<instance-id>>
+sudo make logs O=ncs
 ```
 
 To check the logs for a specific service:  
 ```
-sudo make logs O=<<instance-id>> S=<<Service Name>>
+sudo make logs O=ncs S=<<Service Name>>
 ```
 *(exit the logs by pressing Ctrl+C at any time)*
 
@@ -216,7 +216,7 @@ To get inside a running ckan container
 
 
 ```
-sudo make shell O=<<instance-id>> S=<<Service Name>> C=<<command>>
+sudo make shell O=ncs S=<<Service Name>> C=<<command>>
 ```
 
 Note: for some services (Eg: Nginx) you mite need to use C=`sh` instead of c=`bash`
@@ -226,17 +226,17 @@ Note: for some services (Eg: Nginx) you mite need to use C=`sh` instead of c=`ba
 In order to create organizations and give other user proper permissions, you will need sysamin user(s) who has all the privileges. You can add as many sysadmin as you want. To create sysamin user:
 
 ```
-# Create user using paster CLI tool
+# Create user using ckan CLI tool
 sudo make user O={instance-id} U={username} P={password} E={email}
 
 # Example
-sudo make user O=panama U=ckan_admin P=123456 E=info@datopian.com
+sudo make user O=ncs U=ckan_admin P=123456 E=info@datopian.com
 ```
 
 You can also give sysadmin role to the existing user.
 
 ```
-sudo make sysadmin O=panama U=ckan_admin
+sudo make sysadmin O=ncs U=ckan_admin
 ```
 
 ## Sysadmin Control Panel
@@ -248,7 +248,7 @@ Here you can edit portal related configuration, like website title, site logo or
 
 CKAN allows installing various extensions (plugins) to the existing core setup. In order to enable/disable them you will have to install them and include into the ckan config file.
 
-To install extension you need to modify `POST_INSTALL` section of ckan service in `.docker-compose.{instance-id}-theme.yaml`. Eg to install s3filestore extension
+To install extension you need to modify `POST_INSTALL` section of ckan service in `.docker-compose.{instance-id}-theme.yaml` (.docker-compose.ncs-theme.yaml`). Eg to install s3filestore extension
 
 ```
 POST_INSTALL: |
@@ -268,7 +268,7 @@ ckan.plugins = image_view
 Note: depending on extension you might also need to update extensions related configurations in the same file. If needed this type of information is ussually included in extension REAMDE.
 
 ```
-# in docker-compose/ckan-conf-templates/{instance-id}-theme-production.ini.template
+# in docker-compose/ckan-conf-templates/ncs-theme-production.ini.template
 ckanext.s3filestore.aws_access_key_id = Your-Access-Key-ID
 ckanext.s3filestore.aws_secret_access_key = Your-Secret-Access-Key
 ckanext.s3filestore.aws_bucket_name = a-bucket-to-store-your-stuff

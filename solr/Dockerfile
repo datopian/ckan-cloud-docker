@@ -9,7 +9,7 @@ RUN mkdir -p /opt/solr/server/solr/$SOLR_CORE/data
 
 # Adding Files
 COPY solrconfig.xml /opt/solr/server/solr/$SOLR_CORE/conf/
-COPY basic_configs/ /opt/solr/server/solr/$SOLR_CORE/conf/
+COPY basic_config/ /opt/solr/server/solr/$SOLR_CORE/conf/
 RUN ls /opt/solr/server/solr/$SOLR_CORE/conf/
 
 ARG SCHEMA_XML=schemas/schema28.xml

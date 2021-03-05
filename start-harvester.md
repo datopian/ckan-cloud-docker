@@ -34,7 +34,7 @@ Start the Docker compose environment with all its components.
 docker-compose \
       -f docker-compose.yaml \
       -f .docker-compose-db.yaml \
-      -f .docker-compose.datagov-theme.yaml \
+      -f .docker-compose.ncs.yaml \
       -f .docker-compose-harvester_ng.yaml \
       up -d --build nginx harvester
 ```
@@ -50,11 +50,10 @@ Create a CKAN admin user
 
 ```
 docker-compose \
-      exec ckan ckan-paster \
-      --plugin=ckan \
+      exec ckan ckan \
+      --config=/etc/production.ini\
       sysadmin add \
-      -c /etc/ckan/production.ini \
-      admin password=12345678 \
+      admin password=Test123456! \
       email=admin@localhost
 ```
 
@@ -103,7 +102,7 @@ Clean all the data at the images
 docker-compose \
       -f docker-compose.yaml \
       -f .docker-compose-db.yaml \
-      -f .docker-compose.datagov-theme.yaml \
+      -f .docker-compose.ncs.yaml \
       -f .docker-compose-harvester_ng.yaml \
       down -v
 ```
@@ -114,6 +113,6 @@ Check logs
 $ docker-compose \
       -f docker-compose.yaml \
       -f .docker-compose-db.yaml \
-      -f .docker-compose.datagov-theme.yaml \
+      -f .docker-compose.ncs.yaml \
       logs -f
 ```

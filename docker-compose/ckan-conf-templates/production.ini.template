@@ -77,7 +77,7 @@ ckan.redis.url = {{CKAN_REDIS_URL}}
 
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view image_view recline_view datastore xloader
+ckan.plugins = stats text_view image_view recline_view datastore datapusher
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -97,7 +97,7 @@ ckan.views.default_views = image_view text_view recline_view
 #ckan.base_public_folder = public-bs2
 #ckan.base_templates_folder = templates-bs2
 
-ckan.site_title = Datagov CKAN Demo
+ckan.site_title = CKAN Demo
 ckan.site_logo = /base/images/ckan-logo.png
 ckan.site_description = Local development environment
 ckan.favicon = /base/images/ckan.ico

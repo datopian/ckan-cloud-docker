@@ -98,7 +98,7 @@ ckan.views.default_views = image_view text_view recline_view
 #ckan.base_public_folder = public-bs2
 #ckan.base_templates_folder = templates-bs2
 
-ckan.site_title = Datagov CKAN Demo
+ckan.site_title = CKAN DEMO
 ckan.site_logo = /base/images/ckan-logo.png
 ckan.site_description = Local development environment
 ckan.favicon = /base/images/ckan.ico

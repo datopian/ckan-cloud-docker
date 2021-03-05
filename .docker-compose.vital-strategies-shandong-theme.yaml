@@ -36,7 +36,7 @@ services:
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l pt_BR -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l zh_CN -f
     environment:
-      - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-shangdong-theme-
+      - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-shandong-theme-
 
   jobs:
     image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme
@@ -49,7 +49,7 @@ services:
           install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview
     environment:
-      - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-shangdong-theme-
+      - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-shandong-theme-
 
   db:
     image: mdillon/postgis

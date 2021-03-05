@@ -47,11 +47,16 @@ Navigate to where you want the source files to live on your server (e.g. `/opt`)
 ```
 cd /opt
 git clone https://github.com/ViderumGlobal/ckan-cloud-docker.git
-git checkout ccd-ncs
 cd ckan-cloud-docker
+git checkout ccd-ncs
 ```
 
 #### Environment variables
+
+Install python first if you dont have already installed. Also if you are using python3 link it to use python too instead of only python3.
+```
+ln -s /usr/bin/python3 /usr/bin/python
+```
 To create or update files with secrets and env vars run and follow all steps:
 ```
 make secret
@@ -110,7 +115,7 @@ In addition to SSL specific configuration, there is one more line you need to ad
   This is the domain name that Traefik should respond to. Requests to any other domain not configured as a `Host` rule will result in Traefik not being able to handle the request.
 
 
-> Note: All the necessary configuration items are marked with `TODO` flags in the `traefik.toml` configuration file.
+> Note: All the necessary configuration items are marked with `TODO` flags in the `traefik.toml` configuration file. They have to be set properly in order to make sure that the ckan instance is accessible by the domain name (site_url).
 
 ---
 
@@ -230,7 +235,7 @@ In order to create organizations and give other user proper permissions, you wil
 sudo make user O={instance-id} U={username} P={password} E={email}
 
 # Example
-sudo make user O=ncs U=ckan_admin P=123456 E=info@datopian.com
+sudo make user O=ncs U=ckan_admin P=Test123456! E=info@datopian.com
 ```
 
 You can also give sysadmin role to the existing user.

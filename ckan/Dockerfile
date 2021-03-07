@@ -5,6 +5,8 @@ FROM debian:jessie
 ARG EXTRA_PACKAGES
 ARG PIP_INDEX_URL
 ENV PIP_INDEX_URL=$PIP_INDEX_URL
+ARG GITHUB_URL
+ENV GITHUB_URL=$GITHUB_URL
 
 # Install required system packages
 RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list \

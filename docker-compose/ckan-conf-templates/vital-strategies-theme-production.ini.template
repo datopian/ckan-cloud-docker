@@ -165,7 +165,7 @@ googleanalytics.password = {{GA_PASSWORD}}
 ## Language settings
 
 # VITALS
-ckan.locales_offered=en es zh_CN fr pt_BR
+ckan.locales_offered=en es zh_CN fr km pt_BR
 # Shanghai default
 ckan.locale_default=en
 

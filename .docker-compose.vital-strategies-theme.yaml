@@ -47,7 +47,7 @@ services:
       args:
         CKAN_BRANCH: ckan-2.7.3
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore &&\
+          install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore -b main &&\
           install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview
     environment:

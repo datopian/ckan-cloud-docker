@@ -25,10 +25,6 @@ services:
         EXTRA_PACKAGES: cron
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
         POST_INSTALL: |
-          wget https://bootstrap.pypa.io/pip/2.7/get-pip.py && \   
-          python get-pip.py && \  
-          pip install --upgrade pip==20.3 && \
-          rm -rf get-pip.py && \
           install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b fix/new-translations-mar-2021 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
           install_standard_ckan_extension_github -r okfn/ckanext-sentry && \

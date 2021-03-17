@@ -25,7 +25,7 @@ services:
         EXTRA_PACKAGES: cron
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
         POST_INSTALL: |
-          apk add --no-cache curl && \
+          apt-get install curl && \
           curl -o get-pip.py https://bootstrap.pypa.io/2.7/get-pip.py && \   
           python get-pip.py && \  
           pip install --upgrade pip==20.3 && \

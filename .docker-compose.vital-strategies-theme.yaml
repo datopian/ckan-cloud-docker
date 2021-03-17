@@ -51,6 +51,7 @@ services:
           install_standard_ckan_extension_github -r ckan/ckanext-geoview
     environment:
       - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-
+      - CKAN_LOCALES_OFFERED=en es zh_CN km fr pt_BR
 
   db:
     image: mdillon/postgis

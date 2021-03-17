@@ -39,7 +39,6 @@ services:
     environment:
       - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-
       - CKAN_LOCALES_OFFERED=en es zh_CN km fr pt_BR
- 
 
   jobs:
     image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme

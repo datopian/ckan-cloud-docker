@@ -26,7 +26,7 @@ install_standard_ckan_extension_github() {
 #    echo "#### BRANCH: $BRANCH ####"
 #    echo "#### EGG: $EGG ####"
     if [ $PIP_INDEX_URL != https://pypi.org/simple/ ]; then
-      TMPDIR='ckanext-temp'
+      TMPDIR=TMPDIR=${CKAN_VENV}/src/${EGG}
       git clone -b $BRANCH ${GITHUB_URL}/${REPO_NAME}.git ${TMPDIR}
 
       for REQUIREMENTS_FILE_NAME in requirements pip-requirements
@@ -36,7 +36,6 @@ install_standard_ckan_extension_github() {
         fi
       done &&\
       ckan-pip install --index-url ${PIP_INDEX_URL} -e ${TMPDIR}
-      rm -rf ${TMPDIR}
     else
       TEMPFILE=`mktemp`
       for REQUIREMENTS_FILE_NAME in requirements pip-requirements

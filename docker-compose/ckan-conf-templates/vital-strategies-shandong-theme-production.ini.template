@@ -88,8 +88,6 @@ ckan.plugins = image_view
    geojson_view
    querytool
    stats
-   sentry
-   s3filestore
    googleanalytics
 
 # Define which views should be created by default

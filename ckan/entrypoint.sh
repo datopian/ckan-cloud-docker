@@ -8,7 +8,7 @@ echo 'production.ini:' && cat $CKAN_CONFIG/production.ini &&\
 bash /templater.sh $CKAN_K8S_TEMPLATES/${CKAN_INIT_TEMPLATE_PREFIX}ckan_init.sh.template > $CKAN_CONFIG/ckan_init.sh &&\
 echo 'ckan_init.sh:' && cat $CKAN_CONFIG/ckan_init.sh &&\
 bash $CKAN_CONFIG/ckan_init.sh
-[ "$?" != "0" ] && echo ERROR: CKAN Initialization failed && exit 1
+[ "$?" != "0" ] && echo ERROR: CKAN Initialization failed: $? && exit 1
 
 echo '--START_CKAN_CLOUD_LOG--{"event":"ckan-entrypoint-initialized"}--END_CKAN_CLOUD_LOG--' >/dev/stderr
 

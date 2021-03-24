@@ -26,7 +26,7 @@ install_standard_ckan_extension_github() {
 #    echo "#### BRANCH: $BRANCH ####"
 #    echo "#### EGG: $EGG ####"
     if [ $PIP_INDEX_URL != https://pypi.org/simple/ ]; then
-      TMPDIR=TMPDIR=${CKAN_VENV}/src/${EGG}
+      TMPDIR=${CKAN_VENV}/src/${EGG}
       git clone -b $BRANCH ${GITHUB_URL}/${REPO_NAME}.git ${TMPDIR}
 
       for REQUIREMENTS_FILE_NAME in requirements pip-requirements

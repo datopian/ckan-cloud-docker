@@ -195,7 +195,7 @@ smtp.server = {{SMTP_SERVER}}
 smtp.starttls = True
 smtp.user = {{SMTP_USER}}
 smtp.password = {{SMTP_PASSWORD}}
-smtp.mail_from = vitalplatform@vitalstrategies.org
+smtp.mail_from = {{SMTP_MAIL_FROM}}
 
 ###
 

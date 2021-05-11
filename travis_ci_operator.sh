@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+GITHUB_WORKSPACE=${2}
+
 _install_travis_ci_operator() {
     ls -alh "${GITHUB_WORKSPACE}/bin/travis_ci_operator.sh"
     chmod +x "${GITHUB_WORKSPACE}/bin/travis_ci_operator.sh"

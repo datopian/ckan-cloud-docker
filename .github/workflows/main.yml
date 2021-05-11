@@ -22,11 +22,9 @@ jobs:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
         run: |
-          echo $GITHUB_WORKSPACE
           mkdir -p $GITHUB_WORKSPACE/bin/
           mv travis_ci_operator.sh $GITHUB_WORKSPACE/bin/travis_ci_operator.sh
-          ls $GITHUB_WORKSPACE/bin/travis_ci_operator.sh -al
-          bash $GITHUB_WORKSPACE/bin/travis_ci_operator.sh init
+          bash $GITHUB_WORKSPACE/bin/travis_ci_operator.sh init $GITHUB_WORKSPACE
           bash .travis.sh install
           bash .travis.sh script
           bash .travis.sh deploy

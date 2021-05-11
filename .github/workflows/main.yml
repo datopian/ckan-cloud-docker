@@ -20,10 +20,11 @@ jobs:
         env:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
         run: |
-          echo $HOME
-          curl -L https://raw.githubusercontent.com/OriHoch/travis-ci-operator/master/travis_ci_operator.sh > $HOME/bin/travis_ci_operator.sh
-          bash $HOME/bin/travis_ci_operator.sh init
+          mkdir -p $GITHUB_WORKSPACE/bin/
+          mv travis_ci_operator.sh $GITHUB_WORKSPACE/bin/travis_ci_operator.sh
+          bash $GITHUB_WORKSPACE/bin/travis_ci_operator.sh init
           bash .travis.sh install
           bash .travis.sh script
           bash .travis.sh deploy

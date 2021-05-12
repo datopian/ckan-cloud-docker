@@ -19,8 +19,8 @@ jobs:
       - name: Deploy
         env:
           TRAVIS_REPO_SLUG: datopian/ckan-cloud-docker
-          TRAVIS_BRANCH: ${{ env.CI_ACTION_REF_NAME }}
-          TRAVIS_TAG: ${{ env.CI_ACTION_REF_NAME }}
+          TRAVIS_BRANCH: ${{ env.GITHUB_SHA }}
+          TRAVIS_TAG: ${{ env.GITHUB_SHA }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}

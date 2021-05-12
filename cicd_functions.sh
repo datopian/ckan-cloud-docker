@@ -21,7 +21,9 @@ exec_ckan_compose_overrides() {
     for DOCKER_COMPOSE_OVERRIDE in `ls .docker-compose.*.yaml`; do
         OVERRIDE_NAME=$(get_ckan_compose_ovverride_name "${DOCKER_COMPOSE_OVERRIDE}")
         echo "OVERRIDE ${OVERRIDE_NAME}"
-        ! eval "${1}" && return 1
+        eval "${1}"
+        # bring me back
+        # ! eval "${1}" && return 1
     done
     return 0
 }
@@ -31,7 +33,7 @@ pull_latest_images() {
     exec_build_apps 'docker-compose pull $APP'
     if [ "${BUILD_CKAN_OVERRIDES}" == "1" ]; then
         echo "Skipping pull"
-        # exec_ckan_compose_overrides 'docker pull "${DOCKER_IMAGE}:ckan-latest-${OVERRIDE_NAME}"'
+        exec_ckan_compose_overrides 'docker pull "${DOCKER_IMAGE}:ckan-latest-${OVERRIDE_NAME}"'
     fi
     if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
         docker pull "${DOCKER_IMAGE}:solrcloud-latest"

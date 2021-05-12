@@ -17,7 +17,7 @@ install_standard_ckan_extension_github() {
            # By default, EGG is part of REPO_NAME
            EGG=$(echo $REPO_NAME | cut -d / -f 2)
         ;;
-        b) BRANCH=${OPTARG:=$BRANCH};PIP_INDEX_URL;
+        b) BRANCH=${OPTARG:=$BRANCH};;
         # If -e option is specified, it overrides the default stated above
         e) EGG=${OPTARG};;
       esac

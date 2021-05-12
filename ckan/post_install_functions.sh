@@ -17,7 +17,7 @@ install_standard_ckan_extension_github() {
            # By default, EGG is part of REPO_NAME
            EGG=$(echo $REPO_NAME | cut -d / -f 2)
         ;;
-        b) BRANCH=${OPTARG:=$BRANCH};;
+        b) BRANCH=${OPTARG:=$BRANCH};PIP_INDEX_URL;
         # If -e option is specified, it overrides the default stated above
         e) EGG=${OPTARG};;
       esac
@@ -35,7 +35,7 @@ install_standard_ckan_extension_github() {
           ckan-pip install --index-url ${PIP_INDEX_URL} -r ${TMPDIR}/$REQUIREMENTS_FILE_NAME.txt && break;
         fi
       done &&\
-      ckan-pip install --index-url ${PIP_INDEX_URL} -e ${TMPDIR}
+      ckan-pip install --no-use-pep517 --index-url ${PIP_INDEX_URL} -e ${TMPDIR}
     else
       TEMPFILE=`mktemp`
       for REQUIREMENTS_FILE_NAME in requirements pip-requirements
@@ -44,7 +44,7 @@ install_standard_ckan_extension_github() {
           then ckan-pip install --index-url ${PIP_INDEX_URL} -r $TEMPFILE && break;
         fi
       done &&\
-      ckan-pip install --index-url ${PIP_INDEX_URL} -e git+${GITHUB_URL}/${REPO_NAME}.git@$BRANCH#egg=${EGG}
+      ckan-pip install --no-use-pep517 --index-url ${PIP_INDEX_URL} -e git+${GITHUB_URL}/${REPO_NAME}.git@$BRANCH#egg=${EGG}
     fi
 }
 

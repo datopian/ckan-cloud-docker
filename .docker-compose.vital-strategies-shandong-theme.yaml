@@ -21,7 +21,8 @@ services:
     build:
       context: ckan
       args:
-        PIP_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
+        # Comment me out if working with Chinese server
+        # PIP_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
         GITHUB_URL: https://github.com.cnpmjs.org
         CKAN_BRANCH: ckan-2.7.3
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"

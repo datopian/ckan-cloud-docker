@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+TRAVIS_TAG=${2}
 source cicd_functions.sh
 
 if [ "${1}" == "install" ]; then
@@ -15,8 +15,7 @@ elif [ "${1}" == "deploy" ]; then
     echo "Logging in to Docker"
     $GITHUB_WORKSPACE/bin/travis_ci_operator.sh docker-login $GITHUB_WORKSPACE
     TAG="${TRAVIS_TAG:-${TRAVIS_COMMIT}}"
-    echo $TAG
-    ! tag_images "${TAG}" && exit 1
+    ! tag_images "${TAG}" && echo "Failed to get tag: ${TAG}" && exit 1
     if [ "${TRAVIS_BRANCH}" == "master" ]; then
         ! push_latest_images && exit 1
         ! docker push viderum/ckan-theme-generator:latest && exit 1

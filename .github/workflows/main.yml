@@ -30,4 +30,4 @@ jobs:
           bash $GITHUB_WORKSPACE/bin/travis_ci_operator.sh init $GITHUB_WORKSPACE
           bash .travis.sh install
           bash .travis.sh script
-          bash .travis.sh deploy
+          bash .travis.sh deploy $TRAVIS_TAG

@@ -1,0 +1,52 @@
+version: '3.2'
+
+services:
+
+  db:
+    image: viderum/ckan-cloud-docker:db-latest
+    build:
+      context: db
+    restart: always
+    expose:
+    - "5432"
+    env_file:
+    - docker-compose/db-secrets.sh
+    volumes:
+    - db:/var/lib/postgresql/data
+    networks:
+    - ckan-multi
+
+  jobs-db:
+    image: postgres
+    restart: always
+    expose:
+    - "5432"
+    env_file:
+    - docker-compose/db-secrets.sh
+    volumes:
+    - jobs-db:/var/lib/postgresql/data
+    networks:
+    - ckan-multi
+
+  datastore-db:
+    image: viderum/ckan-cloud-docker:db-latest
+    restart: always
+    expose:
+    - "5432"
+    env_file:
+    - docker-compose/datastore-db-secrets.sh
+    volumes:
+    - datastore-db:/var/lib/postgresql/data
+    networks:
+    - ckan-multi
+
+  ckan:
+    depends_on:
+    - db
+    - jobs-db
+    - datastore-db
+
+volumes:
+  db:
+  jobs-db:
+  datastore-db:

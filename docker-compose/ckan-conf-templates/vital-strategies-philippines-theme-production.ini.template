@@ -11,14 +11,8 @@ use = egg:ckan
 full_stack = true
 max_content_length = 200000000
 
-cache_dir = /tmp/%(ckan.site_id)s/
-
-# Sessions
 beaker.session.key = ckan
-beaker.session.type = database
-beaker.session.table_name = beaker_sessions
 beaker.session.secret = {{BEAKER_SESSION_SECRET}}
-beaker.session.url = {{SQLALCHEMY_URL}}
 app_instance_uuid = {{APP_INSTANCE_UUID}}
 
 who.config_file = %(here)s/who.ini
@@ -41,7 +35,7 @@ ckan.datastore.default_fts_index_method = gist
 
 ## Site Settings
 
-ckan.site_id = honduras
+ckan.site_id = vital-strategies
 ckan.site_url = {{CKAN_SITE_URL}}
 #ckan.use_pylons_response_cleanup_middleware = true
 cache_dir = /tmp/%(ckan.site_id)s/
@@ -59,6 +53,7 @@ ckan.auth.create_user_via_api = false
 ckan.auth.create_user_via_web = true
 ckan.auth.roles_that_cascade_to_sub_groups = admin
 ckan.hide_activity_from_users = %(ckan.site_id)s
+
 
 ## Search Settings
 
@@ -84,32 +79,20 @@ ckan.redis.url = {{CKAN_REDIS_URL}}
 
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = envvars
-  honduras
-  harvest
-  geo_view
-  pdf_view
-  googleanalytics
-  showcase
-  pages
-  image_view
-  text_view
-  recline_grid_view
-  recline_graph_view
-  recline_map_view
-  recline_view
-  datastore
-  resource_proxy
-  datapusher
-  dcat
-  dcat_rdf_harvester
-  scheming_datasets
-  stats
-
+ckan.plugins = image_view
+   text_view
+   recline_view
+   datastore
+   datapusher
+   resource_proxy
+   geojson_view
+   querytool
+   stats
+   googleanalytics
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
-ckan.views.default_views = image_view text_view recline_view
+ckan.views.default_views = image_view recline_view geojson_view
 
 # Customize which text formats the text_view plugin will show
 #ckan.preview.json_formats = json
@@ -122,36 +105,17 @@ ckan.views.default_views = image_view text_view recline_view
 ## Front-End Settings
 
 # Uncomment following configuration to enable using of Bootstrap 2
-#ckan.base_public_folder = public-bs2
-#ckan.base_templates_folder = templates-bs2
+ckan.base_public_folder = public-bs2
+ckan.base_templates_folder = templates-bs2
 
-ckan.site_title = Datos Abiertos del Gobierno de Honduras
+ckan.site_title = Data Platform
 ckan.site_logo = /base/images/ckan-logo.png
-ckan.site_description = Datos Abiertos del Gobierno de Honduras
+ckan.site_description = Vital Strategies Data Platform Demo
 ckan.favicon = /base/images/ckan.ico
 ckan.gravatar_default = identicon
 ckan.preview.direct = png jpg gif
 ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom csv tsv rss txt json
 ckan.display_timezone = Etc/UTC
-
-ckan.datasets_per_page = 25
-ckan.tracking_enabled = false
-
-
-# package_hide_extras = for_search_index_only
-#package_edit_return_url = http://another.frontend/dataset/<NAME>
-#package_new_return_url = http://another.frontend/dataset/<NAME>
-#ckan.recaptcha.publickey =
-#ckan.recaptcha.privatekey =
-licenses_group_url = https://honduras.ckan.io/licenses.json
-# ckan.template_footer_end =
-
-
-## Internationalisation Settings
-ckan.locales_offered = en es
-ckan.locale_default = es
-#    ckan.locale_order = {{ .Values.localeOrder }}
-#    ckan.locales_filtered_out = {{ .Values.localesFilteredOut }}
 
 ## Feeds Settings
 
@@ -163,16 +127,54 @@ ckan.feeds.author_link =
 ## Storage Settings
 
 ckan.storage_path = /var/lib/ckan
-ckan.max_resource_size = 100
+ckan.max_resource_size = 1000
 ckan.max_image_size = 5
+
+## Datapusher URL
+ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
+
+## AWS S3 settings
+
+# ckanext.cloudstorage.driver = S3_US_EAST2
+# ckanext.cloudstorage.container_name = vital-strategies
+# ckanext.cloudstorage.driver_options = {"key": "{{AWS_ACCESS_KEY_ID}}", "secret": "{{AWS_SECRET_ACCESS_KEY}}"}
+# ckanext.s3filestore.host_name = https://vital-strategies-ckan.s3.us-east-2.amazonaws.com
+# ckanext.s3filestore.aws_storage_path = demo
+# ckanext.s3filestore.aws_access_key_id = {{AWS_ACCESS_KEY_ID}}
+# ckanext.s3filestore.aws_secret_access_key = {{AWS_SECRET_ACCESS_KEY}}
+# ckanext.s3filestore.region_name = us-east-2
+# ckanext.s3filestore.aws_bucket_name = vital-strategies-ckan
+# ckanext.s3filestore.signature_version = s3v4
+
+## Query Tool Settings
+
+ckanext.querytool.groups = mortality:Mortality,riskfactors:Risk Factors,birth:Births,cancer:Cancer,demo:General
+ckanext.querytool.map_osm_url = https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png
+ckanext.querytool.map_osm_attribute = &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>
+ckanext.querytool.allow_nav_bar = True
+
+## Google Analytics
+
+googleanalytics.id = {{GA_ID}}
+googleanalytics.account = {{GA_ACCOUNT}}
+googleanalytics.username = {{GA_USERNAME}}
+googleanalytics.password = {{GA_PASSWORD}}
+
+## Language settings
+
+# VITALS
+ckan.locales_offered=en es zh_CN fr km pt_BR
+# Shanghai default
+ckan.locale_default=en
+
 
 ## xloader settings
 
-#ckanext.xloader.jobs_db.uri = postgresql://postgres:123456@jobs-db/postgres
+ckanext.xloader.jobs_db.uri = postgresql://postgres:123456@jobs-db/postgres
 
 # Resource Proxy settings
 # Preview size limit, default: 1MB
-ckan.resource_proxy.max_file_size = 100000000
+#ckan.resource_proxy.max_file_size = 1048576
 # Size of chunks to read/write.
 #ckan.resource_proxy.chunk_size = 4096
 
@@ -184,56 +186,33 @@ ckan.resource_proxy.max_file_size = 100000000
 #ckan.email_notifications_since = 2 days
 ckan.hide_activity_from_users = %(ckan.site_id)s
 
-## Scheming settings
-
-scheming.dataset_schemas = ckanext.honduras:dataset.json
-
-## Dcat
-
-ckanext.dcat.translate_keys = false
-ckanext.dcat.rdf.profiles = euro_dcat_ap honduras_dcat_ap
-
-## Pages
-
-ckanext.pages.allow_html = true
-
-## Google Analytics
-
-googleanalytics.id = {{GA_ID}}
-googleanalytics.account = {{GA_ACCOUNT}}
-googleanalytics.username = {{GA_USERNAME}}
-googleanalytics.password = {{GA_PASSWORD}}
-
-## Spatial
-
-ckanext.spatial.common_map.type = custom
-ckanext.spatial.common_map.custom_url = https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg
-ckanext.spatial.common_map.attribution = Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.
 
 ## Email settings
 
 #email_to = errors@example.com
 #error_email_from = ckan-errors@example.com
-smtp.starttls = False
-# SMTP server does not support authentication
-#smtp.user = {{SMTP_USER}}
-#smtp.password = {{SMTP_PASSWORD}}
 smtp.server = {{SMTP_SERVER}}
+smtp.starttls = True
+smtp.user = {{SMTP_USER}}
+smtp.password = {{SMTP_PASSWORD}}
 smtp.mail_from = {{SMTP_MAIL_FROM}}
-
-## Datapusher URL
-ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
 
 ###
 
 ## datajson settings
-#ckanext.datajson.inventory_links_enabled = True
-#ckanext.datajson.url_enabled = True
+ckanext.datajson.inventory_links_enabled = True
+ckanext.datajson.url_enabled = False
 
 ## Harvest settings
 ckan.harvest.mq.type = redis
-#ckan.harvest.mq.hostname = redis
-#ckan.harvest.mq.redis_db = 9
+ckan.harvest.mq.hostname = redis
+ckan.harvest.mq.redis_db = 9
+
+## Sentry settings
+sentry_dsn = {{SENTRY_DSN}}
+ckan.sentry.configure_logging = True
+ckan.sentry.log_level = ERROR
+
 
 ## Logging configuration
 [loggers]

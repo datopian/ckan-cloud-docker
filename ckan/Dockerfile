@@ -5,12 +5,14 @@ FROM debian:jessie
 ARG EXTRA_PACKAGES
 ARG PIP_INDEX_URL
 ENV PIP_INDEX_URL=$PIP_INDEX_URL
+ARG GITHUB_URL
+ENV GITHUB_URL=$GITHUB_URL
 
 # Install required system packages
 RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list \
-    && apt-get -q -y update \
-    && DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade \
-    && apt-get -q -y install \
+    && apt-get -q -y --force-yes update \
+    && DEBIAN_FRONTEND=noninteractive apt-get -q -y --force-yes upgrade \
+    && apt-get -q -y --force-yes install \
         python-dev \
         python-pip \
         python-virtualenv \
@@ -32,7 +34,6 @@ RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://ar
     && apt-get -q clean \
     && rm -rf /var/lib/apt/lists/*
 
-
 # Define environment variables
 ENV CKAN_HOME /usr/lib/ckan
 ENV CKAN_VENV $CKAN_HOME/venv
@@ -48,6 +49,9 @@ RUN mkdir -p $CKAN_VENV $CKAN_CONFIG $CKAN_STORAGE_PATH $CKAN_LOGS_PATH && \
     virtualenv $CKAN_VENV && \
     ln -s $CKAN_VENV/bin/pip /usr/local/bin/ckan-pip &&\
     ln -s $CKAN_VENV/bin/paster /usr/local/bin/ckan-paster
+
+# Pip dropped support of python 2.7. We need older version
+RUN ckan-pip install --upgrade "pip < 21.0"
 
 # Setup CKAN
 RUN ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} -U pip &&\

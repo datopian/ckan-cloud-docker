@@ -17,24 +17,25 @@ services:
       - datapusher
     links:
       - datapusher
-    image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-shanghai-theme
+    image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme
     build:
       context: ckan
       args:
-        # Comment me out if working with Chinese server
-        # PIP_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
         CKAN_BRANCH: ckan-2.7.3
+        EXTRA_PACKAGES: cron
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.2a75 &&\
+          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.8.1.3 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
-          install_standard_ckan_extension_github -r datopian/ckanext-vitalstrategies_shanghai -b v0.0.9 && \
+          install_standard_ckan_extension_github -r ckan/ckanext-googleanalytics -b v2.0.2 && \
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l en -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l es -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l fr -f && \
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l km -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l pt_BR -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l zh_CN -f
     environment:
-      - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-shanghai-theme-
+      - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-philippines-theme-
 
   jobs:
     image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme
@@ -43,17 +44,15 @@ services:
       args:
         CKAN_BRANCH: ckan-2.7.3
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore &&\
-          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool &&\
+          install_standard_ckan_extension_github -r datopian/ckanext-querytool &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview
     environment:
-      - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-shanghai-theme-
+      - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-philippines-theme-
 
   db:
     image: mdillon/postgis
     build:
       args:
-        APK_REPOSITORY: https://mirrors.tuna.tsinghua.edu.cn/alpine/v3.6/community/
         DB_INIT: |
           psql --dbname="ckan" -c "CREATE EXTENSION IF NOT EXISTS postgis;                  \
                                    CREATE EXTENSION IF NOT EXISTS postgis_topology;         \
@@ -62,7 +61,3 @@ services:
 
   datapusher:
     container_name: datapusher
-    build:
-      context: datapusher/
-      args:
-        APK_REPOSITORY: https://mirrors.tuna.tsinghua.edu.cn/alpine/v3.6/community/

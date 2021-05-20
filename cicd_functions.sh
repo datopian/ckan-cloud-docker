@@ -8,7 +8,7 @@ touch docker-compose/ckan-secrets.sh docker-compose/datastore-db-secrets.sh dock
 exec_build_apps() {
     for APP in $BUILD_APPS; do
         APP_LATEST_IMAGE="${DOCKER_IMAGE}:${APP}-latest"
-        ! eval "${1}" && return 1
+        ! eval "${1}"
     done
     return 0
 }

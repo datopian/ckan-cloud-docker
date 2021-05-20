@@ -30,7 +30,8 @@ pull_latest_images() {
     echo -e "\n** Pulling latest images **\n"
     exec_build_apps 'docker-compose pull $APP'
     if [ "${BUILD_CKAN_OVERRIDES}" == "1" ]; then
-        exec_ckan_compose_overrides 'docker pull "${DOCKER_IMAGE}:ckan-latest-${OVERRIDE_NAME}"'
+        # exec_ckan_compose_overrides 'docker pull "${DOCKER_IMAGE}:ckan-latest-${OVERRIDE_NAME}"'
+        echo skip pull
     fi
     if [ "${BUILD_SOLR_OVERRIDES}" == "1" ]; then
         docker pull "${DOCKER_IMAGE}:solrcloud-latest"

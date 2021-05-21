@@ -225,7 +225,7 @@ create_db_base() {
     " &&\
     echo DB initialized successfully && return 0
     # Update user with new password if exists
-    echo User $CREATE_POSTGRES_USER already exists, updating password
+    echo User $CREATE_POSTGRES_USER already exists, updating password...
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "
     ALTER USER \"${CREATE_POSTGRES_USER}\" WITH PASSWORD '${CREATE_POSTGRES_PASSWORD}';
     " && echo DB initialized successfully && return 0
@@ -271,7 +271,7 @@ create_datastore_db() {
         CREATE ROLE \"${DS_RO_USER}\" WITH LOGIN PASSWORD '${DS_RO_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
     "
     # Update user with new password if exists
-    echo User $CREATE_POSTGRES_USER already exists, updating password
+    echo User $CREATE_POSTGRES_USER already exists, updating password...
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "
     ALTER USER \"${DS_RO_USER}\" WITH PASSWORD '${DS_RO_PASSWORD}';
     " && echo DB initialized successfully && return 0

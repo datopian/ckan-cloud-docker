@@ -25,7 +25,7 @@ services:
         EXTRA_PACKAGES: cron
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool 02d84a04f29c6c099bbc10088b2f641319d3e1b4 &&\
+          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.8.1.6 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
           install_standard_ckan_extension_github -r okfn/ckanext-sentry && \
           install_standard_ckan_extension_github -r ckan/ckanext-googleanalytics -b v2.0.2 && \
@@ -47,7 +47,7 @@ services:
         CKAN_BRANCH: ckan-2.7.3
         POST_INSTALL: |
           install_standard_ckan_extension_github -r keitaroinc/ckanext-s3filestore -b main &&\
-          install_standard_ckan_extension_github -r datopian/ckanext-querytool &&\
+          install_standard_ckan_extension_github -r datopian/ckanext-querytool -b v1.8.1.6 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview
     environment:
       - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-

@@ -88,7 +88,6 @@ ckan.plugins = image_view
    geojson_view
    querytool
    stats
-   googleanalytics
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)

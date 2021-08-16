@@ -20,6 +20,7 @@ RUN apk add --no-cache python \
     libffi-dev \
     libressl-dev \
     libxslt --update-cache --repository ${APK_REPOSITORY} --allow-untrusted && \
+    pip install --upgrade pip && \
     # Temporary packages to build CKAN requirements
     apk add --no-cache --virtual .build-deps \
     gcc \

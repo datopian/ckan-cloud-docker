@@ -274,7 +274,12 @@ create_datastore_db() {
     echo User $CREATE_POSTGRES_USER already exists, updating password...
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "
     ALTER USER \"${DS_RO_USER}\" WITH PASSWORD '${DS_RO_PASSWORD}';
-    " && echo DB initialized successfully && return 0
+    " && echo DB initialized successfully
+    # Consider the case when There are no users but DB exists. 
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
+        GRANT \"${SITE_USER}\" TO \"${POSTGRES_USER_HOSTLESS}\";
+        GRANT \"${DS_RW_USER}\" TO \"${POSTGRES_USER_HOSTLESS}\";
+    "
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
         REVOKE CREATE ON SCHEMA public FROM PUBLIC;
         REVOKE USAGE ON SCHEMA public FROM PUBLIC;

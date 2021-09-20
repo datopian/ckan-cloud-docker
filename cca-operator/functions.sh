@@ -224,11 +224,18 @@ create_db_base() {
         CREATE DATABASE \"${CREATE_POSTGRES_USER}\";
     " &&\
     echo DB initialized successfully && return 0
-    # Update user with new password if exists
+    # Update user with new password if exists and make sure they have full controll of DB
     echo User $CREATE_POSTGRES_USER already exists, updating password...
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "
-    ALTER USER \"${CREATE_POSTGRES_USER}\" WITH PASSWORD '${CREATE_POSTGRES_PASSWORD}';
-    " && echo DB initialized successfully && return 0
+        ALTER USER \"${CREATE_POSTGRES_USER}\" WITH PASSWORD '${CREATE_POSTGRES_PASSWORD}';
+    " &&\
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d ${CREATE_POSTGRES_USER} -c "
+        GRANT CREATE ON SCHEMA public TO \"${CREATE_POSTGRES_USER}\";
+        GRANT USAGE ON SCHEMA public TO \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public to \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public to \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public to \"${CREATE_POSTGRES_USER}\";
+    " &&  echo DB initialized successfully && return 0
     echo DB Initialization failed && return 1
 }
 
@@ -275,7 +282,7 @@ create_datastore_db() {
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "
     ALTER USER \"${DS_RO_USER}\" WITH PASSWORD '${DS_RO_PASSWORD}';
     " && echo DB initialized successfully
-    # Consider the case when There are no users but DB exists. 
+    # Consider the case when There are no users but DB exists.
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
         GRANT \"${SITE_USER}\" TO \"${POSTGRES_USER_HOSTLESS}\";
         GRANT \"${DS_RW_USER}\" TO \"${POSTGRES_USER_HOSTLESS}\";

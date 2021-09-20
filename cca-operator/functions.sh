@@ -235,11 +235,20 @@ create_db() {
     " &&\
     ckan_cloud_log '{"event":"ckan-db-initialized"}' &&\
     echo postgis extensions initialized successfully && return 0
-    # Update user with new password if exists
-    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "                                                       
-    ALTER USER \"${CREATE_POSTGRES_USER}\" WITH PASSWORD '${CREATE_POSTGRES_PASSWORD}';                                                               
-    " && echo DB initialized successfully && return 0
-    echo postgis extensions failed && return 1
+    echo DB initialized successfully && return 0
+    # Update user with new password if exists and make sure they have full controll of DB
+    echo User $CREATE_POSTGRES_USER already exists, updating password...
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" ${DB_NAME_FOR_AZ} -c "
+        ALTER USER \"${CREATE_POSTGRES_USER}\" WITH PASSWORD '${CREATE_POSTGRES_PASSWORD}';
+    " &&\
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d ${CREATE_POSTGRES_USER} -c "
+        GRANT CREATE ON SCHEMA public TO \"${CREATE_POSTGRES_USER}\";
+        GRANT USAGE ON SCHEMA public TO \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public to \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public to \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public to \"${CREATE_POSTGRES_USER}\";
+    " &&  echo DB initialized successfully && return 0
+    echo DB Initialization failed && return 1
 }
 
 create_datastore_db() {
@@ -258,10 +267,10 @@ create_datastore_db() {
     export DS_RO_USER
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -c "
         CREATE ROLE \"${DS_RO_USER}\" WITH LOGIN PASSWORD '${DS_RO_PASSWORD}' NOSUPERUSER NOCREATEDB NOCREATEROLE;
-    " 
+    "
     # Update with password if user already exists
-    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "                                      
-    ALTER USER \"${DS_RO_USER}\" WITH PASSWORD '${DS_RO_PASSWORD}';                                                                   
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
+    ALTER USER \"${DS_RO_USER}\" WITH PASSWORD '${DS_RO_PASSWORD}';
     " &&\
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${DS_RW_USER}" -c "
         REVOKE CREATE ON SCHEMA public FROM PUBLIC;

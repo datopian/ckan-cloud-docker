@@ -25,6 +25,7 @@ services:
         # PIP_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
         CKAN_BRANCH: ckan-2.7.3
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
+        PRE_INSTALL: "sed  -i -e 's/psycopg2==2.4.5/psycopg2==2.7.7/g' ~/venv/src/ckan/requirements.txt"
         POST_INSTALL: |
           install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.2a75 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \

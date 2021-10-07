@@ -1,6 +1,5 @@
 # Based on CKAN 2.8 Dockerfile with minor modifications for deployment on multi-tenant CKAN cluster
-
-FROM debian:jessie
+FROM debian:buster
 
 ARG EXTRA_PACKAGES
 ARG PIP_INDEX_URL
@@ -9,8 +8,7 @@ ARG GITHUB_URL
 ENV GITHUB_URL=$GITHUB_URL
 
 # Install required system packages
-RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list \
-    && apt-get -q -y --force-yes update \
+RUN apt-get -q -y --force-yes update \
     && DEBIAN_FRONTEND=noninteractive apt-get -q -y --force-yes upgrade \
     && apt-get -q -y --force-yes install \
         python-dev \
@@ -67,6 +65,9 @@ RUN CKAN_BRANCH="${CKAN_BRANCH:-ckan-2.8.1}" && CKAN_REPO="${CKAN_REPO:-ckan/cka
     wget --no-verbose -O $CKAN_VENV/src/${CKAN_BRANCH}.tar.gz https://github.com/${CKAN_REPO}/archive/${CKAN_BRANCH}.tar.gz &&\
     cd $CKAN_VENV/src && tar -xzf ${CKAN_BRANCH}.tar.gz && mv ckan-${CKAN_BRANCH} ckan &&\
     rm $CKAN_VENV/src/${CKAN_BRANCH}.tar.gz
+
+ARG PRE_INSTALL
+RUN eval "${PRE_INSTALL}"
 
 RUN touch $CKAN_VENV/src/ckan/requirement-setuptools.txt && ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt
 RUN touch $CKAN_VENV/src/ckan/requirements.txt && ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt

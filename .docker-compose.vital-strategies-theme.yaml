@@ -24,6 +24,7 @@ services:
         CKAN_BRANCH: ckan-2.7.3
         EXTRA_PACKAGES: cron
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
+        PRE_INSTALL: "sed  -i -e 's/psycopg2==2.4.5/psycopg2==2.7.7/g' ~/venv/src/ckan/requirements.txt"
         POST_INSTALL: |
           install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b fix/geojson-ssl-error &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \

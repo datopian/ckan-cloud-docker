@@ -1,18 +1,18 @@
 diff --git a/ckanext/datastore/helpers.py b/ckanext/datastore/helpers.py
-index b58cb1a..b616f0f 100644
+index b616f0f..b58cb1a 100644
 --- a/ckanext/datastore/helpers.py
 +++ b/ckanext/datastore/helpers.py
-@@ -105,12 +105,7 @@ def get_table_names_from_sql(context, sql):
+@@ -105,7 +105,12 @@ def get_table_names_from_sql(context, sql):
      table_names = []
  
      try:
--        if isinstance(result['QUERY PLAN'], list):
--            result_query_plan = json.dumps(result['QUERY PLAN'])
--            query_plan = json.loads(result_query_plan)
--        else:
--            query_plan = json.loads(result['QUERY PLAN'])
--
-+        query_plan = json.loads(result['QUERY PLAN'])
+-        query_plan = json.loads(result['QUERY PLAN'])
++        if isinstance(result['QUERY PLAN'], list):
++            result_query_plan = json.dumps(result['QUERY PLAN'])
++            query_plan = json.loads(result_query_plan)
++        else:
++            query_plan = json.loads(result['QUERY PLAN'])
++
          plan = query_plan[0]['Plan']
  
          table_names.extend(_get_table_names_from_plan(plan))

@@ -244,6 +244,7 @@ create_db() {
     local POSTGRES_USER="${2}"
     local CREATE_POSTGRES_USER="${3}"
     local CREATE_POSTGRES_PASSWORD="${4}"
+    POSTGRES_USER_HOSTLESS=$(echo $POSTGRES_USER | cut -f1 -d"@")
     ! create_db_base "${POSTGRES_HOST}" "${POSTGRES_USER}" "${CREATE_POSTGRES_USER}" "${CREATE_POSTGRES_PASSWORD}" && return 1
     echo initializing postgis extensions &&\
     psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d "${CREATE_POSTGRES_USER}" -c "
@@ -251,6 +252,19 @@ create_db() {
         CREATE EXTENSION IF NOT EXISTS postgis_topology;
         CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
         CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
+    " &&\
+    psql -v ON_ERROR_STOP=on -h "${POSTGRES_HOST}" -U "${POSTGRES_USER}" -d ${CREATE_POSTGRES_USER} -c "
+        GRANT CREATE ON SCHEMA topology TO \"${CREATE_POSTGRES_USER}\";
+        GRANT USAGE ON SCHEMA topology TO \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA topology to \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA topology to \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA topology to \"${CREATE_POSTGRES_USER}\";
+        GRANT CREATE ON SCHEMA tiger TO \"${CREATE_POSTGRES_USER}\";
+        GRANT USAGE ON SCHEMA tiger TO \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA tiger to \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA tiger to \"${CREATE_POSTGRES_USER}\";
+        GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA tiger to \"${CREATE_POSTGRES_USER}\";
+        REASSIGN OWNED BY \"${POSTGRES_USER_HOSTLESS}\" to  \"${CREATE_POSTGRES_USER}\";
     " &&\
     ckan_cloud_log '{"event":"ckan-db-initialized"}' &&\
     echo postgis extensions initialized successfully && return 0

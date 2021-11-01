@@ -264,7 +264,6 @@ create_db() {
         GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA tiger to \"${CREATE_POSTGRES_USER}\";
         GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA tiger to \"${CREATE_POSTGRES_USER}\";
         GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA tiger to \"${CREATE_POSTGRES_USER}\";
-        REASSIGN OWNED BY \"${POSTGRES_USER_HOSTLESS}\" to  \"${CREATE_POSTGRES_USER}\";
     " &&\
     ckan_cloud_log '{"event":"ckan-db-initialized"}' &&\
     echo postgis extensions initialized successfully && return 0

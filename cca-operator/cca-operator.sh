@@ -57,9 +57,21 @@ if [ "${1}" == "initialize-ckan-env-vars" ]; then
         if [[ "${POSTGRES_HOST}" == *azure.com* ]]; then
             HOST_SUFFIX="%40$(echo ${POSTGRES_HOST} | cut -f1 -d".")"
         fi
+        # Allow setting app uid and beaker session from env variables
+        if [ -z "${CKAN_APP_INSTANCE_UUID}" ]; then
+           CKAN_APP_INSTANCE_UUID=`python -c "import uuid;print(uuid.uuid1())"`
+        else
+           CKAN_APP_INSTANCE_UUID=${CKAN_APP_INSTANCE_UUID}
+        fi
+        if [ -z "${CKAN_BEAKER_SESSION_SECRET}" ]; then
+           CKAN_BEAKER_SESSION_SECRET=`python -c "import binascii,os;print(binascii.hexlify(os.urandom(25)))"`
+        else
+           CKAN_BEAKER_SESSION_SECRET=${CKAN_BEAKER_SESSION_SECRET}
+        fi
+
         ! kubectl $KUBECTL_GLOBAL_ARGS create secret generic $ENV_VARS_SECRET \
-                  --from-literal=CKAN_APP_INSTANCE_UUID=`python -c "import uuid;print(uuid.uuid1())"` \
-                  --from-literal=CKAN_BEAKER_SESSION_SECRET=`python -c "import binascii,os;print(binascii.hexlify(os.urandom(25)))"` \
+                  --from-literal=CKAN_APP_INSTANCE_UUID=${CKAN_APP_INSTANCE_UUID} \
+                  --from-literal=CKAN_BEAKER_SESSION_SECRET=${CKAN_BEAKER_SESSION_SECRET} \
                   --from-literal=POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
                   --from-literal=POSTGRES_USER=${POSTGRES_USER}${HOST_SUFFIX} \
                   --from-literal=POSTGRES_HOST=${POSTGRES_HOST} \

@@ -55,7 +55,7 @@ if [ "${1}" == "initialize-ckan-env-vars" ]; then
         echo "Creating ckan env vars secret ${ENV_VARS_SECRET}"
         # Azuresql users are formated like <username@hostname>.
         if [[ "${POSTGRES_HOST}" == *azure.com* ]]; then
-            HOST_SUFFIX="%40$(echo ${POSTGRES_HOST} | cut -f1 -d".")"
+            HOST_SUFFIX="@$(echo ${POSTGRES_HOST} | cut -f1 -d".")"
         fi
         # Allow setting app uid and beaker session from env variables
         if [ -z "${CKAN_APP_INSTANCE_UUID}" ]; then
@@ -100,15 +100,15 @@ elif [ "${1}" == "initialize-ckan-secrets" ]; then
         echo Creating ckan secrets secret $CKAN_SECRETS_SECRET from env vars secret $ENV_VARS_SECRET
         # Azuresql users are formated like <username@hostname>.
         if [[ "${POSTGRES_HOST}" == *azure.com* ]]; then
-            HOST_SUFFIX="%40$(echo ${POSTGRES_HOST} | cut -f1 -d".")"
+            HOST_SUFFIX="@$(echo ${POSTGRES_HOST} | cut -f1 -d".")"
         fi
         ! export_ckan_env_vars $ENV_VARS_SECRET && exit 1
         TEMPFILE=`mktemp`
         echo "export BEAKER_SESSION_SECRET=${CKAN_BEAKER_SESSION_SECRET}
 export APP_INSTANCE_UUID=${CKAN_APP_INSTANCE_UUID}
-export SQLALCHEMY_URL=postgresql://${POSTGRES_USER}${HOST_SUFFIX}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}/${POSTGRES_DB_NAME:-ckan}
-export CKAN_DATASTORE_WRITE_URL=postgresql://${DATASTORE_POSTGRES_USER}${HOST_SUFFIX}:${DATASTORE_POSTGRES_PASSWORD}@${POSTGRES_HOST:-datastore-db}/$(echo ${DATASTORE_POSTGRES_USER:-datastore} | cut -f1 -d%)
-export CKAN_DATASTORE_READ_URL=postgresql://${DATASTORE_RO_USER}${HOST_SUFFIX}:${DATASTORE_RO_PASSWORD}@${POSTGRES_HOST:-datastore-db}/$(echo ${DATASTORE_POSTGRES_USER:-datastore} | cut -f1 -d%)
+export SQLALCHEMY_URL=postgresql://${POSTGRES_USER}${HOST_SUFFIX}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}/${POSTGRES_DB_NAME:-ckan}?sslmode=require
+export CKAN_DATASTORE_WRITE_URL=postgresql://${DATASTORE_POSTGRES_USER}${HOST_SUFFIX}:${DATASTORE_POSTGRES_PASSWORD}@${POSTGRES_HOST:-datastore-db}/$(echo ${DATASTORE_POSTGRES_USER:-datastore}?sslmode=require | cut -f1 -d%)
+export CKAN_DATASTORE_READ_URL=postgresql://${DATASTORE_RO_USER}${HOST_SUFFIX}:${DATASTORE_RO_PASSWORD}@${POSTGRES_HOST:-datastore-db}/$(echo ${DATASTORE_POSTGRES_USER:-datastore}?sslmode=require | cut -f1 -d%)
 export SOLR_URL=${SOLR_URL}
 export CKAN_REDIS_URL=redis://redis:6379/1
 export CKAN_DATAPUSHER_URL=

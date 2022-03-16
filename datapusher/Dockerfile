@@ -33,6 +33,8 @@ RUN apk add --no-cache python \
     mkdir ${APP_DIR}/src && cd ${APP_DIR}/src && \
     git clone -b ${GIT_BRANCH} --depth=1 --single-branch ${GIT_URL} && \
     cd datapusher && \
+    # pin xlrd version for xlsx support
+    pip install xlrd==1.2.0 && \
     python setup.py install && \
     pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} --no-cache-dir -r requirements.txt && \
     # Remove temporary packages and files

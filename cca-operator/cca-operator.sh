@@ -107,8 +107,8 @@ elif [ "${1}" == "initialize-ckan-secrets" ]; then
         echo "export BEAKER_SESSION_SECRET=${CKAN_BEAKER_SESSION_SECRET}
 export APP_INSTANCE_UUID=${CKAN_APP_INSTANCE_UUID}
 export SQLALCHEMY_URL=postgresql://${POSTGRES_USER}${HOST_SUFFIX}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}/${POSTGRES_DB_NAME:-ckan}?sslmode=require
-export CKAN_DATASTORE_WRITE_URL=postgresql://${DATASTORE_POSTGRES_USER}${HOST_SUFFIX}:${DATASTORE_POSTGRES_PASSWORD}@${POSTGRES_HOST:-datastore-db}/$(echo ${DATASTORE_POSTGRES_USER:-datastore}?sslmode=require | cut -f1 -d%)
-export CKAN_DATASTORE_READ_URL=postgresql://${DATASTORE_RO_USER}${HOST_SUFFIX}:${DATASTORE_RO_PASSWORD}@${POSTGRES_HOST:-datastore-db}/$(echo ${DATASTORE_POSTGRES_USER:-datastore}?sslmode=require | cut -f1 -d%)
+export CKAN_DATASTORE_WRITE_URL=postgresql://${DATASTORE_POSTGRES_USER}${HOST_SUFFIX}:${DATASTORE_POSTGRES_PASSWORD}@${POSTGRES_HOST:-datastore-db}/$(echo ${POSTGRES_DB_NAME}-datastore?sslmode=require | cut -f1 -d%)
+export CKAN_DATASTORE_READ_URL=postgresql://${DATASTORE_RO_USER}${HOST_SUFFIX}:${DATASTORE_RO_PASSWORD}@${POSTGRES_HOST:-datastore-db}/$(echo ${POSTGRES_DB_NAME}-datastore?sslmode=require | cut -f1 -d%)
 export SOLR_URL=${SOLR_URL}
 export CKAN_REDIS_URL=redis://redis:6379/1
 export CKAN_DATAPUSHER_URL=

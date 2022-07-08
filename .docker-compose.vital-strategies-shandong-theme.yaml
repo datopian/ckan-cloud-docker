@@ -28,7 +28,7 @@ services:
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
         PRE_INSTALL: "sed  -i -e 's/psycopg2==2.4.5/psycopg2==2.7.7/g' ~/venv/src/ckan/requirements.txt"
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v1.9.6 &&\
+          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b feature/copy-visualization &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l en -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l es -f && \

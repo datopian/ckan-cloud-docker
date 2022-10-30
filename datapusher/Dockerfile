@@ -15,6 +15,7 @@ ARG PIP_INDEX_URL
 ENV PIP_INDEX_URL=$PIP_INDEX_URL
 
 RUN apk add --no-cache python \
+    tzdata \
     py-pip \
     py-gunicorn \
     libffi-dev \
@@ -41,7 +42,11 @@ RUN apk add --no-cache python \
     apk del .build-deps && \
     rm -rf ${APP_DIR}/src
 
-COPY setup ${APP_DIR}
+COPY docker-compose/datapusher-secrets.sh /tmp/secrets.sh
+SHELL ["/bin/bash", "-c"]
+RUN source /tmp/secrets.sh || true && ln -sf /usr/share/zoneinfo/${TIMEZONE:-UTC} /etc/localtime || true
+
+COPY datapusher/setup ${APP_DIR}
 
 EXPOSE 8800
 

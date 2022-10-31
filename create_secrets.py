@@ -55,9 +55,15 @@ def main():
         if name == 'BEAKER_SESSION_SECRET' or name == 'APP_INSTANCE_UUID':
             default = str(uuid.uuid4())
         if saved_value:
-            example = 'Skip to use saved value "{}"'.format(saved_value)
+            if name == 'TIMEZONE':
+                example = 'Skip to use saved value "{}" e.g. Asia/Tokyo'.format(saved_value)
+            else:
+                example = 'Skip to use saved value "{}"'.format(saved_value)
         else:
-            example = 'Default value "{}"'.format(default)
+            if name == 'TIMEZONE':
+                example = 'Default value "{}" e.g. Asia/Tokyo'.format(default)
+            else:
+                example = 'Default value "{}"'.format(default)
 
 
         value = input('[{}] {} \n({}): '.format(

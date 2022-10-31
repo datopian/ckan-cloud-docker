@@ -84,7 +84,8 @@ services:
 
   datapusher:
     build:
-      context: datapusher/
+      context: .
+      dockerfile: datapusher/Dockerfile
       args:
         PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple/}
     expose:

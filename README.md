@@ -178,10 +178,22 @@ Stop the environment:
 make stop O=vital-strategies
 ```
 
+Make a user:
+
+```
+make user O=vital-strategies U=USER_NAME P=PASSWORD E=EMAIL
+```
+
+Make a user a sysadmin:
+
+```
+make sysadmin O=vital-strategies U=USER_NAME
+```
+
 Remove the containers and volumes:
 
 ```
-make remote O=vital-strategies
+make remove O=vital-strategies
 ```
 
 Remove the associated images:

@@ -3,9 +3,9 @@ FROM jenkins/jenkins:lts
 ARG PIP_INDEX_URL
 ENV PIP_INDEX_URL=$PIP_INDEX_URL
 
-RUN /usr/local/bin/install-plugins.sh \
-        build-timeout envfile copyartifact extensible-choice-parameter fail-the-build file-operations \
-        filesystem-list-parameter fstrigger generic-webhook-trigger git-parameter github-branch-source \
+RUN jenkins-plugin-cli --plugins \
+        build-timeout envfile copyartifact extensible-choice-parameter file-operations \
+        fstrigger generic-webhook-trigger git-parameter github-branch-source \
         global-variable-string-parameter http_request jobgenerator join managed-scripts matrix-combinations-parameter \
         persistent-parameter workflow-aggregator pipeline-github-lib python ssh-slaves timestamper urltrigger \
         ws-cleanup
@@ -20,8 +20,6 @@ RUN chmod +x /usr/local/bin/docker-compose && echo "jenkins ALL=NOPASSWD: ALL" >
     echo "export CKAN_CLOUD_DOCKER_JENKINS=1" > /etc/profile.d/ckan_cloud_docker_jenkins &&\
     chmod +x /etc/profile.d/ckan_cloud_docker_jenkins
 RUN apt update && apt install -y python3-pip
-RUN python3 -m pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} pyyaml
+RUN python3 -m pip install --break-system-packages --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} pyyaml
 
 USER jenkins
-
-RUN /usr/local/bin/install-plugins.sh rebuild

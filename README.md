@@ -25,9 +25,88 @@ Install Docker for [Windows](https://store.docker.com/editions/community/docker-
 
 
 ## Generate or update files with secrets
+
 Run and follow all steps:
 ```
 ./create_secrets.py
+```
+
+If you're setting up a local environment for development and testing, you can leave all of the secret values as is. Just press enter when prompted for a value.
+
+## Running locally for development and testing
+
+If you want to run this environment locally and don't want to deploy it anywhere, you must make a few changes before you can start the environment. Once you've gone through the steps and started the environment, you can access CKAN at http://127.0.0.1:5000.
+
+**Note**: The "Install" and "Generate or update files with secrets" sections above are still required before proceeding with a local setup.
+
+### Use traefik.dev.toml
+
+By default, `traefik` will attempt to generate a certificate and use https. This will cause issues with the local development environment. To fix this, you can use the `traefik.dev.toml` by updating the `proxy` service in `docker-compose.yaml` to use the `traefik.dev.toml` file. The dev version doesn't generate a certificate and uses http instead of https.
+
+```
+  proxy:
+    image: traefik:1.7.2-alpine
+    restart: always
+    volumes:
+      - ./traefik/traefik.dev.toml:/traefik.toml # <-- Replace ./traefik/traefik.toml with ./traefik/traefik.dev.toml as shown here
+      - ./traefik/acme.json:/acme.json
+    networks:
+    - ckan-multi
+```
+
+### Expose port 5000 for CKAN
+
+In your project specific `docker-compose` file, you must expose port 5000 for CKAN. Otherwise, CKAN will not be accessible from the host machine. For example, if you want to run `.docker-compose.vital-strategies-theme.yaml` locally, you would add the ports section as shown below:
+
+```
+  ckan:
+    depends_on:
+      - datapusher
+    links:
+      - datapusher
+    image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme
+    build:
+      context: ckan
+      args:
+        CKAN_BRANCH: ckan-2.7.3
+        EXTRA_PACKAGES: cron
+        EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
+        PRE_INSTALL: "sed  -i -e 's/psycopg2==2.4.5/psycopg2==2.7.7/g' ~/venv/src/ckan/requirements.txt"
+        POST_INSTALL: |
+          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v2.1.2 &&\
+          install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
+          install_standard_ckan_extension_github -r okfn/ckanext-sentry && \
+          install_standard_ckan_extension_github -r ckan/ckanext-googleanalytics -b v2.0.2 && \
+          install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b fix-null-content-type && \
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l en -f && \
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l es -f && \
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l fr -f && \
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l km -f && \
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l pt_BR -f && \
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l zh_CN -f
+    environment:
+      - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-
+    ports: # <-- Add this section to expose port 5000
+    - 5000:5000
+```
+
+### Remove unused plugins from CKAN
+
+Before building and starting the environment, make sure you only have the required plugins enabled. If you're using a pre-defined project template for local testing, you might not need some of the included extensions, such as `ckanext-googleanalytics` or `ckanext-sentry`. For example, if you want to use the `vital-strategies` project template, you should remove the following plugins from the `.ini` file (found in `docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini`) to avoid issues (unless you want to properly configure them):
+
+```
+ckan.plugins = image_view
+   text_view
+   recline_view
+   datastore
+   datapusher
+   resource_proxy
+   geojson_view
+   querytool
+   stats
+   sentry # <-- Remove this line
+   s3filestore # <-- Remove this line
+   googleanalytics # <-- Remove this line
 ```
 
 ## Running a CKAN instance using the docker-compose environment
@@ -77,6 +156,45 @@ To start the jobs server for uploading to the datastore DB:
 docker-compose up -d jobs
 ```
 
+### Optionally, use make commands
+
+The following commands use the `vital-strategies` project template as an example. Replace `vital-strategies` with the name of your project template. **Note**: Using the commands below still requires adding `nginx` to your hosts file as shown above.
+
+Build the images:
+
+```
+make build O=vital-strategies
+```
+
+Start the environment (this will also build the images if they haven't been built yet):
+
+```
+make start O=vital-strategies
+```
+
+Stop the environment:
+
+```
+make stop O=vital-strategies
+```
+
+Remove the containers and volumes:
+
+```
+make remote O=vital-strategies
+```
+
+Remove the associated images:
+
+```
+make remove-images O=vital-strategies
+```
+
+Completely remove and then rebuild the environment (this will remove containers, volumes, and images):
+
+```
+make clean-rebuild O=vital-strategies
+```
 
 ## Making modifications to the docker images / configuration
 

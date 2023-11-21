@@ -35,9 +35,9 @@ If you're setting up a local environment for development and testing, you can le
 
 ## Running locally for development and testing
 
-If you want to run this environment locally and don't want to deploy it anywhere, you must make a few changes before you can start the environment. Once you've gone through the steps and started the environment, you can access CKAN at http://127.0.0.1:5000.
+If you want to run this locally and don't want to deploy it anywhere, you must make a few changes before you can start the environment. Once you've gone through the steps below and started the environment, you can access CKAN at http://127.0.0.1:5000.
 
-**Note**: The "Install" and "Generate or update files with secrets" sections above are still required before proceeding with a local setup.
+**Note**: The "Install" and "Generate or update files with secrets" sections above are still required before proceeding with a local setup. Once you handle the overrides below, you can proceed with the "Running a CKAN instance using the docker-compose environment" section.
 
 ### Use traefik.dev.toml
 

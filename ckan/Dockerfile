@@ -69,8 +69,7 @@ RUN CKAN_BRANCH="${CKAN_BRANCH:-ckan-2.8.1}" && CKAN_REPO="${CKAN_REPO:-ckan/cka
 ARG PRE_INSTALL
 RUN eval "${PRE_INSTALL}"
 
-RUN ckan-pip install psycopg2-binary==2.8.4
-RUN sed -i '/psycopg2/d' $CKAN_VENV/src/ckan/requirements.txt
+RUN sed -i 's/psycopg2==2.4.5/psycopg2==2.7.3.2/g' $CKAN_VENV/src/ckan/requirements.txt
 
 RUN touch $CKAN_VENV/src/ckan/requirement-setuptools.txt && ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirement-setuptools.txt
 RUN touch $CKAN_VENV/src/ckan/requirements.txt && ckan-pip install --index-url ${PIP_INDEX_URL:-https://pypi.org/simple/} --upgrade --no-cache-dir -r $CKAN_VENV/src/ckan/requirements.txt

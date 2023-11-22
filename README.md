@@ -35,7 +35,7 @@ If you're setting up a local environment for development and testing, you can le
 
 ## Running locally for development and testing
 
-If you want to run this locally and don't want to deploy it anywhere, you must make a few changes before you can start the environment. Once you've gone through the steps below and started the environment, you can access CKAN at http://127.0.0.1:5000.
+If you want to run this locally and don't want to deploy it anywhere, you must make a few changes before you can start the environment. Once you've gone through the steps below and started the environment, you can access CKAN at http://ckan:5000 (when creating secrets, don't change the default site URL).
 
 **Note**: The "Install" and "Generate or update files with secrets" sections above are still required before proceeding with a local setup. After making the changes below, you can continue with the "Running a CKAN instance using the docker-compose environment" section.
 
@@ -107,6 +107,15 @@ ckan.plugins = image_view
    sentry # <-- Remove this line
    s3filestore # <-- Remove this line
    googleanalytics # <-- Remove this line
+```
+
+### Hosts file entries
+
+When using this environment locally, you must add the following entries to your hosts file (`nginx` is mentioned in the next section, but `ckan` is specific to the development and testing setup):
+
+```
+127.0.0.1  nginx
+127.0.0.1  ckan
 ```
 
 ## Running a CKAN instance using the docker-compose environment

@@ -1,0 +1,32 @@
+debug = false
+defaultEntryPoints = ["http"]
+
+[entryPoints]
+    [entryPoints.http]
+      address = ":80"
+
+    [entryPoints.api]
+      address = ":8081"
+
+    [api]
+      entryPoint = "api"
+
+    [ping]
+      entryPoint = "http"
+
+    [accessLog]
+
+    [file]
+      watch = true
+
+    [backends]
+      [backends.ckan]
+        [backends.ckan.servers.server1]
+          url = "http://nginx:8080"
+
+    [frontends]
+      [frontends.ckan]
+        backend="ckan"
+        passHostHeader = true
+        [frontends.ckan.routes.route1]
+          rule = "Host:localhost"

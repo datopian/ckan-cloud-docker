@@ -22,9 +22,34 @@ install_standard_ckan_extension_github() {
         e) EGG=${OPTARG};;
       esac
     done
-#    echo "#### REPO: $REPO_NAME ####"
-#    echo "#### BRANCH: $BRANCH ####"
-#    echo "#### EGG: $EGG ####"
+
+    echo "#### REPO: $REPO_NAME ####"
+    echo "#### BRANCH: $BRANCH ####"
+    echo "#### REPO URL: $GITHUB_URL/$REPO_NAME.git ####"
+
+    # Check if the branch exists by examining the output directly
+    BRANCH_EXISTS=$(git ls-remote --heads ${GITHUB_URL}/${REPO_NAME}.git ${BRANCH})
+
+    if [ -z "$BRANCH_EXISTS" ]; then
+      echo "#### BRANCH EXISTS: $BRANCH_EXISTS ####"
+
+      if [ "$BRANCH" = "master" ]; then
+        # Attempt to switch to 'main' if 'master' does not exist
+        BRANCH_EXISTS=$(git ls-remote --heads ${GITHUB_URL}/${REPO_NAME}.git main)
+        if [ -n "$BRANCH_EXISTS" ]; then
+          echo "Branch 'master' not found, switching to 'main'."
+          BRANCH="main"
+        else
+          echo "Branch 'master' not found, and 'main' also does not exist."
+          exit 1
+        fi
+      else
+        # If a specific branch was provided and does not exist, print an error and exit
+        echo "Branch '$BRANCH' not found. Please check the branch name."
+        exit 1
+      fi
+    fi
+
     if [ $PIP_INDEX_URL != https://pypi.org/simple/ ]; then
       TMPDIR=${CKAN_VENV}/src/${EGG}
       git clone -b $BRANCH ${GITHUB_URL}/${REPO_NAME}.git ${TMPDIR}

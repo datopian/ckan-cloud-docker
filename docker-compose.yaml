@@ -1,15 +1,13 @@
-version: '3.2'
-
 services:
-
   proxy:
     image: traefik:1.7.2-alpine
     restart: always
     volumes:
-      - ./traefik/traefik.toml:/traefik.toml
+      #- ./traefik/traefik.toml:/traefik.toml
+      - ./traefik/traefik.dev.toml:/traefik.toml
       - ./traefik/acme.json:/acme.json
     networks:
-    - ckan-multi
+      - ckan-multi
 
   varnish:
     image: million12/varnish
@@ -20,27 +18,27 @@ services:
     expose:
       - "80"
     networks:
-    - ckan-multi
+      - ckan-multi
 
   redis:
     image: redis:alpine
     restart: always
     expose:
-    - "6379"
+      - "6379"
     networks:
-    - ckan-multi
+      - ckan-multi
 
   nginx:
     depends_on:
-    - ckan
+      - ckan
     image: viderum/ckan-cloud-docker:nginx-latest
     build:
       context: nginx
     restart: always
     expose:
-    - "8080"
+      - "8080"
     networks:
-    - ckan-multi
+      - ckan-multi
 
   adminer:
     image: adminer
@@ -48,25 +46,25 @@ services:
     expose:
       - "8080"
     networks:
-    - ckan-multi
+      - ckan-multi
 
   jobs:
     depends_on:
-    - ckan
-    - nginx
+      - ckan
+      - nginx
     image: viderum/ckan-cloud-docker:ckan-latest
-    command: [/ckan-entrypoint.sh, ckan-paster, --plugin=ckan, jobs, -c, /etc/ckan/production.ini, worker]
+    command: [/ckan-entrypoint.sh, ckan, -c, /etc/ckan/ckan.ini, jobs, worker]
     restart: always
     volumes:
-    - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets.sh
-    - ./docker-compose/ckan-conf-templates:/etc/ckan-conf/templates
-    - ckan-data:/var/lib/ckan
+      - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets.sh
+      - ./docker-compose/ckan-conf-templates:/etc/ckan-conf/templates
+      - ckan-data:/var/lib/ckan
     environment:
-    - CKAN_STORAGE_PATH=/var/lib/ckan/data
-    - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets.sh
-    - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
+      - CKAN_STORAGE_PATH=/var/lib/ckan/data
+      - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets.sh
+      - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
     networks:
-    - ckan-multi
+      - ckan-multi
 
   solr:
     image: viderum/ckan-cloud-docker:solr-latest
@@ -76,50 +74,53 @@ services:
         SCHEMA_XML: ${SCHEMA_XML:-schemas/schema28.xml}
     restart: always
     expose:
-    - "8983"
+      - "8983"
     volumes:
-    - solr:/opt/solr/server
+      - solr:/opt/solr/server
     networks:
-    - ckan-multi
+      - ckan-multi
 
   datapusher:
     build:
       context: .
-      dockerfile: datapusher/Dockerfile
+      dockerfile: ${DATAPUSHER_DIRECTORY:-datapusher}/Dockerfile
       args:
         PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple/}
     expose:
-      - "8800"
+      - "8800:8800"
     networks:
-    - ckan-multi
+      - ckan-multi
+    environment:
+      - WRITE_ENGINE_URL=postgresql://postgres:123456@datastore-db/datastore
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:123456@datastore-db/datapusher_jobs
 
   ckan:
     depends_on:
-    - redis
-    - solr
+      - redis
+      - solr
     image: viderum/ckan-cloud-docker:ckan-latest
     build:
       context: ckan
       args:
-        CKAN_BRANCH: ${CKAN_BRANCH:-ckan-2.8.1}
+        CKAN_BRANCH: ${CKAN_BRANCH:-ckan-2.10.4}
         CKAN_REPO: ${CKAN_REPO:-ckan/ckan}
         PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple/}
     restart: always
     volumes:
-    - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets.sh
-    - ./docker-compose/ckan-conf-templates:/etc/ckan-conf/templates
-    - ckan-data:/var/lib/ckan
-    - ./migrate_databases.sh:/usr/lib/ckan/migrate_databases.sh
-    - ./migrate_filestorage.sh:/usr/lib/ckan/migrate_filestorage.sh
+      - ./docker-compose/ckan-secrets.sh:/etc/ckan-conf/secrets/secrets.sh
+      - ./docker-compose/ckan-conf-templates:/etc/ckan-conf/templates
+      - ckan-data:/var/lib/ckan
+      - ./migrate_databases.sh:/usr/lib/ckan/migrate_databases.sh
+      - ./migrate_filestorage.sh:/usr/lib/ckan/migrate_filestorage.sh
     environment:
-    - CKAN_STORAGE_PATH=/var/lib/ckan/data
-    - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets.sh
-    - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
-    - GUNICORN_WORKERS=2
+      - CKAN_STORAGE_PATH=/var/lib/ckan/data
+      - CKAN_K8S_SECRETS=/etc/ckan-conf/secrets/secrets.sh
+      - CKAN_K8S_TEMPLATES=/etc/ckan-conf/templates
+      - GUNICORN_WORKERS=2
     expose:
-    - "5000"
+      - "5000"
     networks:
-    - ckan-multi
+      - ckan-multi
 
   jenkins:
     image: viderum/ckan-cloud-docker:jenkins-latest
@@ -127,14 +128,14 @@ services:
       context: jenkins
     restart: always
     volumes:
-    - ./jenkins/jobs:/var/jenkins_home/jobs
-    - .:/etc/ckan-cloud/ckan-cloud-docker
-    - /var/run/docker.sock:/var/run/docker.sock
-    - ./jenkins/scripts/docker_compose_cca_operator.sh:/etc/ckan-cloud/cca_operator.sh
+      - ./jenkins/jobs:/var/jenkins_home/jobs
+      - .:/etc/ckan-cloud/ckan-cloud-docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./jenkins/scripts/docker_compose_cca_operator.sh:/etc/ckan-cloud/cca_operator.sh
     ports:
-    - "8089:8080"
+      - "8089:8080"
     networks:
-    - cloud-management
+      - cloud-management
 
   cca-operator:
     image: viderum/ckan-cloud-docker:cca-operator-latest
@@ -143,45 +144,45 @@ services:
     command: ./server.sh
     restart: always
     volumes:
-    - /etc/ckan-cloud:/etc/ckan-cloud
+      - /etc/ckan-cloud:/etc/ckan-cloud
     ports:
-    - "8022:22"
+      - "8022:22"
     networks:
-    - cloud-management
-    - ckan-multi
+      - cloud-management
+      - ckan-multi
 
   provisioning-api-db:
     image: postgres
     restart: always
     ports:
-    - "5439:5432"
+      - "5439:5432"
     env_file:
-    - docker-compose/provisioning-api-db-secrets.sh
+      - docker-compose/provisioning-api-db-secrets.sh
     volumes:
-    - provisioning-api-db:/var/lib/postgresql/data
+      - provisioning-api-db:/var/lib/postgresql/data
     networks:
-    - cloud-management
+      - cloud-management
 
   provisioning-api:
     depends_on:
-    - provisioning-api-db
-    - cca-operator
+      - provisioning-api-db
+      - cca-operator
     image: viderum/ckan-cloud-provisioning-api:latest
     restart: always
     env_file:
-    - docker-compose/provisioning-api-secrets.sh
+      - docker-compose/provisioning-api-secrets.sh
     environment:
-    - INSTANCE_MANAGER=root@cca-operator
-    - PRIVATE_SSH_KEY
-    - PRIVATE_KEY
-    - PUBLIC_KEY
-    - GITHUB_KEY
-    - GITHUB_SECRET
-    - EXTERNAL_ADDRESS=http://localhost:8092
+      - INSTANCE_MANAGER=root@cca-operator
+      - PRIVATE_SSH_KEY
+      - PRIVATE_KEY
+      - PUBLIC_KEY
+      - GITHUB_KEY
+      - GITHUB_SECRET
+      - EXTERNAL_ADDRESS=http://localhost:8092
     ports:
-    - "8092:8000"
+      - "8092:8000"
     networks:
-    - cloud-management
+      - cloud-management
 
 volumes:
   ckan-data:

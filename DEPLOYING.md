@@ -115,7 +115,7 @@ In addition to SSL specific configuration, there is one more line you need to ad
 
 This should be enough for the basic installation. In case you need to tweak versions or other initialization parameters for CKAN, you need these two files:
 
-* `docker-compose/ckan-conf-templates/{instance-id}-theme-production.ini`
+* `docker-compose/ckan-conf-templates/{instance-id}-theme-ckan.ini`
   This is the file used to generate the CKAN main configuration file.
 
 * `.docker-compose.{instance-id}-theme.yaml`
@@ -196,7 +196,7 @@ bash migrate_filestorage.sh $HOST $ACCESS_KEY $SECRET_KEY $BUCKET $STORAGE_PATH
 
 After migration rebuild the SOLR search index.
 ```
-sudo make shell O=<<instance-id>> S=ckan C='/usr/local/bin/ckan-paster --plugin=ckan search-index rebuild  -c /etc/ckan/production.ini'
+sudo make shell O=<<instance-id>> S=ckan C='/usr/local/bin/ckan-paster --plugin=ckan search-index rebuild  -c /etc/ckan/ckan.ini'
 ```
 
 ## Debugging
@@ -255,10 +255,10 @@ POST_INSTALL: |
   install_standard_ckan_extension_github -r datopian/ckanext-s3filestore &&\
 ```
 
-And add extension to the list of plugins in `docker-compose/ckan-conf-templates/{instance-id}-theme-production.ini.template`
+And add extension to the list of plugins in `docker-compose/ckan-conf-templates/{instance-id}-theme-ckan.ini.template`
 
 ```
-# in docker-compose/ckan-conf-templates/{instance-id}-theme-production.ini.template
+# in docker-compose/ckan-conf-templates/{instance-id}-theme-ckan.ini.template
 ckan.plugins = image_view
    ...
    stats
@@ -268,7 +268,7 @@ ckan.plugins = image_view
 Note: depending on extension you might also need to update extensions related configurations in the same file. If needed this type of information is ussually included in extension REAMDE.
 
 ```
-# in docker-compose/ckan-conf-templates/{instance-id}-theme-production.ini.template
+# in docker-compose/ckan-conf-templates/{instance-id}-theme-ckan.ini.template
 ckanext.s3filestore.aws_access_key_id = Your-Access-Key-ID
 ckanext.s3filestore.aws_secret_access_key = Your-Secret-Access-Key
 ckanext.s3filestore.aws_bucket_name = a-bucket-to-store-your-stuff

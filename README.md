@@ -92,7 +92,7 @@ In your project specific `docker-compose` file, you must expose port 5000 for CK
 
 ### Remove unused plugins from CKAN
 
-Before building and starting the environment, make sure you only have the required plugins enabled. If you're using a pre-defined project template for local testing, you might not need some of the included extensions, such as `ckanext-googleanalytics` or `ckanext-sentry`. For example, if you want to use the `vital-strategies` project template, you should remove the following plugins from the `.ini` file (found in `docker-compose/ckan-conf-templates/vital-strategies-theme-production.ini`) to avoid issues (unless you want to properly configure them):
+Before building and starting the environment, make sure you only have the required plugins enabled. If you're using a pre-defined project template for local testing, you might not need some of the included extensions, such as `ckanext-googleanalytics` or `ckanext-sentry`. For example, if you want to use the `vital-strategies` project template, you should remove the following plugins from the `.ini` file (found in `docker-compose/ckan-conf-templates/vital-strategies-theme-ckan.ini`) to avoid issues (unless you want to properly configure them):
 
 ```
 ckan.plugins = image_view
@@ -154,7 +154,7 @@ Create a CKAN admin user
 
 ```
 docker-compose exec ckan ckan-paster --plugin=ckan \
-    sysadmin add -c /etc/ckan/production.ini admin password=12345678 email=admin@localhost
+    sysadmin add -c /etc/ckan/ckan.ini admin password=12345678 email=admin@localhost
 ```
 
 Login to CKAN at http://nginx:8080 with username `admin` and password `12345678`
@@ -250,8 +250,8 @@ This allows to test different CKAN configurations and extension combinations
 Duplicate the CKAN default configuration:
 
 ```
-cp docker-compose/ckan-conf-templates/production.ini.template \
-   docker-compose/ckan-conf-templates/my-ckan-production.ini.template
+cp docker-compose/ckan-conf-templates/ckan.ini.template \
+   docker-compose/ckan-conf-templates/my-ckan-ckan.ini.template
 ```
 
 Edit the duplicated file and modify the settings, e.g. add the extensions to the `plugins` configuration and any additional required extension configurations.

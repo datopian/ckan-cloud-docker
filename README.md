@@ -187,6 +187,12 @@ Stop the environment:
 make stop O=vital-strategies
 ```
 
+Enter a container:
+
+```
+make shell O=vital-strategies S=SERVICE_NAME
+```
+
 Make a user:
 
 ```
@@ -398,3 +404,85 @@ You might need to reload the solr collection after recreate:
 ```
 curl "http://localhost:8983/solr/admin/collections?action=RELOAD&name=${INSTANCE_ID}&wt=json"
 ```
+
+## Migrating to CKAN 2.10 and Python 3
+
+**Note**: As of January 1, 2020, Python 2 is no longer supported. If you're running CKAN 2.7 with Python 2, it's highly recommended to migrate to CKAN 2.10 with Python 3. The steps below outline how to do this.
+
+On the `master` branch, build/start CKAN (this is the old CKAN 2.7 with Python 2—you need to seed this portal first before testing the migration). All commands should be run in `ckan-cloud-docker` (unless stated otherwise). In the examples below, I'm using the `vital-strategies` project template as an example. Replace `vital-strategies` with the name of your project template. **Note**: Depending on any custom configurations you have, you might need to adjust the variables in `db/migration/upgrade_databases.sh` (and others, such as your custom `docker-compose` file, or your custom `.ini` file) to match your setup.
+
+1. Start up your current instance (if it's not running—don't pull the latest changes yet): `make start O=vital-strategies`
+2. Backup the DBs: `make backup-db O=vital-strategies` (confirm that you have `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` in the current directory after running this command)
+3. Stop the containers: `make stop O=vital-strategies`
+4. Pull the latest changes: `git pull`
+5. Specify if you want to use `datapusher-plus` (you can skip this step to stick with vanilla `datapusher`): `export DATAPUSHER_TYPE=datapusher-plus` (always do this in the current terminal session before starting up CKAN 2.10/Python 3 with `ckan-cloud-docker`)
+6. Create secrets: `make secret` (follow the prompts)
+7. Clean and rebuild: `make clean-rebuild O=vital-strategies`
+8. Run the upgrade script: `make upgrade-db O=vital-strategies`
+9. Stop the containers: `make stop O=vital-strategies` (copy the API token that's output at the end, for the next step)
+10. Run `make secret` again and paste the token when prompted (step 13—"Enter Datapusher API token")
+11. Start the containers: `make start O=vital-strategies`
+12. Test and confirm that the migration was successful
+
+**Note**: The first time you visit the DataStore tab for a given resource, it will say "Error: cannot connect to datapusher". If you click "Upload to DataStore", this error will go away and the process will complete as expected.
+
+**Important**: It's recommended to make copies of `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` and move them off of the server, if possible. If anything goes wrong, and you must revert to the old CKAN 2.7 instance, you can restore it by following the steps below:
+
+1. Stop the containers: `make stop O=vital-strategies`
+2. Checkout the last CKAN 2.7 commit: `git checkout d3bdc178a1726ada331b47157b92123cdec82b12`
+3. Create secrets (you probably don't need to do this, but go through the process and make sure your previously entered values are correct): `make secret` (follow the prompts)
+4. Clean and rebuild: `make clean-rebuild O=vital-strategies`
+5. Restore the DBs (_note_: the prior version of this repo doesn't have a command for this—you must do it manually):
+    1. Restore the CKAN DB: `docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.<YOUR_PROJECT>-theme.yaml exec -T db pg_restore -U postgres --verbose --create --clean --if-exists -d postgres < ckan.dump`
+    2. Restore the DataStore DB: `docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.<YOUR_PROJECT>-theme.yaml exec -T datastore-db pg_restore -U postgres --verbose --create --clean --if-exists -d postgres < datastore.dump`
+    3. Restore the CKAN data:
+        1. `docker cp ckan_data.tar.gz $(docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.<YOUR_PROJECT>-theme.yaml ps -q ckan):/tmp/ckan_data.tar.gz`
+        2. `docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.<YOUR_PROJECT>-theme.yaml exec -T ckan bash -c "tar -xzf /tmp/ckan_data.tar.gz -C /tmp/ && cp -r /tmp/data/* /var/lib/ckan/data/ && chown -R ckan:ckan /var/lib/ckan/data"`
+    4. Set datastore permissions:
+        1. Enter your `ckan` container: `docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.<YOUR_PROJECT>-theme.yaml exec ckan bash`
+        2. Create a new file in your `ckan` container, `ckan.sql`, with the following contents:
+           ```
+           \connect "datastore"
+
+           -- revoke permissions for the read-only user
+           REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+           REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+
+           GRANT CREATE ON SCHEMA public TO "postgres";
+           GRANT USAGE ON SCHEMA public TO "postgres";
+
+           -- grant select permissions for read-only user
+           GRANT CONNECT ON DATABASE "datastore" TO "readonly";
+           GRANT USAGE ON SCHEMA public TO "readonly";
+
+           -- grant access to current tables and views to read-only user
+           GRANT SELECT ON ALL TABLES IN SCHEMA public TO "readonly";
+
+           -- grant access to new tables and views by default
+           ALTER DEFAULT PRIVILEGES FOR USER "postgres" IN SCHEMA public
+              GRANT SELECT ON TABLES TO "readonly";
+
+           -- a view for listing valid table (resource id) and view names
+           CREATE OR REPLACE VIEW "_table_metadata" AS
+               SELECT DISTINCT
+                   substr(md5(dependee.relname || COALESCE(dependent.relname, '')), 0, 17) AS "_id",
+                   dependee.relname AS name,
+                   dependee.oid AS oid,
+                   dependent.relname AS alias_of
+                   -- dependent.oid AS oid
+               FROM
+                   pg_class AS dependee
+                   LEFT OUTER JOIN pg_rewrite AS r ON r.ev_class = dependee.oid
+                   LEFT OUTER JOIN pg_depend AS d ON d.objid = r.oid
+                   LEFT OUTER JOIN pg_class AS dependent ON d.refobjid = dependent.oid
+               WHERE
+                   (dependee.oid != dependent.oid OR dependent.oid IS NULL) AND
+                   (dependee.relname IN (SELECT tablename FROM pg_catalog.pg_tables)
+                       OR dependee.relname IN (SELECT viewname FROM pg_catalog.pg_views)) AND
+                   dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
+                       ORDER BY dependee.oid DESC;
+           ALTER VIEW "_table_metadata" OWNER TO "postgres";
+           GRANT SELECT ON "_table_metadata" TO "readonly";
+           ```
+        3. While still in your `ckan` container, get your `sqlalchemy.url`: `cat /etc/ckan/production.ini | grep sqlalchemy.url` (for example, `postgresql://ckan:123456@db/ckan`)
+        4. Set the permissions by running: `cat ckan.sql | psql <YOUR_SQLALCHEMY_URL>` (for example, `cat ckan.sql | psql postgresql://ckan:123456@db/ckan`)

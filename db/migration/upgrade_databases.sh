@@ -28,6 +28,13 @@ if [ ! -f $DATASTORE_BACKUP_FILE ]; then
     exit 1
 fi
 
+if [ ! -f $CKAN_DATA_BACKUP_FILE ]; then
+    echo ""
+    echo "### CKAN data backup file not found."
+    echo ""
+    exit 1
+fi
+
 reset_database() {
     local db_name=$1
     local service_name=$2

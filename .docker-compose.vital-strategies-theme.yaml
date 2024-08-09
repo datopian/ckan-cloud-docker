@@ -22,7 +22,6 @@ services:
         CKAN_BRANCH: ckan-2.10.4
         EXTRA_PACKAGES: cron
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
-        #PRE_INSTALL: "sed  -i -e 's/psycopg2==2.4.5/psycopg2==2.7.7/g' ~/venv/src/ckan/requirements.txt"
         POST_INSTALL: |
           install_standard_ckan_extension_github -r datopian/ckanext-querytool -b dev/python3-upgrade &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
@@ -37,8 +36,8 @@ services:
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l zh_Hans_CN -f
     environment:
       - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-
-    ports: # <-- Add this section to expose port 5000
-      - 5000:5000
+    #ports: # Uncomment to expose CKAN on localhost for development
+    #  - 5000:5000
 
   jobs:
     image: viderum/ckan-cloud-docker:ckan-latest-vital-strategies-theme

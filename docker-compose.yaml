@@ -3,8 +3,8 @@ services:
     image: traefik:1.7.2-alpine
     restart: always
     volumes:
-      #- ./traefik/traefik.toml:/traefik.toml
-      - ./traefik/traefik.dev.toml:/traefik.toml
+      - ./traefik/traefik.toml:/traefik.toml # Comment out for development
+      #- ./traefik/traefik.dev.toml:/traefik.toml # Uncomment for development
       - ./traefik/acme.json:/acme.json
     networks:
       - ckan-multi
@@ -67,16 +67,12 @@ services:
       - ckan-multi
 
   solr:
-    image: viderum/ckan-cloud-docker:solr-latest
-    build:
-      context: solr
-      args:
-        SCHEMA_XML: ${SCHEMA_XML:-schemas/schema28.xml}
+    image: ckan/ckan-solr:${SOLR_IMAGE:-2.10-solr9}
     restart: always
     expose:
       - "8983"
     volumes:
-      - solr:/opt/solr/server
+      - solr:/var/solr
     networks:
       - ckan-multi
 

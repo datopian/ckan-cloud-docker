@@ -407,11 +407,13 @@ curl "http://localhost:8983/solr/admin/collections?action=RELOAD&name=${INSTANCE
 
 ## Migrating to CKAN 2.10 and Python 3
 
-**Note**: As of January 1, 2020, Python 2 is no longer supported. If you're running CKAN 2.7 with Python 2, it's highly recommended to migrate to CKAN 2.10 with Python 3. The steps below outline how to do this.
+>**Note**: As of January 1, 2020, Python 2 is no longer officially supported. If you're running CKAN 2.7 with Python 2, it's highly recommended to migrate to CKAN 2.10 with Python 3. The latest version of this repo also no longer supports CKAN < 2.10 and Python < 3. If you must stick with those versions for now, you will need to maintain your local copy of this repo yourself.
 
-On the `master` branch, build/start CKAN (this is the old CKAN 2.7 with Python 2—you need to seed this portal first before testing the migration). All commands should be run in `ckan-cloud-docker` (unless stated otherwise). In the examples below, I'm using the `vital-strategies` project template as an example. Replace `vital-strategies` with the name of your project template. **Note**: Depending on any custom configurations you have, you might need to adjust the variables in `db/migration/upgrade_databases.sh` (and others, such as your custom `docker-compose` file, or your custom `.ini` file) to match your setup.
+All of the following commands should be run in `ckan-cloud-docker` (unless stated otherwise). In the examples below, I'm using the `vital-strategies` project template as an example. Replace `vital-strategies` with the name of your project template.
 
-1. Start up your current instance (if it's not running—don't pull the latest changes yet): `make start O=vital-strategies`
+>**Note**: Depending on any custom configurations you have, you might need to adjust the variables in `db/migration/upgrade_databases.sh` (and others, such as your custom `docker-compose` file, or your custom `.ini` file) to match your setup.
+
+1. Start up your _current_ instance (if it's not running already—**don't pull the latest changes yet**): `make start O=vital-strategies`
 2. Backup the DBs: `make backup-db O=vital-strategies` (confirm that you have `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` in the current directory after running this command)
 3. Stop the containers: `make stop O=vital-strategies`
 4. Pull the latest changes: `git pull`
@@ -424,9 +426,9 @@ On the `master` branch, build/start CKAN (this is the old CKAN 2.7 with Python 2
 11. Start the containers: `make start O=vital-strategies`
 12. Test and confirm that the migration was successful
 
-**Note**: The first time you visit the DataStore tab for a given resource, it will say "Error: cannot connect to datapusher". If you click "Upload to DataStore", this error will go away and the process will complete as expected.
+>**Note**: The first time you visit the DataStore tab for a given resource, it will say "Error: cannot connect to datapusher". If you click "Upload to DataStore", this error will go away and the process will complete as expected.
 
-**Important**: It's recommended to make copies of `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` and move them off of the server, if possible. If anything goes wrong, and you must revert to the old CKAN 2.7 instance, you can restore it by following the steps below:
+>**Important**: It's recommended to make copies of `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` and move them off of the server, if possible. If anything goes wrong, and you must revert to the old CKAN 2.7 instance, you can restore it by following the steps below:
 
 1. Stop the containers: `make stop O=vital-strategies`
 2. Checkout the last CKAN 2.7 commit: `git checkout d3bdc178a1726ada331b47157b92123cdec82b12`

@@ -1,18 +1,21 @@
 #!/bin/bash
 
 COMPOSE_FILES=$1
+CKAN_DB_NAME=$2
+DB_USERNAME=$3
+CKAN_DB_USERNAME=$4
+DATASTORE_DB_NAME=$5
+DATSTORE_DB_USERNAME=$6
+
 CKAN_BACKUP_FILE="ckan.dump"
 DATASTORE_BACKUP_FILE="datastore.dump"
-CKAN_DB_NAME="ckan"
-DATASTORE_DB_NAME="datastore"
 CKAN_DATA_BACKUP_FILE="ckan_data.tar.gz"
 CKAN_SERVICE="ckan"
 DB_SERVICE="db"
 DATASTORE_SERVICE="datastore-db"
-DB_USERNAME="postgres"
 CKAN_CONFIG_PATH="/etc/ckan/ckan.ini"
-CKAN_DB_USERNAME="ckan"
-DATSTORE_DB_USERNAME="postgres"
+
+
 
 if [ ! -f $CKAN_BACKUP_FILE ]; then
     echo ""

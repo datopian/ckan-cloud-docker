@@ -133,16 +133,16 @@ ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
 
 ## AWS S3 settings
 
-# ckanext.cloudstorage.driver = S3_US_EAST2
-# ckanext.cloudstorage.container_name = vital-strategies
-# ckanext.cloudstorage.driver_options = {"key": "{{AWS_ACCESS_KEY_ID}}", "secret": "{{AWS_SECRET_ACCESS_KEY}}"}
-# ckanext.s3filestore.host_name = https://vital-strategies-ckan.s3.us-east-2.amazonaws.com
-# ckanext.s3filestore.aws_storage_path = demo
-# ckanext.s3filestore.aws_access_key_id = {{AWS_ACCESS_KEY_ID}}
-# ckanext.s3filestore.aws_secret_access_key = {{AWS_SECRET_ACCESS_KEY}}
-# ckanext.s3filestore.region_name = us-east-2
-# ckanext.s3filestore.aws_bucket_name = vital-strategies-ckan
-# ckanext.s3filestore.signature_version = s3v4
+ckanext.cloudstorage.driver = S3_US_EAST2
+ckanext.cloudstorage.container_name = vital-strategies
+ckanext.cloudstorage.driver_options = {"key": "{{AWS_ACCESS_KEY_ID}}", "secret": "{{AWS_SECRET_ACCESS_KEY}}"}
+ckanext.s3filestore.host_name = https://vital-strategies-ckan.s3.us-east-2.amazonaws.com
+ckanext.s3filestore.aws_storage_path = demo
+ckanext.s3filestore.aws_access_key_id = {{AWS_ACCESS_KEY_ID}}
+ckanext.s3filestore.aws_secret_access_key = {{AWS_SECRET_ACCESS_KEY}}
+ckanext.s3filestore.region_name = us-east-2
+ckanext.s3filestore.aws_bucket_name = vital-strategies-ckan
+ckanext.s3filestore.signature_version = s3v4
 
 ## Query Tool Settings
 
@@ -153,10 +153,10 @@ ckanext.querytool.allow_nav_bar = True
 
 ## Google Analytics
 
-# googleanalytics.id = {{GA_ID}}
-# googleanalytics.account = {{GA_ACCOUNT}}
-# googleanalytics.username = {{GA_USERNAME}}
-# googleanalytics.password = {{GA_PASSWORD}}
+googleanalytics.id = {{GA_ID}}
+googleanalytics.account = {{GA_ACCOUNT}}
+googleanalytics.username = {{GA_USERNAME}}
+googleanalytics.password = {{GA_PASSWORD}}
 
 ## Language settings
 

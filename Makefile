@@ -2,7 +2,13 @@
 
 COMPOSE_FILES = -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml
 
-DATAPUSHER_TYPE ?= datapusher
+DATAPUSHER_TYPE ?= datapusher-plus
+CKAN_DB_NAME ?= ckan
+CKAN_DB_USER ?= ckan
+DB_USERNAME ?= postgres
+CKAN_DB_USERNAME ?= ckan
+DATASTORE_DB_NAME ?= datastore
+DATASTORE_DB_USERNAME ?= postgres
 
 start:
 	@export DATAPUSHER_DIRECTORY=$(DATAPUSHER_TYPE) && \
@@ -66,4 +72,4 @@ backup-db:
 	docker-compose $(COMPOSE_FILES) exec -T datastore-db pg_dump -U postgres --format=custom -d datastore > datastore.dump
 
 upgrade-db:
-	./db/migration/upgrade_databases.sh "$(COMPOSE_FILES)"
+	./db/migration/upgrade_databases.sh "$(COMPOSE_FILES)" "$(CKAN_DB_NAME)" "$(CKAN_DB_USERNAME)" "$(DB_USERNAME)" "$(CKAN_DB_USERNAME)" "$(DATASTORE_DB_NAME)" "$(DATASTORE_DB_USERNAME)"

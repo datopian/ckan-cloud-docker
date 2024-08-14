@@ -413,6 +413,8 @@ All of the following commands should be run in `ckan-cloud-docker` (unless state
 
 >**Note**: Depending on any custom configurations you have, you might need to adjust the variables in `db/migration/upgrade_databases.sh` (and others, such as your custom `docker-compose` file, or your custom `.ini` file) to match your setup.
 
+>**Important**: While following the migration steps, you will create backups of the DBs to migrate to the new upgraded CKAN instance. A more robust backup is recommended, in the case that you need to revert to the old CKAN 2.7 instance (). It's recommended to either take a snapshot (or similar) of your server before beginning the migration, or to make a full copy of `/var/lib/docker` (or wherever your Docker data is stored) to ensure you can revert if needed. If your cloud server doesn't have space to store the copy, you will need to copy it to another server or storage location (e.g., S3, Google Cloud Storage, or locally using `scp`, `rsync`, etc.). For steps on how to revert to the old CKAN 2.7 instance _without_ a full system or Docker data backup, see the [Reverting to the old CKAN 2.7 instance](#reverting-to-the-old-ckan-27-instance) section below.
+
 1. Start up your _current_ instance (if it's not running already, **don't pull the latest changes yet**): `make start O=vital-strategies`
 2. Pull the latest changes: `git pull` (**Important**: don't stop your instance yet—make sure it's still running when you pull this, as you need to run the next command on your _current_ instance, and the command only exists on the new branch)
 3. Backup the DBs: `make backup-db O=vital-strategies` (confirm that you have `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` in the current directory after running this command)
@@ -429,6 +431,8 @@ All of the following commands should be run in `ckan-cloud-docker` (unless state
 12. Test and confirm that the migration was successful
 
 >**Note**: The first time you visit the DataStore tab for a given resource, it will say "Error: cannot connect to datapusher". If you click "Upload to DataStore", this error will go away and the process will complete as expected.
+
+### Reverting to the old CKAN 2.7 instance
 
 >**Important**: It's recommended to make copies of `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` and move them off of the server, if possible. If anything goes wrong, and you must revert to the old CKAN 2.7 instance, you can restore it by following the steps below:
 

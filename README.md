@@ -420,8 +420,10 @@ All of the following commands should be run in `ckan-cloud-docker` (unless state
 5. (optional and not recommended) If you don't want to use `datapusher-plus`, you will need to export this variable every time you start, stop, or build CKAN: `export DATAPUSHER_TYPE=datapusher`
 6. Create secrets: `make secret` (follow the prompts)
 7. Clean and rebuild: `make clean-rebuild O=vital-strategies`
-8. Run the upgrade script: `make upgrade-db O=vital-strategies` (if you have set custom DB names and users, you will need to pass in these options as needed: `make upgrade-db O=vital-strategies CKAN_DB_NAME=<CKAN_DB_NAME> DB_USERNAME=<DB_USERNAME> CKAN_DB_USERNAME=<CKAN_DB_USERNAME> DATASTORE_DB_NAME=<DATASTORE_DB_NAME> DATASTORE_DB_USERNAME=<DATASTORE_DB_USERNAME>`— the default values are: `CKAN_DB_NAME=ckan`, `DB_USERNAME=postgres`, `CKAN_DB_USERNAME=ckan`, `DATASTORE_DB_NAME=datastore`, `DATASTORE_DB_USERNAME=postgres`)
-9. Stop the containers: `make stop O=vital-strategies` (copy the API token that's output at the end, for the next step)
+8. Run the upgrade script: `make upgrade-db O=vital-strategies`
+    - If you have set custom DB names and users, you will need to pass in these options as needed: `make upgrade-db O=vital-strategies CKAN_DB_NAME=<CKAN_DB_NAME> DB_USERNAME=<DB_USERNAME> CKAN_DB_USERNAME=<CKAN_DB_USERNAME> DATASTORE_DB_NAME=<DATASTORE_DB_NAME> DATASTORE_DB_USERNAME=<DATASTORE_DB_USERNAME>`— the default values are: `CKAN_DB_NAME=ckan`, `DB_USERNAME=postgres`, `CKAN_DB_USERNAME=ckan`, `DATASTORE_DB_NAME=datastore`, `DATASTORE_DB_USERNAME=postgres`
+    - Copy the API token that's output at the end for step 10 
+9. Stop the containers: `make stop O=vital-strategies`
 10. Run `make secret` again and paste the token when prompted (step 13—"Enter Datapusher API token")
 11. Start the containers: `make start O=vital-strategies`
 12. Test and confirm that the migration was successful

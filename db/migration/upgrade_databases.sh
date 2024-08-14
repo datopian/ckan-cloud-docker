@@ -2,8 +2,8 @@
 
 COMPOSE_FILES=$1
 CKAN_DB_NAME=$2
-DB_USERNAME=$3
-CKAN_DB_USERNAME=$4
+CKAN_DB_USERNAME=$3
+DB_USERNAME=$4
 DATASTORE_DB_NAME=$5
 DATSTORE_DB_USERNAME=$6
 
@@ -54,13 +54,6 @@ reset_database ${CKAN_DB_NAME} ${DB_SERVICE} ${CKAN_DB_USERNAME}
 reset_database ${DATASTORE_DB_NAME} ${DATASTORE_SERVICE} ${DATSTORE_DB_USERNAME}
 
 echo ""
-echo "### Create ROLE and DATABASE for datapusher_jobs in Datastore database..."
-echo ""
-
-docker-compose ${COMPOSE_FILES} exec -T ${DATASTORE_SERVICE} psql -U ${DB_USERNAME} -c "CREATE ROLE datapusher_jobs WITH LOGIN PASSWORD '123456';"
-docker-compose ${COMPOSE_FILES} exec -T ${DATASTORE_SERVICE} psql -U ${DB_USERNAME} -c "CREATE DATABASE datapusher_jobs OWNER datapusher_jobs ENCODING 'utf8';"
-
-echo ""
 echo "### ROLE and DATABASE for datapusher_jobs created in Datastore database."
 
 echo ""
@@ -80,6 +73,13 @@ docker-compose ${COMPOSE_FILES} exec -T ${DATASTORE_SERVICE} pg_restore -U postg
 
 echo ""
 echo "### Restoring Datastore DB from backup completed."
+
+echo ""
+echo "### Create ROLE and DATABASE for datapusher_jobs in Datastore database..."
+echo ""
+
+docker-compose ${COMPOSE_FILES} exec -T ${DATASTORE_SERVICE} psql -U ${DB_USERNAME} -c "CREATE ROLE datapusher_jobs WITH LOGIN PASSWORD '123456';"
+docker-compose ${COMPOSE_FILES} exec -T ${DATASTORE_SERVICE} psql -U ${DB_USERNAME} -c "CREATE DATABASE datapusher_jobs OWNER datapusher_jobs ENCODING 'utf8';"
 
 echo ""
 echo "### Restoring data files to CKAN..."

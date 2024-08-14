@@ -413,8 +413,8 @@ All of the following commands should be run in `ckan-cloud-docker` (unless state
 
 >**Note**: Depending on any custom configurations you have, you might need to adjust the variables in `db/migration/upgrade_databases.sh` (and others, such as your custom `docker-compose` file, or your custom `.ini` file) to match your setup.
 
-1. Start up your _current_ instance (if it's not running already—**don't pull the latest changes yet**): `make start O=vital-strategies`
-2. Pull the latest changes: `git pull` (**IMPORTANT**: don't stop your instance yet—make sure it's still running when you pull this, as you need to run the next command on your _current_ instance, and the command only exists on the new branch)
+1. Start up your _current_ instance (if it's not running already, **don't pull the latest changes yet**): `make start O=vital-strategies`
+2. Pull the latest changes: `git pull` (**Important**: don't stop your instance yet—make sure it's still running when you pull this, as you need to run the next command on your _current_ instance, and the command only exists on the new branch)
 3. Backup the DBs: `make backup-db O=vital-strategies` (confirm that you have `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` in the current directory after running this command)
 4. Stop the containers: `make stop O=vital-strategies`
 5. (optional and not recommended) If you don't want to use `datapusher-plus`, you will need to export this variable every time you start, stop, or build CKAN: `export DATAPUSHER_TYPE=datapusher`

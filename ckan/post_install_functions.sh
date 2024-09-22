@@ -30,11 +30,15 @@ install_standard_ckan_extension_github() {
     # Check if the branch exists by examining the output directly
     BRANCH_EXISTS=$(git ls-remote --heads ${GITHUB_URL}/${REPO_NAME}.git ${BRANCH})
 
+    if [ ! -n "$BRANCH_EXISTS" ]; then
+      # It might be a commit instead of a branch
+      BRANCH_EXISTS=$(git ls-remote --heads ${GITHUB_URL}/${REPO_NAME}.git | grep -o $BRANCH)
+    fi
+
     if [ -z "$BRANCH_EXISTS" ]; then
       echo "#### BRANCH EXISTS: $BRANCH_EXISTS ####"
 
       if [ "$BRANCH" = "master" ]; then
-        # Attempt to switch to 'main' if 'master' does not exist
         BRANCH_EXISTS=$(git ls-remote --heads ${GITHUB_URL}/${REPO_NAME}.git main)
         if [ -n "$BRANCH_EXISTS" ]; then
           echo "Branch 'master' not found, switching to 'main'."
@@ -44,7 +48,6 @@ install_standard_ckan_extension_github() {
           exit 1
         fi
       else
-        # If a specific branch was provided and does not exist, print an error and exit
         echo "Branch '$BRANCH' not found. Please check the branch name."
         exit 1
       fi
@@ -62,14 +65,40 @@ install_standard_ckan_extension_github() {
       done &&\
       ckan-pip install --no-use-pep517 --index-url ${PIP_INDEX_URL} -e ${TMPDIR}
     else
-      TEMPFILE=`mktemp`
-      for REQUIREMENTS_FILE_NAME in requirements pip-requirements
-      do
-        if wget -O $TEMPFILE https://raw.githubusercontent.com/${REPO_NAME}/$BRANCH/$REQUIREMENTS_FILE_NAME.txt
-          then ckan-pip install --index-url ${PIP_INDEX_URL} -r $TEMPFILE && break;
+      # Remove poetry files: ckan-cloud-docker currently has issues with poetry dependencies
+      if [ "${REPO_NAME}" = "datopian/ckanext-sentry" ]; then
+        TMPDIR=${CKAN_VENV}/src/${EGG}
+        git clone -b $BRANCH ${GITHUB_URL}/${REPO_NAME}.git ${TMPDIR}
+
+        CURRENT_DIR=$(pwd)
+
+        cd ${TMPDIR}
+
+        if [ -f "poetry.lock" ] && [ -f "pyproject.toml" ]; then
+          rm -f "poetry.lock" "pyproject.toml"
         fi
-      done &&\
-      ckan-pip install --no-use-pep517 --index-url ${PIP_INDEX_URL} -e git+${GITHUB_URL}/${REPO_NAME}.git@$BRANCH#egg=${EGG}
+
+        for REQUIREMENTS_FILE_NAME in requirements pip-requirements
+        do
+          if [ -f ${TMPDIR}/$REQUIREMENTS_FILE_NAME.txt ]; then
+            ckan-pip install --index-url ${PIP_INDEX_URL} -r ${TMPDIR}/$REQUIREMENTS_FILE_NAME.txt && break;
+          fi
+        done
+
+        ckan-pip install --no-use-pep517 --index-url ${PIP_INDEX_URL} -e ${TMPDIR}
+
+        cd ${CURRENT_DIR}
+
+      else
+        TEMPFILE=`mktemp`
+        for REQUIREMENTS_FILE_NAME in requirements pip-requirements
+        do
+          if wget -O $TEMPFILE https://raw.githubusercontent.com/${REPO_NAME}/$BRANCH/$REQUIREMENTS_FILE_NAME.txt
+            then ckan-pip install --index-url ${PIP_INDEX_URL} -r $TEMPFILE && break;
+          fi
+        done &&\
+        ckan-pip install --no-use-pep517 --index-url ${PIP_INDEX_URL} -e git+${GITHUB_URL}/${REPO_NAME}.git@$BRANCH#egg=${EGG}
+      fi
     fi
 }
 

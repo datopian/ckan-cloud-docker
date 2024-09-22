@@ -153,6 +153,10 @@ ckanext.querytool.allow_nav_bar = True
 
 ## Google Analytics
 
+ckanext.gtm.gtm_id = {{GTM_ID}}
+
+# OR
+
 googleanalytics.id = {{GA_ID}}
 googleanalytics.account = {{GA_ACCOUNT}}
 googleanalytics.username = {{GA_USERNAME}}
@@ -189,11 +193,11 @@ ckanext.xloader.jobs_db.uri = postgresql://postgres:123456@jobs-db/postgres
 
 #email_to = errors@example.com
 #error_email_from = ckan-errors@example.com
-# smtp.server = {{SMTP_SERVER}}
-# smtp.starttls = True
-# smtp.user = {{SMTP_USER}}
-# smtp.password = {{SMTP_PASSWORD}}
-# smtp.mail_from = vitalplatform@vitalstrategies.org
+smtp.server = {{SMTP_SERVER}}
+smtp.starttls = True
+smtp.user = {{SMTP_USER}}
+smtp.password = {{SMTP_PASSWORD}}
+smtp.mail_from = {{SMTP_MAIL_FROM}}
 
 ###
 
@@ -207,9 +211,9 @@ ckan.harvest.mq.hostname = redis
 ckan.harvest.mq.redis_db = 9
 
 ## Sentry settings
-# sentry_dsn = {{SENTRY_DSN}}
-# ckan.sentry.configure_logging = True
-# ckan.sentry.log_level = ERROR
+ckan.sentry.dsn = {{SENTRY_DSN}}
+ckan.sentry.configure_logging = True
+ckan.sentry.log_level = ERROR
 
 
 ## Logging configuration

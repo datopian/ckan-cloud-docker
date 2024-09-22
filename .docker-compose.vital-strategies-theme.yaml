@@ -23,9 +23,9 @@ services:
         EXTRA_PACKAGES: cron
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r datopian/ckanext-querytool -b dev/python3-upgrade &&\
+          install_standard_ckan_extension_github -r datopian/ckanext-querytool -b cc6c8e6f19f59e6842d370bf7ac87d94e37a2831 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
-          #install_standard_ckan_extension_github -r datopian/ckanext-sentry -b 2.10 && \
+          install_standard_ckan_extension_github -r datopian/ckanext-sentry -b 2.10 && \
           install_standard_ckan_extension_github -r datopian/ckanext-gtm && \
           install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b ckan-2.10 && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l en -f && \
@@ -47,7 +47,7 @@ services:
         CKAN_BRANCH: ckan-2.10.4
         POST_INSTALL: |
           install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b ckan-2.10 &&\
-          install_standard_ckan_extension_github -r datopian/ckanext-querytool -b dev/python3-upgrade &&\
+          install_standard_ckan_extension_github -r datopian/ckanext-querytool -b cc6c8e6f19f59e6842d370bf7ac87d94e37a2831 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview
     environment:
       - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-

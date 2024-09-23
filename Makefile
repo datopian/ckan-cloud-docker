@@ -72,3 +72,6 @@ backup-db:
 
 upgrade-db:
 	./db/migration/upgrade_databases.sh "$(COMPOSE_FILES)" "$(CKAN_DB_NAME)" "$(CKAN_DB_USERNAME)" "$(DB_USERNAME)" "$(DATASTORE_DB_NAME)" "$(DATASTORE_DB_USERNAME)"
+
+config-upgrade:
+	./configs_diff.sh

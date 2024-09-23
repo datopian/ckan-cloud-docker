@@ -79,5 +79,6 @@ for var in $vars; do
     value=$(echo "$value" | sed 's/\//\\\//g');
     replaces="-e 's/{{$var}}/${value}/g' $replaces"
 done
+
 escaped_template_path=$(echo $template | sed 's/ /\\ /g')
 eval sed $replaces "$escaped_template_path"

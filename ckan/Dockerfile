@@ -101,7 +101,7 @@ RUN ckan-pip install --upgrade pip &&\
 
 RUN ckan-pip install supervisor && \
     ckan-pip install uwsgi==2.0.19.1 && \
-    ckan-pip install gevent==21.12.0
+    ckan-pip install gevent==24.2.1
 
 RUN apt-get update && apt-get install -y \
     uwsgi-plugins-all \

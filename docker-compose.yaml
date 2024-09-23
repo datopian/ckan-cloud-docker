@@ -3,11 +3,15 @@ services:
     image: traefik:1.7.2-alpine
     restart: always
     volumes:
-      - ./traefik/traefik.toml:/traefik.toml # Comment out for development
-      #- ./traefik/traefik.dev.toml:/traefik.toml # Uncomment for development
+      - ./traefik/traefik.toml.template:/traefik.toml.template
+      #- ./traefik/traefik.dev.toml:/traefik.dev.toml # Uncomment for development
       - ./traefik/acme.json:/acme.json
+      - ./cca-operator/templater.sh:/templater.sh
+      - ./docker-compose/traefik-secrets.sh:/traefik-secrets.sh
+      - ./traefik/entrypoint.sh:/entrypoint.sh
     networks:
       - ckan-multi
+    entrypoint: ["/bin/sh", "-c", "/entrypoint.sh"]
 
   varnish:
     image: million12/varnish

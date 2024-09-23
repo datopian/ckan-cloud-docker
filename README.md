@@ -48,10 +48,15 @@ By default, `traefik` will attempt to generate a certificate and use https. This
     image: traefik:1.7.2-alpine
     restart: always
     volumes:
-      - ./traefik/traefik.dev.toml:/traefik.toml # <-- Replace ./traefik/traefik.toml with ./traefik/traefik.dev.toml as shown here
+      - ./traefik/traefik.toml.template:/traefik.toml.template
+      #- ./traefik/traefik.dev.toml:/traefik.dev.toml # Uncomment this line to bypass certificates for local development
       - ./traefik/acme.json:/acme.json
+      - ./cca-operator/templater.sh:/templater.sh
+      - ./docker-compose/traefik-secrets.sh:/traefik-secrets.sh
+      - ./traefik/entrypoint.sh:/entrypoint.sh
     networks:
-    - ckan-multi
+      - ckan-multi
+    entrypoint: ["/bin/sh", "-c", "/entrypoint.sh"]
 ```
 
 ### Expose port 5000 for CKAN
@@ -68,45 +73,25 @@ In your project specific `docker-compose` file, you must expose port 5000 for CK
     build:
       context: ckan
       args:
-        CKAN_BRANCH: ckan-2.7.3
+        CKAN_BRANCH: ckan-2.10.4
         EXTRA_PACKAGES: cron
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
-        PRE_INSTALL: "sed  -i -e 's/psycopg2==2.4.5/psycopg2==2.7.7/g' ~/venv/src/ckan/requirements.txt"
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r ViderumGlobal/ckanext-querytool -b v2.1.2 &&\
+          install_standard_ckan_extension_github -r datopian/ckanext-querytool -b cc6c8e6f19f59e6842d370bf7ac87d94e37a2831 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
-          install_standard_ckan_extension_github -r okfn/ckanext-sentry && \
-          install_standard_ckan_extension_github -r ckan/ckanext-googleanalytics -b v2.0.2 && \
-          install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b fix-null-content-type && \
+          install_standard_ckan_extension_github -r datopian/ckanext-sentry -b 2.10 && \
+          install_standard_ckan_extension_github -r datopian/ckanext-gtm && \
+          install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b ckan-2.10 && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l en -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l es -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l fr -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l km -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l pt_BR -f && \
-          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l zh_CN -f
+          cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l zh_Hans_CN -f
     environment:
       - CKAN_CONFIG_TEMPLATE_PREFIX=vital-strategies-theme-
-    ports: # <-- Add this section to expose port 5000
-    - 5000:5000
-```
-
-### Remove unused plugins from CKAN
-
-Before building and starting the environment, make sure you only have the required plugins enabled. If you're using a pre-defined project template for local testing, you might not need some of the included extensions, such as `ckanext-googleanalytics` or `ckanext-sentry`. For example, if you want to use the `vital-strategies` project template, you should remove the following plugins from the `.ini` file (found in `docker-compose/ckan-conf-templates/vital-strategies-theme-ckan.ini`) to avoid issues (unless you want to properly configure them):
-
-```
-ckan.plugins = image_view
-   text_view
-   recline_view
-   datastore
-   datapusher
-   resource_proxy
-   geojson_view
-   querytool
-   stats
-   sentry # <-- Remove this line
-   s3filestore # <-- Remove this line
-   googleanalytics # <-- Remove this line
+    # ports: # Uncomment these lines expose CKAN on localhost for local development
+    #   - 5000:5000
 ```
 
 ### Hosts file entries
@@ -419,22 +404,35 @@ All of the following commands should be run in `ckan-cloud-docker` (unless state
 2. Reset any repo changes that might have accidentally been commited: `git reset --mixed HEAD`
 3. Create a diff file with any changes in the current branch (for example, values manually added to `.ini` files, etc.—this file will be read later in a script): `git diff > configs.diff`
 4. Stash all local changes: `git stash`
-5. Pull the latest changes: `git pull` (**Important**: don't stop your instance yet—make sure it's still running when you pull this, as you need to run the next few commands on your _current_ instance, and the commands only exist in the latest codebase)
-6. Run the config updater script: `make config-upgrade O=vital-strategies` (this will output any variables that have changed—you will need to enter these values when you run `make secret` later)
-6. Backup the DBs: `make backup-db O=vital-strategies` (confirm that you have `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` in the current directory after running this command—you can use `ls *.dump` and `ls *.tar.gz` to confirm that the files exist)
-7. Stop the containers: `make stop O=vital-strategies`
-8. (optional and not recommended) If you don't want to use [DataPusher+](https://github.com/dathere/datapusher-plus), you will need to export the following variable every time you start, stop, or build CKAN: `export DATAPUSHER_TYPE=datapusher`
-9. Create secrets: `make secret` (follow the prompts and make sure to add any values that were output from the config updater script in step 6)
-10. Clean and rebuild: `make clean-rebuild O=vital-strategies`
-11. Run the upgrade script: `make upgrade-db O=vital-strategies`
+5. Pull the latest changes: `git pull` (**Important**: Don't stop your instance yet—make sure it's still running when you pull this, as you need to run the next few commands on your _current_ instance, and the commands only exist in the latest codebase)
+6. Run the config updater script: `make config-upgrade` (this will output any variables that have changed—you will need to enter these values when you run `make secret` later)
+7. Backup the DBs: `make backup-db O=vital-strategies` (confirm that you have `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` in the current directory after running this command—you can use `ls *.dump` and `ls *.tar.gz` to confirm that the files exist)
+8. Stop the containers: `make stop O=vital-strategies`
+9. (optional and not recommended) If you don't want to use [DataPusher+](https://github.com/dathere/datapusher-plus), you will need to export the following variable every time you start, stop, or build CKAN: `export DATAPUSHER_TYPE=datapusher`
+10. Create secrets: `make secret` (follow the prompts and make sure to add any values that were output from the config updater script in step 6)
+11. Clean and rebuild: `make clean-rebuild O=vital-strategies`
+12. Run the upgrade script: `make upgrade-db O=vital-strategies`
     - If you have set custom DB names and users, you will need to pass in these options as needed: `make upgrade-db O=vital-strategies CKAN_DB_NAME=<CKAN_DB_NAME> DB_USERNAME=<DB_USERNAME> CKAN_DB_USERNAME=<CKAN_DB_USERNAME> DATASTORE_DB_NAME=<DATASTORE_DB_NAME> DATASTORE_DB_USERNAME=<DATASTORE_DB_USERNAME>`— the default values are: `CKAN_DB_NAME=ckan`, `DB_USERNAME=postgres`, `CKAN_DB_USERNAME=ckan`, `DATASTORE_DB_NAME=datastore`, `DATASTORE_DB_USERNAME=postgres`
     - Copy the API token that's output at the end for step 10 
-12. Stop the containers: `make stop O=vital-strategies`
-13. Run `make secret` again and paste the token when prompted (step 13—"Enter Datapusher API token")
-14. Start the containers: `make start O=vital-strategies`
-15. Test and confirm that the migration was successful
+13. Stop the containers: `make stop O=vital-strategies`
+14. Run `make secret` again and paste the token when prompted (step 13—"Enter Datapusher API token")
+15. (optional) If you use extensions like Sentry, S3filestore, or Google Analytics, you will need to manually re-enable them in your `.ini` file (for example, `docker-compose/ckan-conf-templates/vital-strategies-theme-ckan.ini.template`). This is because these plugins cannot be enabled on the first run of the new CKAN instance, as the DB will not initialize properly. You can enable them by adding the following lines to your `.ini` file. If you have a custom theme extension, e.g., `querytool`, it must be the last item in the list. For example, if you want to add all 3 of the examples I mentioned, you would update the following line:
+    ```
+    ckan.plugins = image_view text_view recline_view datastore datapusher resource_proxy geojson_view querytool
+    ```
+    to:
+    ```
+    ckan.plugins = image_view text_view recline_view datastore datapusher resource_proxy geojson_view sentry s3filestore googleanalytics querytool
+    ```
+    **Note**: To edit the file, you will need to use `nano`, `vi` or another command line text editor. Both `nano` and `vi` should be available on most modern Linux operating systems by default. `nano` is recommended for less experienced users, as it's more user-friendly.
 
->**Note**: The first time you visit the DataStore tab for a given resource, it will say "Error: cannot connect to datapusher". If you click "Upload to DataStore", this error will go away and the process will complete as expected.
+    To open and edit the file with `nano`, run `nano docker-compose/ckan-conf-templates/vital-strategies-theme-ckan.ini.template`. Make your changes, and then, to save and exit, press `ctrl` + `x`, then `y`, then `enter`. If you make a mistake, press `ctrl` + `x`, then `n` to exit without saving.
+
+    To open and edit the file with `vi`, run `vi docker-compose/ckan-conf-templates/vital-strategies-theme-ckan.ini.template`. To edit the file, press `i` to enter insert mode. To save and exit, press `esc` to exit insert mode, then type `:wq` and press `enter`. If you make a mistake, press `esc` to exit insert mode, then type `:q!` and press `enter` to exit without saving.
+16. Start the containers: `make start O=vital-strategies`
+17. Test and confirm that the migration was successful
+
+>**Note**: After the migration, the first time you visit the DataStore tab for any pre-existing resources, you might see "Error: cannot connect to datapusher". If you click "Upload to DataStore", this error should go away and the process will complete as expected. It's not necessary to go through the resources and remove this error message, as there's actually no issue with DataStore/DataPusher and your old data (it's there and should be working fine)—it's just a UI bug due to switching DBs, which confuses DataPusher. It will work as expected for both existing and new resources.
 
 ### Reverting to the old CKAN 2.7 instance
 

@@ -80,19 +80,5 @@ for var in $vars; do
     replaces="-e 's/{{$var}}/${value}/g' $replaces"
 done
 
-if [[ ! -z "$(var_value GTM_ID)" ]]; then
-    replaces="-e '/^ckan.plugins =/ s/$/ gtm/' $replaces"
-fi
-
-if [[ ! -z "$(var_value SENTRY_DSN)" ]]; then
-    replaces="-e '/^ckan.plugins =/ s/$/ sentry/' $replaces"
-fi
-
-if [[ ! -z "$(var_value "AWS_ACCESS_KEY_ID")" ]] && [[ ! -z "$(var_value "AWS_SECRET_ACCESS_KEY")" ]] && [[ "$CURRENT_PLUGINS" != *"s3filestore"* ]]; then
-    replaces="-e '/^ckan.plugins =/ s/$/ s3filestore/' $replaces"
-fi
-
-replaces="$replaces -e '/^ckan.plugins =/ s/querytool//g' -e '/^ckan.plugins =/ s/$/ querytool/'"
-
 escaped_template_path=$(echo $template | sed 's/ /\\ /g')
 eval sed $replaces "$escaped_template_path"

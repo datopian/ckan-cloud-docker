@@ -416,19 +416,23 @@ All of the following commands should be run in `ckan-cloud-docker` (unless state
 >**Important**: While following the migration steps, you will create backups of the DBs to migrate to the new upgraded CKAN instance. A more robust backup is recommended, in the case that you need to revert to the old CKAN 2.7 instance (). It's recommended to either take a snapshot (or similar) of your server before beginning the migration, or to make a full copy of `/var/lib/docker` (or wherever your Docker data is stored) to ensure you can revert if needed. If your cloud server doesn't have space to store the copy (the copy will likely require at least 50GB of free space), you will need to copy it to another server or storage location (e.g., S3, Google Cloud Storage, or locally using `scp`, `rsync`, etc.). For steps on how to revert to the old CKAN 2.7 instance _without_ a full system or Docker data backup, see the [Reverting to the old CKAN 2.7 instance](#reverting-to-the-old-ckan-27-instance) section below.
 
 1. Start up your _current_ instance (if it's not running already, **don't pull the latest changes yet**): `make start O=vital-strategies`
-2. Pull the latest changes: `git pull` (**Important**: don't stop your instance yet—make sure it's still running when you pull this, as you need to run the next command on your _current_ instance, and the command only exists on the new branch)
-3. Backup the DBs: `make backup-db O=vital-strategies` (confirm that you have `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` in the current directory after running this command)
-4. Stop the containers: `make stop O=vital-strategies`
-5. (optional and not recommended) If you don't want to use `datapusher-plus`, you will need to export this variable every time you start, stop, or build CKAN: `export DATAPUSHER_TYPE=datapusher`
-6. Create secrets: `make secret` (follow the prompts)
-7. Clean and rebuild: `make clean-rebuild O=vital-strategies`
-8. Run the upgrade script: `make upgrade-db O=vital-strategies`
+2. Reset any repo changes that might have accidentally been commited: `git reset --mixed HEAD`
+3. Create a diff file with any changes in the current branch (for example, values manually added to `.ini` files, etc.—this file will be read later in a script): `git diff > configs.diff`
+4. Stash all local changes: `git stash`
+5. Pull the latest changes: `git pull` (**Important**: don't stop your instance yet—make sure it's still running when you pull this, as you need to run the next few commands on your _current_ instance, and the commands only exist in the latest codebase)
+6. Run the config updater script: `make config-upgrade O=vital-strategies` (this will output any variables that have changed—you will need to enter these values when you run `make secret` later)
+6. Backup the DBs: `make backup-db O=vital-strategies` (confirm that you have `ckan.dump`, `datastore.dump` and `ckan_data.tar.gz` in the current directory after running this command—you can use `ls *.dump` and `ls *.tar.gz` to confirm that the files exist)
+7. Stop the containers: `make stop O=vital-strategies`
+8. (optional and not recommended) If you don't want to use [DataPusher+](https://github.com/dathere/datapusher-plus), you will need to export the following variable every time you start, stop, or build CKAN: `export DATAPUSHER_TYPE=datapusher`
+9. Create secrets: `make secret` (follow the prompts and make sure to add any values that were output from the config updater script in step 6)
+10. Clean and rebuild: `make clean-rebuild O=vital-strategies`
+11. Run the upgrade script: `make upgrade-db O=vital-strategies`
     - If you have set custom DB names and users, you will need to pass in these options as needed: `make upgrade-db O=vital-strategies CKAN_DB_NAME=<CKAN_DB_NAME> DB_USERNAME=<DB_USERNAME> CKAN_DB_USERNAME=<CKAN_DB_USERNAME> DATASTORE_DB_NAME=<DATASTORE_DB_NAME> DATASTORE_DB_USERNAME=<DATASTORE_DB_USERNAME>`— the default values are: `CKAN_DB_NAME=ckan`, `DB_USERNAME=postgres`, `CKAN_DB_USERNAME=ckan`, `DATASTORE_DB_NAME=datastore`, `DATASTORE_DB_USERNAME=postgres`
     - Copy the API token that's output at the end for step 10 
-9. Stop the containers: `make stop O=vital-strategies`
-10. Run `make secret` again and paste the token when prompted (step 13—"Enter Datapusher API token")
-11. Start the containers: `make start O=vital-strategies`
-12. Test and confirm that the migration was successful
+12. Stop the containers: `make stop O=vital-strategies`
+13. Run `make secret` again and paste the token when prompted (step 13—"Enter Datapusher API token")
+14. Start the containers: `make start O=vital-strategies`
+15. Test and confirm that the migration was successful
 
 >**Note**: The first time you visit the DataStore tab for a given resource, it will say "Error: cannot connect to datapusher". If you click "Upload to DataStore", this error will go away and the process will complete as expected.
 

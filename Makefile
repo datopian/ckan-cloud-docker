@@ -2,20 +2,29 @@
 
 COMPOSE_FILES = -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.$O-theme.yaml
 
+DATAPUSHER_TYPE ?= datapusher-plus
+CKAN_DB_NAME ?= ckan
+CKAN_DB_USERNAME ?= ckan
+DB_USERNAME ?= postgres
+DATASTORE_DB_NAME ?= datastore
+DATASTORE_DB_USERNAME ?= postgres
+
 start:
+	@export DATAPUSHER_DIRECTORY=$(DATAPUSHER_TYPE) && \
 	docker-compose $(COMPOSE_FILES) up -d --build nginx && make cron
 
 stop:
 	docker-compose $(COMPOSE_FILES) stop
 
 build:
+	@export DATAPUSHER_DIRECTORY=$(DATAPUSHER_TYPE) && \
 	docker-compose $(COMPOSE_FILES) build
 
 pull:
 	docker-compose $(COMPOSE_FILES) pull
 
 shell:
-	docker-compose $(COMPOSE_FILES) exec $S $C
+	docker-compose $(COMPOSE_FILES) exec -it $S sh -c 'if command -v bash > /dev/null 2>&1; then exec bash; else exec sh; fi'
 
 down:
 	docker-compose $(COMPOSE_FILES) down
@@ -36,10 +45,10 @@ exec:
 	docker-compose $(COMPOSE_FILES) exec $S $C
 
 user:
-	docker-compose $(COMPOSE_FILES) exec ckan /usr/local/bin/ckan-paster --plugin=ckan user add $U password=$P email=$E -c /etc/ckan/production.ini
+	docker-compose $(COMPOSE_FILES) exec ckan ckan -c /etc/ckan/ckan.ini user add $U password=$P email=$E
 
 sysadmin:
-	docker-compose $(COMPOSE_FILES) exec ckan /usr/local/bin/ckan-paster --plugin=ckan sysadmin add $U -c /etc/ckan/production.ini
+	docker-compose $(COMPOSE_FILES) exec ckan ckan -c /etc/ckan/ckan.ini sysadmin add $U
 
 secret:
 	python create_secrets.py
@@ -49,6 +58,20 @@ cron:
 
 clean-rebuild:
 	docker-compose $(COMPOSE_FILES) down -v
-	docker images -a | grep "ckan-cloud-docker" | awk '{print $$3}' | xargs docker rmi -f
+	docker images -a | grep "ckan-cloud-docker" | awk '{print $$3}' | xargs -r docker rmi -f
+	@export DATAPUSHER_DIRECTORY=$(DATAPUSHER_TYPE) && \
 	docker-compose $(COMPOSE_FILES) build --no-cache
-	docker-compose $(COMPOSE_FILES) up -d --build nginx && make cron
+	@export DATAPUSHER_DIRECTORY=$(DATAPUSHER_TYPE) && \
+	docker-compose $(COMPOSE_FILES) up -d nginx && make cron
+
+backup-db:
+	docker-compose $(COMPOSE_FILES) exec -T db pg_dump -U postgres --format=custom -d ckan > ckan.dump
+	docker-compose ${COMPOSE_FILES} exec -T ckan sh -c "cd /var/lib/ckan && tar -czf /tmp/ckan_data.tar.gz data"
+	docker cp $$(docker-compose ${COMPOSE_FILES} ps -q ckan):/tmp/ckan_data.tar.gz ckan_data.tar.gz
+	docker-compose $(COMPOSE_FILES) exec -T datastore-db pg_dump -U postgres --format=custom -d datastore > datastore.dump
+
+upgrade-db:
+	./db/migration/upgrade_databases.sh "$(COMPOSE_FILES)" "$(CKAN_DB_NAME)" "$(CKAN_DB_USERNAME)" "$(DB_USERNAME)" "$(DATASTORE_DB_NAME)" "$(DATASTORE_DB_USERNAME)"
+
+config-upgrade:
+	./configs_diff.sh

@@ -22,6 +22,9 @@ who.log_file = %(cache_dir)s/who_log.ini
 # Inactive by default, so the session doesn't expire.
 # who.timeout = 86400
 
+ckan.datapusher.api_token = {{CKAN_DATAPUSHER_API_TOKEN}}
+ckan.datastore.sqlsearch.enabled = true
+
 ## Database Settings
 sqlalchemy.url = {{SQLALCHEMY_URL}}
 
@@ -38,7 +41,7 @@ ckan.datastore.default_fts_index_method = gist
 ckan.site_id = vital-strategies
 ckan.site_url = {{CKAN_SITE_URL}}
 #ckan.use_pylons_response_cleanup_middleware = true
-cache_dir = /tmp/%(ckan.site_id)s/
+cache_dir = /tmp/%(ckan.site_id)s
 
 ## Authorization Settings
 
@@ -79,18 +82,11 @@ ckan.redis.url = {{CKAN_REDIS_URL}}
 
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = image_view
-   text_view
-   recline_view
-   datastore
-   datapusher
-   resource_proxy
-   geojson_view
-   querytool
-   stats
-   sentry
-   s3filestore
-   googleanalytics
+ckan.plugins = image_view text_view recline_view datastore datapusher resource_proxy geojson_view querytool
+
+#   sentry
+#   s3filestore
+#   googleanalytics
 
 # Define which views should be created by default
 # (plugins must be loaded in ckan.plugins)
@@ -107,8 +103,8 @@ ckan.views.default_views = image_view recline_view geojson_view
 ## Front-End Settings
 
 # Uncomment following configuration to enable using of Bootstrap 2
-ckan.base_public_folder = public-bs2
-ckan.base_templates_folder = templates-bs2
+#ckan.base_public_folder = public-bs2
+#ckan.base_templates_folder = templates-bs2
 
 ckan.site_title = Data Platform
 ckan.site_logo = /base/images/ckan-logo.png
@@ -121,10 +117,10 @@ ckan.display_timezone = Etc/UTC
 
 ## Feeds Settings
 
-ckan.feeds.authority_name =
-ckan.feeds.date =
-ckan.feeds.author_name =
-ckan.feeds.author_link =
+#ckan.feeds.authority_name =
+#ckan.feeds.date =
+#ckan.feeds.author_name =
+#ckan.feeds.author_link =
 
 ## Storage Settings
 
@@ -137,9 +133,9 @@ ckan.datapusher.url = {{CKAN_DATAPUSHER_URL}}
 
 ## AWS S3 settings
 
-# ckanext.cloudstorage.driver = S3_US_EAST2
-# ckanext.cloudstorage.container_name = vital-strategies
-# ckanext.cloudstorage.driver_options = {"key": "{{AWS_ACCESS_KEY_ID}}", "secret": "{{AWS_SECRET_ACCESS_KEY}}"}
+ckanext.cloudstorage.driver = S3_US_EAST2
+ckanext.cloudstorage.container_name = vital-strategies
+ckanext.cloudstorage.driver_options = {"key": "{{AWS_ACCESS_KEY_ID}}", "secret": "{{AWS_SECRET_ACCESS_KEY}}"}
 ckanext.s3filestore.host_name = https://vital-strategies-ckan.s3.us-east-2.amazonaws.com
 ckanext.s3filestore.aws_storage_path = demo
 ckanext.s3filestore.aws_access_key_id = {{AWS_ACCESS_KEY_ID}}
@@ -150,12 +146,16 @@ ckanext.s3filestore.signature_version = s3v4
 
 ## Query Tool Settings
 
-ckanext.querytool.groups = mortality:Mortality,riskfactors:Risk Factors,birth:Births,cancer:Cancer,demo:General
-ckanext.querytool.map_osm_url = https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png
-ckanext.querytool.map_osm_attribute = &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>
+# ckanext.querytool.groups = mortality:Mortality,riskfactors:Risk Factors,birth:Births,cancer:Cancer,demo:General
+# ckanext.querytool.map_osm_url = https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png
+# ckanext.querytool.map_osm_attribute = &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>
 ckanext.querytool.allow_nav_bar = True
 
 ## Google Analytics
+
+ckanext.gtm.gtm_id = {{GTM_ID}}
+
+# OR
 
 googleanalytics.id = {{GA_ID}}
 googleanalytics.account = {{GA_ACCOUNT}}
@@ -165,7 +165,7 @@ googleanalytics.password = {{GA_PASSWORD}}
 ## Language settings
 
 # VITALS
-ckan.locales_offered=en es zh_CN fr km pt_BR
+ckan.locales_offered=en es zh_Hans_CN fr km pt_BR
 # Shanghai default
 ckan.locale_default=en
 
@@ -186,7 +186,7 @@ ckanext.xloader.jobs_db.uri = postgresql://postgres:123456@jobs-db/postgres
 #ckan.activity_list_limit = 31
 #ckan.activity_streams_email_notifications = true
 #ckan.email_notifications_since = 2 days
-ckan.hide_activity_from_users = %(ckan.site_id)s
+#ckan.hide_activity_from_users = %(ckan.site_id)s
 
 
 ## Email settings
@@ -197,7 +197,7 @@ smtp.server = {{SMTP_SERVER}}
 smtp.starttls = True
 smtp.user = {{SMTP_USER}}
 smtp.password = {{SMTP_PASSWORD}}
-smtp.mail_from = vitalplatform@vitalstrategies.org
+smtp.mail_from = {{SMTP_MAIL_FROM}}
 
 ###
 
@@ -211,7 +211,7 @@ ckan.harvest.mq.hostname = redis
 ckan.harvest.mq.redis_db = 9
 
 ## Sentry settings
-sentry_dsn = {{SENTRY_DSN}}
+ckan.sentry.dsn = {{SENTRY_DSN}}
 ckan.sentry.configure_logging = True
 ckan.sentry.log_level = ERROR
 

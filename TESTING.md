@@ -56,7 +56,7 @@ Once you see a successful response, create a CKAN admin user:
 ```
 $ docker-compose -f docker-compose.yaml -f .docker-compose-db.yaml -f .docker-compose.datagov-theme.yaml \
 	  exec ckan ckan-paster --plugin=ckan \
-      sysadmin add -c /etc/ckan/production.ini admin password=12345678 email=admin@localhost
+      sysadmin add -c /etc/ckan/ckan.ini admin password=12345678 email=admin@localhost
 ```
 
 You should see the following prompt:
@@ -153,7 +153,7 @@ $ paster datastore set-permissions -c test-core.ini | psql -h datastore-db -U po
 
 Solr is already configured as 'multi-core'. To verify it, you may run the following command inside the `ckan` container:
 ```
-$ grep solr_url /etc/ckan/production.ini
+$ grep solr_url /etc/ckan/ckan.ini
 # Possible outputs:
 # single-core: solr_url = http://solr:8983/solr
 # multi-core:  solr_url = http://solr:8983/solr/ckan

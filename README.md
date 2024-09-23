@@ -424,7 +424,7 @@ All of the following commands should be run in `ckan-cloud-docker` (unless state
     ```
     ckan.plugins = image_view text_view recline_view datastore datapusher resource_proxy geojson_view sentry s3filestore googleanalytics querytool
     ```
-    **Note**: To edit the file, you will need to use `nano`, `vi` or another command line text editor. Both `nano` and `vi` should be available on most modern Linux operating systems by default. `nano` is recommended for less experienced users, as it's more user-friendly.
+    **Note**: To edit the file, you will need to use `nano`, `vi` or another command line text editor. Both `nano` and `vi` should be available on most modern Linux operating systems by default. `nano` is recommended for less experienced users, as it's more user-friendly. Your `.ini` file will be located in `docker-compose/ckan-conf-templates/<YOUR_PROJECT>-theme-ckan.ini.template`.
 
     To open and edit the file with `nano`, run `nano docker-compose/ckan-conf-templates/vital-strategies-theme-ckan.ini.template`. Make your changes, and then, to save and exit, press `ctrl` + `x`, then `y`, then `enter`. If you make a mistake, press `ctrl` + `x`, then `n` to exit without saving.
 

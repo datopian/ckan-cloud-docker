@@ -1,9 +1,11 @@
-FROM jenkins/jenkins:lts
+FROM jenkins/jenkins:2.478
 
 ARG PIP_INDEX_URL
 ENV PIP_INDEX_URL=$PIP_INDEX_URL
 
-RUN jenkins-plugin-cli --plugins \
+RUN export JENKINS_VERSION=$(unzip -p /usr/share/jenkins/jenkins.war META-INF/MANIFEST.MF | grep 'Jenkins-Version' | cut -d' ' -f2) && \
+    echo "Jenkins version: $JENKINS_VERSION" && \
+    jenkins-plugin-cli --jenkins-version $JENKINS_VERSION --plugins \
         build-timeout envfile copyartifact extensible-choice-parameter file-operations \
         fstrigger generic-webhook-trigger git-parameter github-branch-source \
         global-variable-string-parameter http_request jobgenerator join managed-scripts matrix-combinations-parameter \

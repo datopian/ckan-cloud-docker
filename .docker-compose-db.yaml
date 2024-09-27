@@ -1,3 +1,5 @@
+version: '3.2'
+
 services:
   db:
     image: viderum/ckan-cloud-docker:db-latest

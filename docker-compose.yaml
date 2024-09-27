@@ -1,3 +1,5 @@
+version: '3.2'
+
 services:
   proxy:
     image: traefik:1.7.2-alpine
@@ -87,7 +89,7 @@ services:
       args:
         PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple/}
     expose:
-      - "8800:8800"
+      - "8800"
     networks:
       - ckan-multi
     environment:

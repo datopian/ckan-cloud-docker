@@ -27,12 +27,14 @@ install_standard_ckan_extension_github() {
     echo "#### BRANCH: $BRANCH ####"
     echo "#### REPO URL: $GITHUB_URL/$REPO_NAME.git ####"
 
-    # Check if the branch exists by examining the output directly
     BRANCH_EXISTS=$(git ls-remote --heads ${GITHUB_URL}/${REPO_NAME}.git ${BRANCH})
 
-    if [ ! -n "$BRANCH_EXISTS" ]; then
-      # It might be a commit instead of a branch
-      BRANCH_EXISTS=$(git ls-remote --heads ${GITHUB_URL}/${REPO_NAME}.git | grep -o $BRANCH)
+    if [ -z "$BRANCH_EXISTS" ]; then
+      BRANCH_EXISTS=$(git ls-remote --tags ${GITHUB_URL}/${REPO_NAME}.git ${BRANCH})
+
+      if [ -z "$BRANCH_EXISTS" ]; then
+        BRANCH_EXISTS=$(git ls-remote ${GITHUB_URL}/${REPO_NAME}.git | grep -o ${BRANCH})
+      fi
     fi
 
     if [ -z "$BRANCH_EXISTS" ]; then

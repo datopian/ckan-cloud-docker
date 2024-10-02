@@ -14,8 +14,9 @@ CKAN_SERVICE="ckan"
 DB_SERVICE="db"
 DATASTORE_SERVICE="datastore-db"
 CKAN_CONFIG_PATH="/etc/ckan/ckan.ini"
-
-
+DB_SERVICE_ID=$(docker-compose ${COMPOSE_FILES} ps -q ${DB_SERVICE})
+DATASTORE_SERVICE_ID=$(docker-compose ${COMPOSE_FILES} ps -q ${DATASTORE_SERVICE})
+CKAN_SERVICE_ID=$(docker-compose ${COMPOSE_FILES} ps -q ${CKAN_SERVICE})
 
 if [ ! -f $CKAN_BACKUP_FILE ]; then
     echo ""
@@ -60,7 +61,8 @@ echo ""
 echo "### Restoring the CKAN DB from backup..."
 echo ""
 
-docker-compose ${COMPOSE_FILES} exec -T ${DB_SERVICE} pg_restore -U postgres --verbose --create --clean --if-exists -d postgres < ${CKAN_BACKUP_FILE}
+docker cp ${CKAN_BACKUP_FILE} ${DB_SERVICE_ID}:/${CKAN_BACKUP_FILE}
+docker-compose ${COMPOSE_FILES} exec -T ${DB_SERVICE} pg_restore -U postgres --verbose --create --clean --if-exists -d postgres /ckan.dump
 
 echo ""
 echo "### Restoring CKAN DB from backup completed."
@@ -69,7 +71,8 @@ echo ""
 echo "### Restoring the Datastore DB from backup..."
 echo ""
 
-docker-compose ${COMPOSE_FILES} exec -T ${DATASTORE_SERVICE} pg_restore -U postgres --verbose --create --clean --if-exists -d postgres < ${DATASTORE_BACKUP_FILE}
+docker cp ${DATASTORE_BACKUP_FILE} ${DATASTORE_SERVICE_ID}:/${DATASTORE_BACKUP_FILE}
+docker-compose ${COMPOSE_FILES} exec -T ${DATASTORE_SERVICE} pg_restore -U postgres --verbose --create --clean --if-exists -d postgres /datastore.dump
 
 echo ""
 echo "### Restoring Datastore DB from backup completed."
@@ -85,8 +88,9 @@ echo ""
 echo "### Restoring data files to CKAN..."
 echo ""
 
-docker cp ${CKAN_DATA_BACKUP_FILE} $(docker-compose ${COMPOSE_FILES} ps -q ckan):/tmp/ckan_data.tar.gz
-docker-compose ${COMPOSE_FILES} exec -T ${CKAN_SERVICE} bash -c "tar -xzf /tmp/ckan_data.tar.gz -C /tmp/ && cp -r /tmp/data/* /var/lib/ckan/data/ && chown -R ckan:ckan /var/lib/ckan/data"
+docker cp ${CKAN_DATA_BACKUP_FILE} ${CKAN_SERVICE_ID}:/${CKAN_DATA_BACKUP_FILE}
+
+docker-compose ${COMPOSE_FILES} exec -T ${CKAN_SERVICE} bash -c "tar -xzf /ckan_data.tar.gz -C /data && cp -r /data/* /var/lib/ckan/data/ && chown -R ckan:ckan /var/lib/ckan/data"
 
 echo ""
 echo "### Data files restored to CKAN."

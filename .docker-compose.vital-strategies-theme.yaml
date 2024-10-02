@@ -29,6 +29,7 @@ services:
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
           install_standard_ckan_extension_github -r datopian/ckanext-sentry -b 2.10 && \
           install_standard_ckan_extension_github -r datopian/ckanext-gtm && \
+          install_standard_ckan_extension_github -r ckan/ckanext-googleanalytics -b 0055c3e06347c8ed31b7abe47aa06e3e44e0bf63 &&\
           install_standard_ckan_extension_github -r datopian/ckanext-s3filestore -b ckan-2.10 && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l en -f && \
           cd ~/venv/src/ckanext-querytool && ~/venv/bin/python setup.py compile_catalog -l es -f && \

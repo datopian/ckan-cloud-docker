@@ -65,10 +65,10 @@ clean-rebuild:
 	docker-compose $(COMPOSE_FILES) up -d nginx && make cron
 
 backup-db:
-	docker-compose $(COMPOSE_FILES) exec -T db pg_dump -U postgres --format=custom -d ckan > ckan.dump
-	docker-compose ${COMPOSE_FILES} exec -T ckan sh -c "cd /var/lib/ckan && tar -czf /tmp/ckan_data.tar.gz data"
-	docker cp $$(docker-compose ${COMPOSE_FILES} ps -q ckan):/tmp/ckan_data.tar.gz ckan_data.tar.gz
-	docker-compose $(COMPOSE_FILES) exec -T datastore-db pg_dump -U postgres --format=custom -d datastore > datastore.dump
+	docker-compose $(COMPOSE_FILES) exec -T db pg_dump -U postgres --format=custom -d ckan > ckan_test.dump
+	docker-compose ${COMPOSE_FILES} exec -T ckan sh -c "cd /var/lib/ckan && tar -czf /tmp/ckan_data_test.tar.gz data"
+	docker cp $$(docker-compose ${COMPOSE_FILES} ps -q ckan):/tmp/ckan_data_test.tar.gz ckan_data_test.tar.gz
+	docker-compose $(COMPOSE_FILES) exec -T datastore-db pg_dump -U postgres --format=custom -d datastore > datastore_test.dump
 
 upgrade-db:
 	./db/migration/upgrade_databases.sh "$(COMPOSE_FILES)" "$(CKAN_DB_NAME)" "$(CKAN_DB_USERNAME)" "$(DB_USERNAME)" "$(DATASTORE_DB_NAME)" "$(DATASTORE_DB_USERNAME)"

@@ -90,7 +90,7 @@ echo ""
 
 docker cp ${CKAN_DATA_BACKUP_FILE} ${CKAN_SERVICE_ID}:/${CKAN_DATA_BACKUP_FILE}
 
-docker-compose ${COMPOSE_FILES} exec -T ${CKAN_SERVICE} bash -c "tar -xzf /ckan_data.tar.gz -C /data && cp -r /data/* /var/lib/ckan/data/ && chown -R ckan:ckan /var/lib/ckan/data"
+docker-compose ${COMPOSE_FILES} exec -T ${CKAN_SERVICE} bash -c "mkdir -p /var/lib/ckan/data && tar -xzf /ckan_data.tar.gz --strip-components=1 -C /var/lib/ckan/data && chown -R ckan:ckan /var/lib/ckan/data"
 
 echo ""
 echo "### Data files restored to CKAN."

@@ -25,7 +25,7 @@ services:
         EXTRA_PACKAGES: cron
         EXTRA_FILESYSTEM: "./overrides/vital-strategies/filesystem/"
         POST_INSTALL: |
-          install_standard_ckan_extension_github -r datopian/ckanext-querytool -b cc6c8e6f19f59e6842d370bf7ac87d94e37a2831 &&\
+          install_standard_ckan_extension_github -r datopian/ckanext-querytool -b v3.0.0 &&\
           install_standard_ckan_extension_github -r ckan/ckanext-geoview && \
           install_standard_ckan_extension_github -r datopian/ckanext-sentry -b 2.10 && \
           install_standard_ckan_extension_github -r datopian/ckanext-gtm && \
